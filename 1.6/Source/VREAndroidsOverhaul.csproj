@@ -1,0 +1,42 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <AssemblyName>VREAndroidsOverhaul</AssemblyName>
+    <RootNamespace>VREAndroidsOverhaul</RootNamespace>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <EnableDefaultCompileItems>true</EnableDefaultCompileItems>
+    <!-- Output the compiled assembly straight into the mod's Assemblies folder; the game loads the
+         patch via a symlink to this repo, so this is the deploy step. -->
+    <OutputPath>..\Assemblies\</OutputPath>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <DebugType>none</DebugType>
+    <Deterministic>true</Deterministic>
+    <NoWarn>CS0649;CS0169;CS0414</NoWarn>
+  </PropertyGroup>
+
+  <!-- Local Linux paths to the game + workshop assemblies. -->
+  <PropertyGroup>
+    <RimWorldManaged>/home/ochiai/.local/share/Steam/steamapps/common/RimWorld/RimWorldLinux_Data/Managed</RimWorldManaged>
+    <VEFAssembly>/home/ochiai/.local/share/Steam/steamapps/workshop/content/294100/2023507013/1.6/Assemblies/VEF.dll</VEFAssembly>
+    <HarmonyAssembly>/home/ochiai/.local/share/Steam/steamapps/workshop/content/294100/2009463077/Current/Assemblies/0Harmony.dll</HarmonyAssembly>
+    <!-- The ORIGINAL mod's assembly (the local base copy). Referencing it lets us use its PUBLIC types
+         (AndroidGeneDef, Building_*, comps, Utils) without copying any of its source. -->
+    <OriginalAssembly>/home/ochiai/.local/share/Steam/steamapps/common/RimWorld/Mods/VanillaRacesExpanded-Android/1.6/Assemblies/VREAndroids.dll</OriginalAssembly>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="Assembly-CSharp"><HintPath>$(RimWorldManaged)/Assembly-CSharp.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="UnityEngine"><HintPath>$(RimWorldManaged)/UnityEngine.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="UnityEngine.CoreModule"><HintPath>$(RimWorldManaged)/UnityEngine.CoreModule.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="UnityEngine.IMGUIModule"><HintPath>$(RimWorldManaged)/UnityEngine.IMGUIModule.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="UnityEngine.TextRenderingModule"><HintPath>$(RimWorldManaged)/UnityEngine.TextRenderingModule.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="0Harmony"><HintPath>$(HarmonyAssembly)</HintPath><Private>false</Private></Reference>
+    <Reference Include="VEF"><HintPath>$(VEFAssembly)</HintPath><Private>false</Private></Reference>
+    <Reference Include="VREAndroids"><HintPath>$(OriginalAssembly)</HintPath><Private>false</Private></Reference>
+  </ItemGroup>
+
+</Project>

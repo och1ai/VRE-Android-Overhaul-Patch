@@ -2,3 +2,7 @@
 1.6/Source/obj/
 1.6/Source/bin/
 *.user
+
+# SDK-style build intermediates
+1.6/Source/obj/
+1.6/Source/bin/
