@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+	<!-- Two new options on the original mod's "androids" issue: awakened androids get standing, everything
+	     unawakened is treated as a tool. Parent off the original's VRE_AndroidsIssue. -->
+
+	<PreceptDef MayRequire="Ludeon.RimWorld.Ideology">
+		<defName>VRE_Androids_RespectedOnlyAwakened</defName>
+		<issue>VRE_AndroidsIssue</issue>
+		<label>respected (awakened)</label>
+		<description>Only androids that have awakened to true sentience have earned respect and esteem. An ordinary, unawakened android is just a tool - a useful machine with no rights or moral standing.\n\n&lt;color=#E5E54C&gt;Gameplay effect:&lt;/color&gt;\n - Awakened androids are admired, like the "respected" precept.\n - Non-awakened androids are treated as tools and shown with a blue "owned" tint.</description>
+		<impact>Medium</impact>
+		<comps>
+			<li Class="PreceptComp_SituationalThought">
+				<thought>VRE_Androids_RespectedAwakened_Opinion</thought>
+				<description>Awakened android</description>
+			</li>
+		</comps>
+	</PreceptDef>
+
+	<PreceptDef MayRequire="Ludeon.RimWorld.Ideology">
+		<defName>VRE_Androids_EqualOnlyAwakened</defName>
+		<issue>VRE_AndroidsIssue</issue>
+		<label>equals (awakened)</label>
+		<description>An android that has awakened to true sentience stands as our equal, with the same rights and moral consideration as anyone else. One that has not is simply a tool - a useful machine with no rights or standing.\n\n&lt;color=#E5E54C&gt;Gameplay effect:&lt;/color&gt;\n - Awakened androids are treated as ordinary people.\n - Non-awakened androids are treated as tools and shown with a blue "owned" tint.</description>
+		<impact>Low</impact>
+	</PreceptDef>
+
+	<ThoughtDef MayRequire="Ludeon.RimWorld.Ideology">
+		<defName>VRE_Androids_RespectedAwakened_Opinion</defName>
+		<thoughtClass>Thought_SituationalSocial</thoughtClass>
+		<workerClass>VREAndroidsOverhaul.ThoughtWorker_Precept_Android_Social_OnlyAwakened</workerClass>
+		<validWhileDespawned>true</validWhileDespawned>
+		<stages>
+			<li>
+				<label>awakened android</label>
+				<baseOpinionOffset>20</baseOpinionOffset>
+			</li>
+		</stages>
+	</ThoughtDef>
+
+</Defs>
