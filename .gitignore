@@ -1,0 +1,4 @@
+# build intermediates
+1.6/Source/obj/
+1.6/Source/bin/
+*.user
