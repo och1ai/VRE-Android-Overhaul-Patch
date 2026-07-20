@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+	<!-- Overlay add: pure-def subroutine/hardware genes that work from their def alone (or gain behaviour
+	     from patch Harmony added later). They parent off the original mod's abstract bases and are
+	     auto-registered by its implied-gene generator. Icons are vanilla, DLC, or the original mod's own
+	     texture paths (referenced, not copied). Genes using fork-only AndroidGeneDef fields (requiresOneOf)
+	     are deferred until the patch assembly provides the extended def. -->
+
+	<!-- Gravpilot: built-in pilot-assistant equivalent. Fully functional from the stat offset. -->
+	<VREAndroids.AndroidGeneDef ParentName="VREA_SubroutineBase" MayRequire="Ludeon.RimWorld.Odyssey">
+		<defName>VREA_Gravpilot</defName>
+		<label>gravpilot</label>
+		<description>Dedicated astrogation and flight-control routines are wired straight into this android's frame - the built-in equivalent of a pilot-assistant implant. They make it a markedly better gravship and shuttle pilot.</description>
+		<iconPath>UI/Commands/LaunchGravship</iconPath>
+		<displayOrderInCategory>52</displayOrderInCategory>
+		<biostatCpx>2</biostatCpx>
+		<biostatMet>-4</biostatMet>
+		<statOffsets MayRequire="Ludeon.RimWorld.Odyssey">
+			<PilotingAbility>0.45</PilotingAbility>
+		</statOffsets>
+	</VREAndroids.AndroidGeneDef>
+
+	<!-- Psychically dull: mechanoid-level psychic presence. Fully functional from the stat factor. Stripped
+	     on awakening (restores full sensitivity; the awakened psylink allowance is added in the C# batch). -->
+	<VREAndroids.AndroidGeneDef ParentName="VREA_HardwareBase">
+		<defName>VREA_MutedPsyche</defName>
+		<label>psychically dull</label>
+		<description>Androids with this hardware register psychic energy only faintly, with the same dim presence as an ordinary mechanoid. Psychic influence still reaches them, but weakly, and they can never wield psychic power of their own.\n\nIt is said that some awakened androids shed this dullness entirely, growing as sensitive as any organic mind.</description>
+		<iconPath>UI/Icons/Genes/Hardware/Gene_PsychicallyDeaf</iconPath>
+		<displayOrderInCategory>19</displayOrderInCategory>
+		<statFactors>
+			<PsychicSensitivity>0.5</PsychicSensitivity>
+		</statFactors>
+		<biostatCpx>0</biostatCpx>
+		<removeWhenAwakened>true</removeWhenAwakened>
+	</VREAndroids.AndroidGeneDef>
+
+	<!-- Delicate frame: fragile counterpart of War Frame. Fully functional from the stat factor. -->
+	<VREAndroids.AndroidGeneDef ParentName="VREA_HardwareBase">
+		<defName>VREA_Delicate</defName>
+		<label>delicate frame</label>
+		<description>This android is built on a lightweight frame of thin, minimal plating. It is cheap to run, but the flimsy chassis buckles under punishment, taking significantly more damage from all incoming attacks.</description>
+		<iconPath>UI/Icons/Genes/Gene_Delicate</iconPath>
+		<displayOrderInCategory>41</displayOrderInCategory>
+		<biostatCpx>1</biostatCpx>
+		<biostatMet>6</biostatMet>
+		<isCoreComponent>false</isCoreComponent>
+		<statFactors>
+			<IncomingDamageFactor>1.5</IncomingDamageFactor>
+		</statFactors>
+		<exclusionTags>
+			<li>AndroidChassis</li>
+		</exclusionTags>
+	</VREAndroids.AndroidGeneDef>
+
+	<!-- Spacer: sealed against the void. Uses the vanilla immuneToVacuumBurns GeneDef field + stat offsets. -->
+	<VREAndroids.AndroidGeneDef ParentName="VREA_HardwareBase" MayRequire="Ludeon.RimWorld.Odyssey">
+		<defName>VREA_Vacuumproof</defName>
+		<label>spacer</label>
+		<description>This android's chassis is fully sealed against the void: hardened seals bring its vacuum resistance to 100%, and internal heat stores keep it running in the cold of space, so it needs no spacesuit and never suffers component freezing out there.</description>
+		<iconPath>UI/Icons/Genes/Gene_VacuumResistance</iconPath>
+		<displayOrderInCategory>24</displayOrderInCategory>
+		<biostatCpx>2</biostatCpx>
+		<biostatMet>-5</biostatMet>
+		<isCoreComponent>false</isCoreComponent>
+		<immuneToVacuumBurns>true</immuneToVacuumBurns>
+		<statOffsets>
+			<VacuumResistance>1</VacuumResistance>
+			<ComfyTemperatureMin>-250</ComfyTemperatureMin>
+		</statOffsets>
+	</VREAndroids.AndroidGeneDef>
+
+	<!-- Sleep cycle: appears now; the Rest-need re-enable behaviour is added in the C# batch. -->
+	<VREAndroids.AndroidGeneDef ParentName="VREA_SubroutineBase">
+		<defName>VREA_SleepNeed</defName>
+		<label>sleep cycle</label>
+		<description>This android runs a full biomimetic sleep cycle: it builds up fatigue and has to rest or sleep like an organic to keep operating. Idling through a sleep cycle draws very little power, so the frame runs more efficiently.</description>
+		<iconPath>UI/Icons/Genes/Subroutines/Gene_SleepMode</iconPath>
+		<displayOrderInCategory>50</displayOrderInCategory>
+		<biostatCpx>1</biostatCpx>
+		<biostatMet>10</biostatMet>
+	</VREAndroids.AndroidGeneDef>
+
+	<!-- Occultist: appears now; the anomaly-ritual/study gating is added in the C# batch. -->
+	<VREAndroids.AndroidGeneDef ParentName="VREA_SubroutineBase" MayRequire="Ludeon.RimWorld.Anomaly">
+		<defName>VREA_Occultist</defName>
+		<label>occultist</label>
+		<description>Forbidden subroutines let this android interface with the dark and the anomalous. It is the only android that can take part in psychic rituals - including being the subject of an infused death refusal - and the only one able to capture, contain and study entities. Studying still requires that the android is not incapable of Intellectual.</description>
+		<iconPath>UI/PsychicRituals/PsychicRitual_VoidProvocation</iconPath>
+		<displayOrderInCategory>51</displayOrderInCategory>
+		<biostatCpx>2</biostatCpx>
+		<biostatMet>-4</biostatMet>
+	</VREAndroids.AndroidGeneDef>
+
+</Defs>

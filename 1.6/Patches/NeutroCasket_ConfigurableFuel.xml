@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+
+	<!-- Make the neutro casket's neutroamine reservoir player-configurable, like a shuttle's fuel: choose
+	     how much to keep loaded (default one full android reservoir; capacity 120 = three top-ups). -->
+	<Operation Class="PatchOperationReplace">
+		<xpath>Defs/ThingDef[defName="VREA_NeutroCasket"]/comps/li[@Class="CompProperties_Refuelable"]/targetFuelLevelConfigurable</xpath>
+		<value>
+			<targetFuelLevelConfigurable>true</targetFuelLevelConfigurable>
+		</value>
+	</Operation>
+
+	<Operation Class="PatchOperationReplace">
+		<xpath>Defs/ThingDef[defName="VREA_NeutroCasket"]/comps/li[@Class="CompProperties_Refuelable"]/fuelCapacity</xpath>
+		<value>
+			<fuelCapacity>120.0</fuelCapacity>
+		</value>
+	</Operation>
+
+	<Operation Class="PatchOperationAdd">
+		<xpath>Defs/ThingDef[defName="VREA_NeutroCasket"]/comps/li[@Class="CompProperties_Refuelable"]</xpath>
+		<value>
+			<initialConfigurableTargetFuelLevel>40</initialConfigurableTargetFuelLevel>
+		</value>
+	</Operation>
+
+</Patch>
