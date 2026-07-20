@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Verse;
+using Verse.AI;
 using VREAndroids;
 
 namespace VREAndroidsOverhaul
@@ -110,6 +111,21 @@ namespace VREAndroidsOverhaul
             if (!__result && OccultistUtil.BlockedAndroid(pawn))
             {
                 __result = true;
+            }
+        }
+    }
+
+    // Suppressing a contained entity's activity level. This is a warden job on the entity, so it slipped
+    // past the entity-workgiver gates above - a non-occultist android could still walk up and suppress an
+    // anomaly. Block it too.
+    [HarmonyPatch(typeof(WorkGiver_Warden_SuppressActivity), nameof(WorkGiver_Warden_SuppressActivity.JobOnThing))]
+    public static class WorkGiver_Warden_SuppressActivity_JobOnThing_Patch
+    {
+        public static void Postfix(Pawn pawn, ref Job __result)
+        {
+            if (__result != null && OccultistUtil.BlockedAndroid(pawn))
+            {
+                __result = null;
             }
         }
     }

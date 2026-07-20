@@ -21,7 +21,7 @@
 	<PreceptDef MayRequire="Ludeon.RimWorld.Ideology">
 		<defName>VRE_Androids_EqualOnlyAwakened</defName>
 		<issue>VRE_AndroidsIssue</issue>
-		<label>equals (awakened)</label>
+		<label>equal (awakened)</label>
 		<description>An android that has awakened to true sentience stands as our equal, with the same rights and moral consideration as anyone else. One that has not is simply a tool - a useful machine with no rights or standing.\n\n&lt;color=#E5E54C&gt;Gameplay effect:&lt;/color&gt;\n - Awakened androids are treated as ordinary people.\n - Non-awakened androids are treated as tools and shown with a blue "owned" tint.</description>
 		<impact>Low</impact>
 	</PreceptDef>
