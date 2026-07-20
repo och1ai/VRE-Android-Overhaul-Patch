@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+	<!-- Overlay add: three combat subroutine/hardware genes. They parent off the ORIGINAL mod's abstract
+	     bases (VREA_HardwareBase / VREA_SubroutineBase, loaded first), and the original's own implied-gene
+	     generator auto-registers any gene in the Hardware/Subroutine categories - so these become fully
+	     functional android components with no C# on our side. Effects are entirely stat-based, and every
+	     icon is vanilla or Biotech, so nothing from the original mod is copied or redistributed. -->
+
+	<!-- War Frame: heavy military chassis - less incoming damage AND never staggered (folds in unstoppable). -->
+	<VREAndroids.AndroidGeneDef ParentName="VREA_HardwareBase">
+		<defName>VREA_ToughSubroutine</defName>
+		<label>War Frame</label>
+		<description>A full military chassis: thick structural plating and hardened servos both soak up punishment and shrug off the shock of incoming hits. The android takes significantly less damage from all attacks and is never staggered or slowed when hit. All that armour draws a lot more power to move.</description>
+		<iconPath>UI/Icons/Genes/Gene_Deathless</iconPath>
+		<displayOrderInCategory>40</displayOrderInCategory>
+		<biostatCpx>3</biostatCpx>
+		<biostatMet>-6</biostatMet>
+		<isCoreComponent>false</isCoreComponent>
+		<statFactors>
+			<IncomingDamageFactor>0.7</IncomingDamageFactor>
+			<StaggerDurationFactor>0</StaggerDurationFactor>
+		</statFactors>
+		<exclusionTags>
+			<li>AndroidChassis</li>
+		</exclusionTags>
+	</VREAndroids.AndroidGeneDef>
+
+	<!-- Enhanced targeting: stronger melee, better shooting, faster cooldowns. -->
+	<VREAndroids.AndroidGeneDef ParentName="VREA_SubroutineBase">
+		<defName>VREA_StrongMelee</defName>
+		<label>enhanced targeting</label>
+		<description>A full combat package: reinforced high-torque actuators drive the limbs while a dedicated targeting suite runs the optics. The android deals significantly more damage in melee, shoots far more accurately, and cycles ranged weapons noticeably faster.</description>
+		<iconPath>UI/Commands/Attack</iconPath>
+		<displayOrderInCategory>27</displayOrderInCategory>
+		<biostatCpx>2</biostatCpx>
+		<biostatMet>-6</biostatMet>
+		<statFactors>
+			<MeleeDamageFactor>1.5</MeleeDamageFactor>
+			<ShootingAccuracyPawn>1.5</ShootingAccuracyPawn>
+			<RangedCooldownFactor>0.8</RangedCooldownFactor>
+			<MeleeCooldownFactor>0.8</MeleeCooldownFactor>
+		</statFactors>
+		<exclusionTags>
+			<li>AndroidCombat</li>
+		</exclusionTags>
+	</VREAndroids.AndroidGeneDef>
+
+	<!-- Dull combat: weak melee + poor aim, but frees up a lot of power. -->
+	<VREAndroids.AndroidGeneDef ParentName="VREA_SubroutineBase">
+		<defName>VREA_CombatInefficiency</defName>
+		<label>dull combat</label>
+		<description>Cut-rate targeting optics and underpowered actuators: this android hits weakly in melee and shoots poorly. Skimping on combat hardware leaves a lot more power for everything else.</description>
+		<iconPath>UI/Icons/Genes/Gene_WeakMeleeDamage</iconPath>
+		<displayOrderInCategory>53</displayOrderInCategory>
+		<biostatCpx>1</biostatCpx>
+		<biostatMet>6</biostatMet>
+		<statFactors>
+			<MeleeDamageFactor>0.5</MeleeDamageFactor>
+		</statFactors>
+		<statOffsets>
+			<ShootingAccuracyPawn>-3</ShootingAccuracyPawn>
+		</statOffsets>
+		<exclusionTags>
+			<li>AndroidCombat</li>
+		</exclusionTags>
+	</VREAndroids.AndroidGeneDef>
+
+</Defs>
