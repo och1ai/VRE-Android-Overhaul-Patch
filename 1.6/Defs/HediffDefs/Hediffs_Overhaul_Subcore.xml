@@ -1,19 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
 
-	<!-- The android subcore. Whole-body (no part) so no localized wound can take it out, invisible in the
-	     health list, and never removed on its own. Its presence is what makes a destroyed android
-	     recoverable rather than dead. -->
+	<!-- The android subcore, installed in the brain. Hidden from the health list and never removed on its
+	     own; its presence is what makes a destroyed android recoverable rather than dead, and sitting in the
+	     brain is what makes decapitation a true, permanent kill. -->
 	<HediffDef>
-		<defName>VREAO_Subcore</defName>
-		<label>subcore</label>
-		<labelNoun>a subcore</labelNoun>
-		<description>The shielded core holding everything this android is. Armoured against damage and buried deep in the chassis, it survives almost anything short of the body being torn apart.</description>
+		<defName>VREA_AndroidSubcoreImplant</defName>
+		<label>android subcore</label>
+		<description>The android's subcore: a psychodynamic substrate that stores this android's identity. It can be recovered from the body, even after death, and used to reprint or resurrect the same android.</description>
 		<hediffClass>VREAndroidsOverhaul.Hediff_AndroidSubcore</hediffClass>
-		<initialSeverity>0</initialSeverity>
+		<defaultLabelColor>(0.6, 0.85, 1.0)</defaultLabelColor>
 		<isBad>false</isBad>
-		<everCurableByItem>false</everCurableByItem>
+		<initialSeverity>1</initialSeverity>
+		<maxSeverity>1</maxSeverity>
 		<scenarioCanAdd>false</scenarioCanAdd>
+		<everCurableByItem>false</everCurableByItem>
 	</HediffDef>
 
 </Defs>

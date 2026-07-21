@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+
+	<!-- Androids are repaired like mechanoids: the repair job now rebuilds MISSING BODY PARTS and clears
+	     permanent scars, not just injuries. That is what retires the android parts economy - a lost hand is
+	     repaired back rather than crafted and installed - so the parts workbench and the part recipes go
+	     with it. Only the reactor is still a crafted, installable component. -->
+
+	<Operation Class="PatchOperationReplace">
+		<xpath>Defs/JobDef[defName="VREA_RepairAndroid"]/driverClass</xpath>
+		<value>
+			<driverClass>VREAndroidsOverhaul.JobDriver_RepairAndroid</driverClass>
+		</value>
+	</Operation>
+
+	<Operation Class="PatchOperationReplace">
+		<xpath>Defs/WorkGiverDef[defName="VREA_RepairAndroid"]/giverClass</xpath>
+		<value>
+			<giverClass>VREAndroidsOverhaul.WorkGiver_RepairAndroid</giverClass>
+		</value>
+	</Operation>
+
+	<!-- The android part workbench leaves the build menu. The def itself is kept so old saves with one
+	     placed still load, and so nothing that references it dangles. -->
+	<Operation Class="PatchOperationRemove">
+		<xpath>Defs/ThingDef[defName="VREA_AndroidPartWorkbench"]/designationCategory</xpath>
+	</Operation>
+
+	<!-- Android part items become legacy: still loadable and tradeable, no longer craftable anywhere. The
+	     reactor is exempt below. -->
+	<Operation Class="PatchOperationRemove">
+		<xpath>Defs/ThingDef[@Name="VREA_BodyPartAndroidBase"]/recipeMaker/recipeUsers</xpath>
+	</Operation>
+
+	<!-- The reactor stays a real, crafted component - it is the one thing repair never regenerates - so its
+	     recipe moves to the machining table, where it no longer needs a workbench of its own. -->
+	<Operation Class="PatchOperationAdd">
+		<xpath>Defs/ThingDef[defName="VREA_Reactor"]</xpath>
+		<value>
+			<recipeMaker>
+				<recipeUsers>
+					<li>TableMachining</li>
+				</recipeUsers>
+			</recipeMaker>
+		</value>
+	</Operation>
+
+</Patch>

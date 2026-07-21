@@ -6,10 +6,9 @@ using VREAndroids;
 
 namespace VREAndroidsOverhaul
 {
-    // The subcore installed inside every android: a shielded core holding what the android IS, the way a
-    // Westworld host's brain does. It is a whole-body implant with no body part of its own, so no localized
-    // wound can destroy it, and it is never shown in the health list - it is not a wound or an implant the
-    // player manages.
+    // The subcore installed in every android's brain: a shielded core holding what the android IS, the way
+    // a Westworld host's brain does. It is never shown in the health list - it is not a wound or an implant
+    // the player manages - and sitting in the brain is exactly what makes losing the head permanent.
     //
     // Its whole point is the distinction between DESTROYED and KILLED. While the subcore survives, an
     // android's "death" is a recoverable destruction: no grief, no tales, no funeral, relationships kept.
@@ -38,7 +37,7 @@ namespace VREAndroidsOverhaul
                 if (!resolved)
                 {
                     resolved = true;
-                    subcoreDef = DefDatabase<HediffDef>.GetNamedSilentFail("VREAO_Subcore");
+                    subcoreDef = DefDatabase<HediffDef>.GetNamedSilentFail("VREA_AndroidSubcoreImplant");
                 }
                 return subcoreDef;
             }
@@ -56,9 +55,14 @@ namespace VREAndroidsOverhaul
             {
                 return;
             }
-            if (!HasSubcore(pawn, out _))
+            if (HasSubcore(pawn, out _))
             {
-                pawn.health.AddHediff(SubcoreDef);
+                return;
+            }
+            BodyPartRecord brain = pawn.health.hediffSet.GetBrain();
+            if (brain != null)
+            {
+                pawn.health.AddHediff(SubcoreDef, brain);
             }
         }
 
