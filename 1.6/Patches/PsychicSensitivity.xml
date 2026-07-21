@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+
+	<!-- 7c psychic sensitivity: base androids should have a faint (0.5) presence, not be fully deaf, so
+	     eltex gear works and an occultist can join rituals.
+
+	     Rather than adding a second gene beside the original's "psychically deaf", the original gene itself
+	     is retuned in place into "psychically dull". Keeping its defName means there is exactly one gene in
+	     the androidtype editor, the base xenotype loadout needs no edit, and androids in existing saves
+	     migrate on their own. The icon becomes Biotech's own psychically-dull one - the original already
+	     borrowed the vanilla deaf icon, so the pair stays consistent. -->
+
+	<Operation Class="PatchOperationReplace">
+		<xpath>Defs/VREAndroids.AndroidGeneDef[defName="VREA_PsychicallyDeaf"]/label</xpath>
+		<value>
+			<label>psychically dull</label>
+		</value>
+	</Operation>
+
+	<Operation Class="PatchOperationReplace">
+		<xpath>Defs/VREAndroids.AndroidGeneDef[defName="VREA_PsychicallyDeaf"]/description</xpath>
+		<value>
+			<description>Androids with this hardware register psychic energy only faintly, with the same dim presence as an ordinary mechanoid. Psychic influence still reaches them, but weakly, and they can never wield psychic power of their own.\n\nIt is said that some awakened androids shed this dullness entirely, growing as sensitive as any organic mind.</description>
+		</value>
+	</Operation>
+
+	<Operation Class="PatchOperationReplace">
+		<xpath>Defs/VREAndroids.AndroidGeneDef[defName="VREA_PsychicallyDeaf"]/iconPath</xpath>
+		<value>
+			<iconPath>UI/Icons/Genes/Gene_PsychicallyDull</iconPath>
+		</value>
+	</Operation>
+
+	<Operation Class="PatchOperationReplace">
+		<xpath>Defs/VREAndroids.AndroidGeneDef[defName="VREA_PsychicallyDeaf"]/statFactors/PsychicSensitivity</xpath>
+		<value>
+			<PsychicSensitivity>0.5</PsychicSensitivity>
+		</value>
+	</Operation>
+
+	<!-- Mechanoid-grade dullness is the android's default state, not a paid-for component. -->
+	<Operation Class="PatchOperationReplace">
+		<xpath>Defs/VREAndroids.AndroidGeneDef[defName="VREA_PsychicallyDeaf"]/biostatCpx</xpath>
+		<value>
+			<biostatCpx>0</biostatCpx>
+		</value>
+	</Operation>
+
+	<!-- Awakening strips the gene, leaving a full 1.0 sensitivity - but deliberately NOT via
+	     <removeWhenAwakened>. Utils.IsAwakened() is defined as "carries no gene flagged removeWhenAwakened",
+	     so flagging a gene that awakened androids in existing saves already carry would silently un-awaken
+	     them. The strip is done from the patch assembly instead (PsychicSensitivity_Patches.cs), which also
+	     migrates androids that were awakened before this patch. -->
+
+	<!-- Androids generated already-awakened start fully sensitive. -->
+	<Operation Class="PatchOperationRemove">
+		<xpath>Defs/XenotypeDef[@Name="VREA_AndroidXenotypeAwakenedBase"]/genes/li[.="VREA_PsychicallyDeaf"]</xpath>
+	</Operation>
+
+</Patch>

@@ -21,20 +21,8 @@
 		</statOffsets>
 	</VREAndroids.AndroidGeneDef>
 
-	<!-- Psychically dull: mechanoid-level psychic presence. Fully functional from the stat factor. Stripped
-	     on awakening (restores full sensitivity; the awakened psylink allowance is added in the C# batch). -->
-	<VREAndroids.AndroidGeneDef ParentName="VREA_HardwareBase">
-		<defName>VREA_MutedPsyche</defName>
-		<label>psychically dull</label>
-		<description>Androids with this hardware register psychic energy only faintly, with the same dim presence as an ordinary mechanoid. Psychic influence still reaches them, but weakly, and they can never wield psychic power of their own.\n\nIt is said that some awakened androids shed this dullness entirely, growing as sensitive as any organic mind.</description>
-		<iconPath>UI/Icons/Genes/Hardware/Gene_PsychicallyDeaf</iconPath>
-		<displayOrderInCategory>19</displayOrderInCategory>
-		<statFactors>
-			<PsychicSensitivity>0.5</PsychicSensitivity>
-		</statFactors>
-		<biostatCpx>0</biostatCpx>
-		<removeWhenAwakened>true</removeWhenAwakened>
-	</VREAndroids.AndroidGeneDef>
+	<!-- "Psychically dull" is NOT a new gene: the original's VREA_PsychicallyDeaf is retuned in place by
+	     Patches/PsychicSensitivity.xml, so there is only ever one psychic-sensitivity gene in the editor. -->
 
 	<!-- Delicate frame: fragile counterpart of War Frame. Fully functional from the stat factor. -->
 	<VREAndroids.AndroidGeneDef ParentName="VREA_HardwareBase">
