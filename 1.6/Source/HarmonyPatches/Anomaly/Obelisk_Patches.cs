@@ -1,6 +1,5 @@
 using HarmonyLib;
 using RimWorld;
-using System.Collections.Generic;
 using Verse;
 using VREAndroids;
 
@@ -44,14 +43,23 @@ namespace VREAndroidsOverhaul
         }
     }
 
-    // An android may not be ordered to force-activate a duplicator or mutator obelisk (there is nothing to
-    // gain - it can't be copied or transformed - so the option is disabled with an "is android" reason).
-    [HarmonyPatch(typeof(CompObeliskTriggerInteractor), nameof(CompObeliskTriggerInteractor.CompFloatMenuOptions))]
-    public static class CompObeliskTriggerInteractor_CompFloatMenuOptions_Patch
+    // An android may not be ordered to force-activate a duplicator or mutator obelisk - there is nothing to
+    // gain, since it can't be copied or transformed.
+    //
+    // The refusal is expressed as a rejected CanInteract report rather than by rewriting the float menu,
+    // so vanilla keeps ownership of the presentation: CompInteractable disables its own option and appends
+    // the reason ("Trigger mutation (garry is an android)"), and the activation-targeting path shows the
+    // matching "Cannot trigger: ..." message. It also means the option is never invented - the obelisk
+    // offers nothing at all below study level 2, so an unstudied obelisk still gives away nothing about
+    // what it would eventually do.
+    [HarmonyPatch(typeof(CompObeliskTriggerInteractor), nameof(CompObeliskTriggerInteractor.CanInteract))]
+    public static class CompObeliskTriggerInteractor_CanInteract_Patch
     {
-        public static void Postfix(CompObeliskTriggerInteractor __instance, Pawn selPawn, ref IEnumerable<FloatMenuOption> __result)
+        public static void Postfix(CompObeliskTriggerInteractor __instance, Pawn activateBy, ref AcceptanceReport __result)
         {
-            if (selPawn == null || !selPawn.IsAndroid())
+            // Only ever turn an accepted report into a rejected one; never explain away a refusal vanilla
+            // already made for its own (possibly spoiler-bearing) reasons.
+            if (!__result.Accepted || activateBy == null || !activateBy.IsAndroid())
             {
                 return;
             }
@@ -61,10 +69,7 @@ namespace VREAndroidsOverhaul
             {
                 return;
             }
-            __result = new List<FloatMenuOption>
-            {
-                new FloatMenuOption("VREA.IsAndroid".Translate(selPawn.Named("PAWN")).CapitalizeFirst(), null)
-            };
+            __result = new AcceptanceReport("VREAOverhaul.IsAndroid".Translate(activateBy.Named("PAWN")).ToString());
         }
     }
 }

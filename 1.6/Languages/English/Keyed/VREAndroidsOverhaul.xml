@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+
+	<!-- Reasons. These are appended to vanilla's own "Cannot <verb> <thing>: " / "<option> (<reason>)"
+	     wrappers, which capitalize or uncapitalize as needed, so they carry no leading capital and no
+	     trailing period of their own. -->
+	<VREAOverhaul.IsAndroid>{PAWN_nameDef} is an android</VREAOverhaul.IsAndroid>
+	<VREAOverhaul.NoOccultistSubroutine>{PAWN_nameDef} has no occultist subroutine</VREAOverhaul.NoOccultistSubroutine>
+
+</LanguageData>
