@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+
+	<!-- Blood becomes a choice of three, the way power did. The original's neutro circulation is retuned in
+	     place into one of the options (same defName, so existing androids migrate for free) and joins the
+	     AndroidBlood exclusion group; the other two arrive as new genes. -->
+
+	<Operation Class="PatchOperationReplace">
+		<xpath>Defs/VREAndroids.AndroidGeneDef[defName="VREA_NeutroCirculation"]/label</xpath>
+		<value>
+			<label>neutroblood</label>
+		</value>
+	</Operation>
+
+	<!-- No longer a fixed part of every android but one of three interchangeable circulatory systems. -->
+	<Operation Class="PatchOperationReplace">
+		<xpath>Defs/VREAndroids.AndroidGeneDef[defName="VREA_NeutroCirculation"]/isCoreComponent</xpath>
+		<value>
+			<isCoreComponent>false</isCoreComponent>
+		</value>
+	</Operation>
+
+	<!-- Thick neutroamine is a far more efficient coolant/carrier than the alternatives, which is what
+	     pays for its awkward refuelling. -->
+	<Operation Class="PatchOperationAdd">
+		<xpath>Defs/VREAndroids.AndroidGeneDef[defName="VREA_NeutroCirculation"]</xpath>
+		<value>
+			<biostatMet>12</biostatMet>
+			<exclusionTags>
+				<li>AndroidBlood</li>
+			</exclusionTags>
+		</value>
+	</Operation>
+
+</Patch>
