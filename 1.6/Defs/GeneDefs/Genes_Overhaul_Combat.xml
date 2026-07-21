@@ -66,4 +66,17 @@
 		</exclusionTags>
 	</VREAndroids.AndroidGeneDef>
 
+	<!-- Death delay: keeps fighting through a critical failure anywhere but the head. Driven by
+	     Gene_DelayedDeactivation + the ShouldBeDowned / ShouldBeDead patches. -->
+	<VREAndroids.AndroidGeneDef ParentName="VREA_SubroutineBase">
+		<defName>VREA_DelayedDeactivation</defName>
+		<label>death delay</label>
+		<description>A hardened backup capacitor keeps this android fighting through catastrophic damage. When a critical failure that would normally drop it happens anywhere but the head, it stays operational for 2 hours on reserve power before finally shutting down. Destroying the head still shuts it down instantly.</description>
+		<geneClass>VREAndroidsOverhaul.Gene_DelayedDeactivation</geneClass>
+		<iconPath>UI/Icons/Genes/Gene_Ageless</iconPath>
+		<displayOrderInCategory>54</displayOrderInCategory>
+		<biostatCpx>2</biostatCpx>
+		<biostatMet>-4</biostatMet>
+	</VREAndroids.AndroidGeneDef>
+
 </Defs>

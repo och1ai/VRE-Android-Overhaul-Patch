@@ -10,4 +10,7 @@
 	<!-- Full sentences shown as their own message. -->
 	<VREAOverhaul.CannotConvertAndroid>{PAWN_nameDef} has no ideological subroutine and cannot hold beliefs.</VREAOverhaul.CannotConvertAndroid>
 
+	<!-- Inspect pane. -->
+	<VREAOverhaul.ShuttingDownIn>Shutting down in {0}</VREAOverhaul.ShuttingDownIn>
+
 </LanguageData>
