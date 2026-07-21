@@ -1,4 +1,5 @@
 using HarmonyLib;
+using RimWorld;
 using UnityEngine;
 using Verse;
 
@@ -13,9 +14,20 @@ namespace VREAndroidsOverhaul
 
         public static void Postfix(Pawn pawn, ref Color __result)
         {
-            if (pawn != null && ToolTreatment.IsTreatedAsToolByColony(pawn))
+            if (pawn == null)
+            {
+                return;
+            }
+            if (ToolTreatment.IsTreatedAsToolByColony(pawn))
             {
                 __result = ToolAndroidColor;
+                return;
+            }
+            // A mechlike android is still a colonist in the bar, not a mech: vanilla would tint it with the
+            // "uncontrolled player mech" colour whenever it has no overseer or no bandwidth. Keep it white.
+            if (MechOversightUtil.IsOversightAndroid(pawn) && pawn.Faction == Faction.OfPlayer)
+            {
+                __result = Color.white;
             }
         }
     }

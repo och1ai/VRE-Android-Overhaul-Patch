@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+
+	<!-- Androids have mental breaks disabled wholesale, with a whitelist of android-specific states that
+	     are allowed through (reformatting, solar-flared). The dormant "awaiting overseer" state is one of
+	     those - it is a power state, not a breakdown - so it has to be on the list or it can never start. -->
+
+	<Operation Class="PatchOperationAdd" MayRequire="Ludeon.RimWorld.Biotech">
+		<xpath>Defs/VREAndroids.AndroidSettings[defName="VREA_AndroidSettings"]/androidSpecificMentalBreaks</xpath>
+		<value>
+			<li>VREA_AwaitingOverseer</li>
+		</value>
+	</Operation>
+
+</Patch>

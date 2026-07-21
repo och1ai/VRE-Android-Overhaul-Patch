@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+	<!-- Mechanitor oversight (Biotech): the standard mechanoid routine that hands part of the android's
+	     decision-making to a supervising mechanitor. It reads as a colony mech to the whole control system -
+	     connect/disconnect, bandwidth, control groups, work modes, command range - while keeping every
+	     humanlike work type and skill. Driven by MechOversight_Patches + a runtime CompOverseerSubject. -->
+	<VREAndroids.AndroidGeneDef ParentName="VREA_SubroutineBase" MayRequire="Ludeon.RimWorld.Biotech">
+		<defName>VREA_MechOversight</defName>
+		<label>mechlike</label>
+		<description>This android runs the same standard subroutine ordinary mechanoids do, delegating part of its decision-making to a supervising mechanitor. A mechanitor can connect and disconnect it like any of their mechs: it costs 5 bandwidth, can be assigned to a control group with a work mode, and obeys within command range.\n\nWith so much of its processing handed off, the android has no operator of its own until a mechanitor takes oversight - until then it stands dormant, powered down and unable to act.</description>
+		<geneClass>VREAndroidsOverhaul.Gene_MechOversight</geneClass>
+		<iconPath>UI/Gizmos/BandNodeTuning</iconPath>
+		<!-- An awakened mind can't be run as a remote-controlled machine: the protocol is purged on
+		     awakening, and Gene_MechOversight.PostRemove cuts the overseer link. -->
+		<removeWhenAwakened>true</removeWhenAwakened>
+		<displayOrderInCategory>55</displayOrderInCategory>
+		<biostatCpx>2</biostatCpx>
+		<biostatMet>7</biostatMet>
+		<statOffsets MayRequire="Ludeon.RimWorld.Biotech">
+			<BandwidthCost>5</BandwidthCost>
+		</statOffsets>
+	</VREAndroids.AndroidGeneDef>
+
+</Defs>

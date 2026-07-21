@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+	<!-- A mechanitor-oversight android with no overseer stands powered down until one connects. This
+	     replaces going feral: the android is not dangerous without an operator, it simply has no operator. -->
+	<MentalStateDef ParentName="BaseMentalState" MayRequire="Ludeon.RimWorld.Biotech">
+		<defName>VREA_AwaitingOverseer</defName>
+		<label>dormant</label>
+		<stateClass>VREAndroidsOverhaul.MentalState_AwaitingOverseer</stateClass>
+		<category>Misc</category>
+		<minTicksBeforeRecovery>99999999</minTicksBeforeRecovery>
+		<!-- Plain white: a dormant android is still just a colonist, not a tinted special state. -->
+		<nameColor>(1, 1, 1)</nameColor>
+		<baseInspectLine>Dormant - no overseer</baseInspectLine>
+		<inCaravanCanDo>true</inCaravanCanDo>
+	</MentalStateDef>
+
+</Defs>

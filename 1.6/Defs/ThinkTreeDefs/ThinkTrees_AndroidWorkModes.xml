@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+	<!-- Drives the mechanitor work modes for a "mechlike" android over the normal humanlike AI. Inserted at
+	     Humanlike_PreMain, i.e. just before the main colonist behaviour core, so escort and sleep take
+	     precedence over ordinary work. The "Work" mode deliberately has no branch: it falls straight through
+	     to the colonist core, which naturally lets the android do every job it is capable of. Only matches
+	     androids a mechanitor has actually taken oversight of. -->
+	<ThinkTreeDef MayRequire="Ludeon.RimWorld.Biotech">
+		<defName>VREA_AndroidWorkModes</defName>
+		<insertTag>Humanlike_PreMain</insertTag>
+		<insertPriority>100</insertPriority>
+		<thinkRoot Class="ThinkNode_Priority">
+			<subNodes>
+
+				<!-- Escort: stay with the mechanitor and fight what threatens them. Shoots if it has a
+				     ranged weapon, otherwise closes to melee - the same job givers the mechs use. -->
+				<li Class="VREAndroidsOverhaul.ThinkNode_ConditionalAndroidWorkMode">
+					<workMode>Escort</workMode>
+					<subNodes>
+						<li Class="JobGiver_AIDefendOverseer" />
+						<li Class="JobGiver_AIFollowOverseer" />
+						<li Class="JobGiver_AIWaitWithOverseer" />
+						<li Class="JobGiver_WanderOverseer" />
+					</subNodes>
+				</li>
+
+				<!-- Dormant self-charge ("sleep"): the android powers down where it stands. One with the
+				     sleep-cycle subroutine goes to its bed instead. -->
+				<li Class="VREAndroidsOverhaul.ThinkNode_ConditionalAndroidWorkMode">
+					<workMode>SelfShutdown</workMode>
+					<subNodes>
+						<li Class="JobGiver_SeekAllowedArea" />
+						<li Class="VREAndroidsOverhaul.JobGiver_AndroidDormant" />
+					</subNodes>
+				</li>
+
+				<!-- Recharge: an android running on an internal reactor has nothing to plug into, so it
+				     simply sleeps. (Charging stands come with the power-core rework.) -->
+				<li Class="VREAndroidsOverhaul.ThinkNode_ConditionalAndroidWorkMode">
+					<workMode>Recharge</workMode>
+					<subNodes>
+						<li Class="JobGiver_SeekAllowedArea" />
+						<li Class="VREAndroidsOverhaul.JobGiver_AndroidDormant" />
+					</subNodes>
+				</li>
+
+			</subNodes>
+		</thinkRoot>
+	</ThinkTreeDef>
+
+</Defs>
