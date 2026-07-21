@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+
+	<!-- Power source becomes a choice, the way blood type is: a reactor that runs itself for years but must
+	     be replaced when spent, or a cheap rechargeable battery that has to be topped up at a stand.
+
+	     The original's single "power" gene is retuned in place into the reactor option rather than being
+	     replaced by a new def - its defName is what every existing android carries, so keeping it means
+	     saves migrate on their own and there is still exactly one entry in the editor. -->
+
+	<Operation Class="PatchOperationReplace">
+		<xpath>Defs/VREAndroids.AndroidGeneDef[defName="VREA_Power"]/label</xpath>
+		<value>
+			<label>reactor powered</label>
+		</value>
+	</Operation>
+
+	<Operation Class="PatchOperationReplace">
+		<xpath>Defs/VREAndroids.AndroidGeneDef[defName="VREA_Power"]/description</xpath>
+		<value>
+			<description>This android is powered by a built-in reactor: it runs itself for years and never needs recharging, but the reactor cannot be topped up, and once spent it must be extracted and replaced. An android without a working power core cannot operate in any capacity.</description>
+		</value>
+	</Operation>
+
+	<!-- It is no longer a fixed part of every android, but one of two interchangeable power sources, so it
+	     has to be removable and mutually exclusive with the battery. -->
+	<Operation Class="PatchOperationReplace">
+		<xpath>Defs/VREAndroids.AndroidGeneDef[defName="VREA_Power"]/isCoreComponent</xpath>
+		<value>
+			<isCoreComponent>false</isCoreComponent>
+		</value>
+	</Operation>
+
+	<Operation Class="PatchOperationAdd">
+		<xpath>Defs/VREAndroids.AndroidGeneDef[defName="VREA_Power"]</xpath>
+		<value>
+			<geneClass>VREAndroidsOverhaul.Gene_AndroidPower</geneClass>
+			<exclusionTags>
+				<li>AndroidPower</li>
+			</exclusionTags>
+			<modExtensions>
+				<li Class="VREAndroidsOverhaul.PowerCoreExtension">
+					<part>Stomach</part>
+					<coreHediff>VREA_Reactor</coreHediff>
+				</li>
+			</modExtensions>
+		</value>
+	</Operation>
+
+	<!-- The reactor gains one behaviour: an android parked asleep by its mechanitor stops spending charge. -->
+	<Operation Class="PatchOperationReplace">
+		<xpath>Defs/HediffDef[defName="VREA_Reactor"]/hediffClass</xpath>
+		<value>
+			<hediffClass>VREAndroidsOverhaul.Hediff_AndroidReactorCore</hediffClass>
+		</value>
+	</Operation>
+
+	<!-- The power need reads the reactor hediff by def, so a battery android's bar would sit empty and
+	     frozen. Repointed to a subclass that resolves whichever core is installed. -->
+	<Operation Class="PatchOperationReplace">
+		<xpath>Defs/NeedDef[defName="VREA_ReactorPower"]/needClass</xpath>
+		<value>
+			<needClass>VREAndroidsOverhaul.Need_AndroidPower</needClass>
+		</value>
+	</Operation>
+
+	<Operation Class="PatchOperationReplace">
+		<xpath>Defs/NeedDef[defName="VREA_ReactorPower"]/description</xpath>
+		<value>
+			<description>How much charge is left in this android's power core. A reactor slowly burns down over years and must be replaced once spent; a battery drains in days and is recharged at a powered android stand. An android without a working power core is not operational.</description>
+		</value>
+	</Operation>
+
+</Patch>

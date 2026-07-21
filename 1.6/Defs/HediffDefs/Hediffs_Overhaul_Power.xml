@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+	<!-- The battery core. Unlike the reactor this is a whole-body cell array with no body part of its own,
+	     so no single wound can knock the android's power out - it behaves like a mechanoid's energy. At zero
+	     charge it shuts the android down exactly the way a spent reactor does. -->
+	<HediffDef>
+		<defName>VREAO_Battery</defName>
+		<label>cell array</label>
+		<labelNoun>a cell array</labelNoun>
+		<description>A rechargeable power cell array wired through this android's frame. It drains during operation and is topped up at a powered android stand.</description>
+		<hediffClass>VREAndroidsOverhaul.Hediff_AndroidBattery</hediffClass>
+		<initialSeverity>0</initialSeverity>
+		<isBad>false</isBad>
+		<stages>
+			<li>
+				<!-- Charged: no effect. -->
+			</li>
+			<li>
+				<minSeverity>1</minSeverity>
+				<label>flat</label>
+				<capMods>
+					<li>
+						<capacity>Consciousness</capacity>
+						<postFactor>0</postFactor>
+					</li>
+					<li>
+						<capacity>Manipulation</capacity>
+						<postFactor>0</postFactor>
+					</li>
+				</capMods>
+			</li>
+		</stages>
+	</HediffDef>
+
+</Defs>

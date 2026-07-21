@@ -90,6 +90,27 @@ namespace VREAndroidsOverhaul
             return gene != null && pawn.HasActiveGene(gene);
         }
 
+        // True while an overseen android is parked asleep in a low-power work mode. A battery then
+        // trickle-charges instead of draining; a reactor simply stops spending. "Recharge" only counts as
+        // dormant for a reactor - a battery android walks to a charging stand for that instead.
+        public static bool IsDormantForPower(Pawn pawn)
+        {
+            if (pawn == null || pawn.Awake() || !IsOversightAndroid(pawn) || pawn.GetOverseer() == null)
+            {
+                return false;
+            }
+            MechWorkModeDef mode = pawn.GetMechWorkMode();
+            if (mode == null)
+            {
+                return false;
+            }
+            if (mode == MechWorkModeDefOf.SelfShutdown)
+            {
+                return true;
+            }
+            return mode == MechWorkModeDefOf.Recharge && !pawn.GetPowerCore().CanRecharge();
+        }
+
         // Cut every link a mechanitor holds on this pawn: control-group membership, the Overseer relation
         // and the bandwidth it was costing. Deliberately sweeps all mechanitors instead of asking the pawn
         // for its overseer - by the time this runs the relation may already be gone while the control-group

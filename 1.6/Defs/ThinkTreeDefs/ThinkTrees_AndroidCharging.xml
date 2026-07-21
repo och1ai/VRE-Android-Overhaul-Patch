@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+	<!-- A battery android breaks off what it is doing to go charge once it drops below 30%, the same way a
+	     mechanoid does. Inserted at Humanlike_PreMain so it outranks ordinary work but still sits under
+	     drafted orders and emergencies. Reactor androids never match: the job giver returns nothing for a
+	     core that cannot be recharged. -->
+	<ThinkTreeDef>
+		<defName>VREAO_AndroidCharging</defName>
+		<insertTag>Humanlike_PreMain</insertTag>
+		<insertPriority>110</insertPriority>
+		<thinkRoot Class="ThinkNode_Priority">
+			<subNodes>
+				<li Class="VREAndroidsOverhaul.JobGiver_ChargeAndroid" />
+			</subNodes>
+		</thinkRoot>
+	</ThinkTreeDef>
+
+</Defs>

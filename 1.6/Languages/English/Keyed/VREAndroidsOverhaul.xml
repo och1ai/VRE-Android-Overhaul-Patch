@@ -13,6 +13,9 @@
 	<!-- Inspect pane. -->
 	<VREAOverhaul.ShuttingDownIn>Shutting down in {0}</VREAOverhaul.ShuttingDownIn>
 
+	<VREAOverhaul.AndroidEnergy>Power</VREAOverhaul.AndroidEnergy>
+	<VREAOverhaul.AndroidDormantCharging>Shut down, trickle-charging</VREAOverhaul.AndroidDormantCharging>
+
 	<!-- Alerts. -->
 	<VREAOverhaul.AlertUncontrolledAndroids>Uncontrolled androids</VREAOverhaul.AlertUncontrolledAndroids>
 	<VREAOverhaul.AlertUncontrolledAndroidsDesc>One or more of your mechlike androids has no overseer. Without a mechanitor connected, they stand dormant and cannot work. Connect them to a mechanitor with enough bandwidth to bring them back online.\n\nUnlike mechanoids, an uncontrolled android will never go feral - it simply waits.\n\nThe following androids are dormant</VREAOverhaul.AlertUncontrolledAndroidsDesc>
