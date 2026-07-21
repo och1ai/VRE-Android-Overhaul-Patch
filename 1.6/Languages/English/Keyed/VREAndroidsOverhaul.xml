@@ -16,6 +16,12 @@
 	<VREAOverhaul.AndroidEnergy>Power</VREAOverhaul.AndroidEnergy>
 	<VREAOverhaul.AndroidDormantCharging>Shut down, trickle-charging</VREAOverhaul.AndroidDormantCharging>
 
+	<!-- Death notices. An android whose subcore survives is destroyed, not killed. -->
+	<VREAOverhaul.AndroidDestroyed>Android destroyed</VREAOverhaul.AndroidDestroyed>
+	<VREAOverhaul.AndroidDestroyedDesc>{PAWN_labelShort}'s chassis has been destroyed. {PAWN_possessive} subcore is still intact within the wreckage, so this android can be brought back.</VREAOverhaul.AndroidDestroyedDesc>
+	<VREAOverhaul.AndroidKilled>Android killed</VREAOverhaul.AndroidKilled>
+	<VREAOverhaul.AndroidKilledDesc>{PAWN_labelShort}'s subcore has been destroyed. With it gone, the android is truly dead and can never be brought back.</VREAOverhaul.AndroidKilledDesc>
+
 	<!-- Alerts. -->
 	<VREAOverhaul.AlertUncontrolledAndroids>Uncontrolled androids</VREAOverhaul.AlertUncontrolledAndroids>
 	<VREAOverhaul.AlertUncontrolledAndroidsDesc>One or more of your mechlike androids has no overseer. Without a mechanitor connected, they stand dormant and cannot work. Connect them to a mechanitor with enough bandwidth to bring them back online.\n\nUnlike mechanoids, an uncontrolled android will never go feral - it simply waits.\n\nThe following androids are dormant</VREAOverhaul.AlertUncontrolledAndroidsDesc>

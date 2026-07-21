@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+	<!-- The android subcore. Whole-body (no part) so no localized wound can take it out, invisible in the
+	     health list, and never removed on its own. Its presence is what makes a destroyed android
+	     recoverable rather than dead. -->
+	<HediffDef>
+		<defName>VREAO_Subcore</defName>
+		<label>subcore</label>
+		<labelNoun>a subcore</labelNoun>
+		<description>The shielded core holding everything this android is. Armoured against damage and buried deep in the chassis, it survives almost anything short of the body being torn apart.</description>
+		<hediffClass>VREAndroidsOverhaul.Hediff_AndroidSubcore</hediffClass>
+		<initialSeverity>0</initialSeverity>
+		<isBad>false</isBad>
+		<everCurableByItem>false</everCurableByItem>
+		<scenarioCanAdd>false</scenarioCanAdd>
+	</HediffDef>
+
+</Defs>
