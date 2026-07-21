@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
 
-	<!-- The other two circulatory options. All three carry the AndroidBlood exclusion tag, so an android
-	     runs exactly one of them; the neutroamine one is the original's own gene, retuned by
-	     Patches/BloodTypes.xml. -->
+	<!-- The other two circulatory options plus coagulation. All three blood genes carry the AndroidBlood
+	     exclusion tag, so an android runs exactly one of them; the neutroamine one is the original's own
+	     gene, retuned by Patches/BloodTypes.xml. -->
 
 	<!-- Hemogenic: passes for organic. Bleeds red through the vanilla logic - no patch needed, because the
 	     original only ever intercepts bleeding for its own neutroamine gene. -->
 	<VREAndroids.AndroidGeneDef ParentName="VREA_HardwareBase">
 		<defName>VREA_NormalBlood</defName>
 		<label>hemogenic</label>
-		<description>An infiltrator-grade circulatory system: synthetic blood that behaves like the real thing, so the android bleeds red and passes for organic under anything short of a surgical examination. It is topped up with hemogen packs rather than neutroamine, and if its wounds bleed out it can die like an organic - though its subcore stays recoverable.</description>
-		<iconPath>UI/Icons/Genes/Gene_Hemogenic</iconPath>
+		<description>An infiltrator-grade circulatory system used by glitterworld intelligence agencies, machine-persona networks and distant archotechs: it runs synthetic blood that behaves like the real thing, so the android bleeds red and passes for organic. Topped up with hemogen packs; if its wounds bleed out it can die like an organic, though its subcore stays recoverable.</description>
+		<iconPath>UI/Icons/Genes/Hardware/Gene_HemogenicBlood</iconPath>
 		<displayOrderInCategory>11</displayOrderInCategory>
 		<biostatCpx>1</biostatCpx>
 		<biostatMet>6</biostatMet>
@@ -21,15 +21,19 @@
 	</VREAndroids.AndroidGeneDef>
 
 	<!-- Bloodless: runs dry. Never bleeds, and takes hits like a mechanoid - grey metal wounds, sparks and
-	     scattered machine bits instead of any fluid. -->
-	<VREAndroids.AndroidGeneDef ParentName="VREA_HardwareBase">
+	     scattered machine bits instead of any fluid. Declared without a parent, like the original's own
+	     blood gene, so its mod extensions replace rather than inherit. -->
+	<VREAndroids.AndroidGeneDef>
 		<defName>VREA_Bloodless</defName>
 		<label>bloodless</label>
 		<description>This android runs completely dry, with no circulating fluid whatsoever. It never bleeds and its wounds reveal bare metal, but it gains no efficiency from a circulatory system and has no reservoir to refill.</description>
-		<iconPath>UI/Icons/Genes/Gene_Deathrest</iconPath>
+		<iconPath>UI/Icons/Genes/Hardware/Gene_Bloodless</iconPath>
 		<displayOrderInCategory>11</displayOrderInCategory>
 		<biostatCpx>1</biostatCpx>
 		<biostatMet>0</biostatMet>
+		<displayCategory>VREA_Hardware</displayCategory>
+		<canGenerateInGeneSet>false</canGenerateInGeneSet>
+		<isCoreComponent>true</isCoreComponent>
 		<exclusionTags>
 			<li>AndroidBlood</li>
 		</exclusionTags>
@@ -45,15 +49,17 @@
 		</modExtensions>
 	</VREAndroids.AndroidGeneDef>
 
-	<!-- Coagulation: seals fluid lines fast. Pointless on a bloodless frame, which never bleeds anyway. -->
-	<VREAndroids.AndroidGeneDef ParentName="VREA_SubroutineBase">
+	<!-- Coagulation: optional hardware, not a subroutine. Pointless on a bloodless frame, which never
+	     bleeds anyway. -->
+	<VREAndroids.AndroidGeneDef ParentName="VREA_HardwareBase">
 		<defName>VREA_Coagulation</defName>
 		<label>coagulation</label>
-		<description>Emergency sealant routines clamp down on a breached fluid line within seconds. Wounds on this android bleed far more slowly. Has no effect on a bloodless frame, which has nothing to lose.</description>
-		<iconPath>UI/Icons/Genes/Gene_MinorBleeding</iconPath>
-		<displayOrderInCategory>12</displayOrderInCategory>
+		<description>Androids with this hardware seal ruptures in their fluid lines almost instantly, drastically reducing how fast they bleed out from wounds.</description>
+		<iconPath>UI/Icons/Genes/Gene_Superclotting</iconPath>
+		<displayOrderInCategory>25</displayOrderInCategory>
 		<biostatCpx>1</biostatCpx>
-		<biostatMet>-2</biostatMet>
+		<biostatMet>-3</biostatMet>
+		<isCoreComponent>false</isCoreComponent>
 	</VREAndroids.AndroidGeneDef>
 
 </Defs>

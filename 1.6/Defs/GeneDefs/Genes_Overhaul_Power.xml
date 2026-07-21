@@ -7,9 +7,9 @@
 	<VREAndroids.AndroidGeneDef ParentName="VREA_HardwareBase">
 		<defName>VREA_BatteryPowered</defName>
 		<label>battery powered</label>
-		<description>This android is powered by a rechargeable cell array rather than a reactor. It is far cheaper to build, but the charge drains over a few days of operation and has to be topped up at a powered android stand. A flat android shuts down where it stands and trickle-charges very slowly on its own until someone hauls it to a stand. An android without a working power core cannot operate in any capacity.</description>
+		<description>This android is powered by a rechargeable battery. It is cheap to build (a few components) but the battery drains during operation and must be topped up at a powered android stand, and repairs spend stored charge. An android without a working power core is unable to operate in any capacity.</description>
 		<geneClass>VREAndroidsOverhaul.Gene_AndroidPower</geneClass>
-		<iconPath>UI/Icons/Genes/Hardware/Gene_Power</iconPath>
+		<iconPath>UI/Icons/Genes/Hardware/Gene_BatteryPowered</iconPath>
 		<displayOrderInCategory>2</displayOrderInCategory>
 		<biostatCpx>3</biostatCpx>
 		<enablesNeeds>

@@ -1,147 +1,112 @@
 # Test checklist — VRE-Android Overhaul (patch)
 
-Everything ported so far, grouped by feature. Load order: **Vanilla Races Expanded - Android** (Steam,
-unmodified) → **VRE-Android Overhaul**. A `.cs` change needs a rebuild; XML applies on restart (the mod is
-symlinked into `Mods/`).
+Load order: **Vanilla Races Expanded - Android** (Steam, unmodified) → **VRE-Android Overhaul**. A `.cs`
+change needs a rebuild; XML applies on restart (the mod is symlinked into `Mods/`).
 
-Dev mode is assumed for most of this: spawn androids, use *Set gene* / the androidtype editor, and
-`Damage` / `Kill` tools.
+Only things **not yet verified in game** are listed. Dev mode assumed: spawn androids, use the androidtype
+editor / *Set gene*, and the `Damage` / `Kill` tools.
 
 ---
 
-## 0. Smoke test
+## Already verified during the port — do not re-test
 
-- [ ] Game starts with no red errors on load.
-- [ ] Log shows `[VRE-Android Overhaul] patch assembly loaded`.
-- [ ] The androidtype editor opens and shows its **full** component list plus the skin/hair colour
-      selectors. *(If components or colour pickers are missing, a patch aborted the original's Harmony run —
-      check the log for `Undefined target method`.)*
-- [ ] An android spawns, works, and takes orders normally.
+Game loads clean, androids spawn and work · androidtype editor shows its full component list and colour
+selectors · subroutine and hardware genes appear (spacer, occultist, gravpilot, dull combat, enhanced
+targeting) with their exclusions · twisted obelisk refuses androids · ideoligion tool treatment on the
+colonist bar, "respected (awakened)" and "equal (awakened)" precepts · drafted tend not offered on an
+android patient.
 
-## 1. Genes appear and exclude correctly
+---
 
-In the androidtype editor:
+## 1. Shipped but never re-tested (from the last round of fixes)
 
-- [ ] Combat: **War Frame**, **enhanced targeting**, **dull combat**, **death delay**.
-- [ ] Subroutines: **gravpilot** (Odyssey), **occultist** (Anomaly), **sleep cycle**, **ideological**
-      (Ideology), **mechlike** (Biotech), **coagulation**.
-- [ ] Hardware: **reactor powered**, **battery powered**, **neutroblood**, **hemogenic**, **bloodless**,
-      **delicate frame**, **spacer** (Odyssey), **psychically dull**.
-- [ ] Exclusions hold: enhanced targeting ↔ dull combat; War Frame ↔ delicate frame; reactor ↔ battery;
-      neutroblood ↔ hemogenic ↔ bloodless; ideological ↔ social incapable.
-- [ ] There is exactly **one** psychic-sensitivity gene — "psychically dull", not a pair with
-      "psychically deaf".
+- [ ] Base android shows **psychically dull** (one gene, not a pair with "psychically deaf"), sensitivity
+      **50%**, with Biotech's dull icon.
+- [ ] Android **without** occultist cannot suppress a contained entity; the option is greyed out as
+      **"Cannot suppress X: \<name\> has no occultist subroutine"**. Same wording for study/tend/execute.
+      Capture shows its refusal **once**, not twice.
+- [ ] Android **with** occultist can suppress, study and join a ritual — and suppresses noticeably faster
+      with double knowledge per study.
 
-## 2. Psychic sensitivity
+## 2. Psychic sensitivity on awakening
 
-- [ ] A base android's psychic sensitivity reads **50%**.
-- [ ] Awaken one → the gene is gone and sensitivity reads **100%**.
-- [ ] An **awakened** android can receive a psylink (neuroformer surgery is offered and works).
-- [ ] A **base** android cannot: the surgery is not offered.
+- [ ] Awaken an android → the dull gene is gone, sensitivity **100%**.
+- [ ] Awakened android can receive a **psylink** (neuroformer surgery offered and it works); a base android
+      cannot.
 - [ ] Base android is immune to the golden cube; an awakened one is **not**.
 
-## 3. Anomaly / occultist  *(Anomaly)*
+## 3. Ideological subroutine  *(Ideology)*
 
-- [ ] Android **without** occultist: right-clicking a contained entity shows greyed-out
-      **"Cannot suppress X: <name> has no occultist subroutine"** — same for study, tend, execute,
-      bioferrite. Capture shows **"Cannot capture X: …"** once, not twice.
-- [ ] Android **with** occultist: all of the above work, and it can join a psychic ritual.
-- [ ] Occultist android suppresses **noticeably faster** and gains **double knowledge** per study.
-- [ ] No android can ever be a psychophagy/chronophagy target.
-- [ ] A duplicator/mutator obelisk offers **"Trigger mutation (garry is an android)"**, greyed out.
-- [ ] An **unstudied** obelisk offers nothing at all — no spoiler about what it would do.
+- [ ] Android **without** it has **no ideoligion**; the moral guide cannot convert it.
+- [ ] Adding the subroutine grants one; removing it takes it away.
+- [ ] Androids in an existing save lose their ideoligion on first load (one-time migration).
+- [ ] It is mutually exclusive with **social incapable**.
 
-## 4. Ideoligion  *(Ideology)*
+## 4. Power cores
 
-- [ ] Android **without** the ideological subroutine has **no ideoligion**; the moral guide cannot convert
-      it ("… cannot hold beliefs").
-- [ ] Adding the subroutine gives it one; removing it takes it away.
-- [ ] Existing androids in an old save lose their ideoligion on first load (one-time migration).
-- [ ] Precepts **"respected (awakened)"** and **"equal (awakened)"** exist.
-- [ ] Under either, a **non-awakened** android: name tinted cold blue, androidtype icon on the colonist
-      bar, no opinions about it, no grief when destroyed, not counted as a slave.
-- [ ] Under either, an **awakened** android is treated as a person (normal colour, +20 opinion).
-
-## 5. Power cores
-
-- [ ] **Reactor** android: inspect pane shows `Power: NN% (-NN% / day)`, drains very slowly.
-- [ ] **Battery** android: same line, drains far faster (~3 days from full).
+- [ ] Both **reactor powered** and **battery powered** appear, mutually exclusive, with their own icons
+      (no coffin, no missing texture).
+- [ ] Inspect pane shows `Power: NN% (-NN% / day)` for both; the battery drains far faster (~3 days).
 - [ ] A battery android carries **only** the cell array — no leftover reactor in its health tab.
-- [ ] Below 30% it walks to a **powered** android stand on its own and charges back to 100%.
-- [ ] Drain scales with efficiency: a loadout with worse `biostatMet` drains faster.
-- [ ] Run a battery to 0 → it shuts down where it stands, inspect pane shows
-      **"Shut down, trickle-charging"**; hauled onto a powered stand it charges back up and revives.
-- [ ] Unpowered stand does not charge.
+- [ ] Below 30% it walks to a **powered** stand on its own and charges to 100%. An unpowered stand does
+      nothing.
+- [ ] Run a battery to 0 → shuts down where it stands, shows **"Shut down, trickle-charging"**; hauled onto
+      a powered stand it charges back up and revives.
 
-## 6. Blood
+## 5. Blood
 
-- [ ] **Neutroblood** android bleeds neutroamine (blue filth) and accrues neutro loss — unchanged from the
-      base mod, but efficiency is now higher.
-- [ ] **Hemogenic** android bleeds **red**, can bleed out, and accepts **blood transfusion** and
-      **extract hemogen pack** surgeries.
-- [ ] **Bloodless** android never bleeds at all: no bleed rate, no "bleeding to death" timer, wounds show
-      grey metal and machine bits.
-- [ ] **Coagulation** subroutine visibly slows bleeding on a neutroblood or hemogenic android (and does
-      nothing on a bloodless one).
+- [ ] Three options appear, mutually exclusive: **neutroamine blood**, **hemogenic**, **bloodless** — each
+      with its proper icon.
+- [ ] **Hemogenic** bleeds **red**, can bleed out, and accepts **blood transfusion** / **extract hemogen
+      pack**.
+- [ ] **Bloodless** never bleeds at all (no bleed rate, no bleeding-out timer) and its wounds show grey
+      metal and machine bits.
+- [ ] **Coagulation** (hardware) visibly slows bleeding on a neutroamine or hemogenic android.
+- [ ] Neutroamine blood still bleeds blue and accrues neutro loss as before.
 
-## 7. Sleep cycle
+## 6. Sleep cycle
 
-- [ ] Android **with** the subroutine has a **Rest** need, tires, and goes to bed.
-- [ ] Android **without** it has no Rest need at all.
+- [ ] With the subroutine the android has a **Rest** need and goes to bed; without it, no Rest need at all.
 
-## 8. Death delay
+## 7. Death delay
 
-- [ ] Give an android the subroutine, then blow off a leg / deal critical damage: it **keeps working**, and
-      the inspect pane shows a red **"Shutting down in 2h"** countdown.
-- [ ] Let the countdown expire → it goes down *and* dies at the same moment.
-- [ ] Destroy the **torso** → same two-hour reserve, not instant death.
-- [ ] Destroy the **head/brain** → instant, reserve bypassed.
-- [ ] Repair it back above the threshold before the timer expires → countdown clears and can start again.
-- [ ] An android with **no reactor** still drops immediately (reserve does not cover being unpowered).
+- [ ] Critical damage → it keeps working, red **"Shutting down in 2h"** in the inspect pane.
+- [ ] Countdown expires → goes down *and* dies together.
+- [ ] Destroyed **torso** → same reserve, not instant death. Destroyed **head/brain** → instant.
+- [ ] Repaired above the threshold in time → countdown clears.
 
-## 9. Mechlike / mechanitor oversight  *(Biotech)*
+## 8. Mechlike  *(Biotech — worked in the fork, this is the overlay port)*
 
-- [ ] A mechanitor can **connect** to a mechlike android like a mech; it costs **5 bandwidth**.
-- [ ] It appears in the **mechs tab** and can be assigned to a control group.
-- [ ] It keeps **all** its work types and skills (this is the regression to watch — if every work type is
-      disabled, the colony-mech suppression broke).
-- [ ] With **no overseer** it stands dormant with the power-off overlay, and the **"Uncontrolled androids"**
-      alert appears — *not* vanilla's "uncontrolled mechs".
-- [ ] It never goes feral; the inspect pane shows only "Overseer: …", no "may go feral".
-- [ ] Its name on the colonist bar stays **white**.
-- [ ] Work modes: **work** = normal jobs; **escort** = follows the mechanitor and engages enemies (with a
-      gun it shoots, without one it charges into melee, at mech-like detection range); **sleep** = powers
-      down where it stands (or goes to bed with the sleep cycle).
-- [ ] Switching from sleep back to work/escort **wakes it immediately**.
-- [ ] Right-click orders work inside command range, and are refused with "Out of command range" outside it.
-- [ ] Awaken a mechlike android → the gene is stripped and it **leaves the control group** and frees the
-      bandwidth (check the group after a save/reload too).
+- [ ] A mechanitor can connect to it (**5 bandwidth**), it appears in the **mechs tab**, and it keeps
+      **all** work types and skills. *(All work types disabled = the colony-mech suppression broke.)*
+- [ ] With no overseer: dormant with the power-off overlay, **"Uncontrolled androids"** alert, name stays
+      **white**, no "may go feral".
+- [ ] Work modes: work / escort (engages enemies, melee if unarmed) / sleep. Switching out of sleep wakes it
+      immediately.
+- [ ] Awakening strips the gene and it **leaves the control group**, freeing the bandwidth (recheck after a
+      save/reload).
 
-## 10. Destroyed vs killed
+## 9. Destroyed vs killed
 
-- [ ] Kill an android with ordinary damage → neutral letter **"Android destroyed"**, and:
-  - [ ] no grief thoughts for anyone,
-  - [ ] its relationships stay intact,
-  - [ ] no "killed a colonist" tale / no social penalty for the killer,
-  - [ ] **no funeral obligation**.
-- [ ] Destroy its **head** or **torso** → red letter **"Android killed"**, colony grieves normally.
-- [ ] Destroy the **corpse** of a merely-destroyed android → *then* the kill letter and grief fire.
-- [ ] A killed android with an ideoligion gets a funeral; a destroyed one never does.
-- [ ] The subcore is **not** visible in the health tab.
+- [ ] Ordinary kill → neutral **"Android destroyed"**, no grief, relationships intact, no "killed a
+      colonist" tale, **no funeral**.
+- [ ] Destroyed **head** or **torso** → red **"Android killed"**, colony grieves.
+- [ ] Destroying the **corpse** of a merely-destroyed android → *then* the kill letter and grief fire.
+- [ ] The subcore is not visible in the health tab.
 
-## 11. Misc
+## 10. Misc
 
-- [ ] Android corpses cannot be eaten by anyone (pawns, animals, nutrient paste).
-- [ ] Drafted **tend** is not offered on an android patient.
+- [ ] Android corpses cannot be eaten.
 - [ ] Neutrocasket lets you set a target fuel amount (max 120, default 40).
 
 ---
 
-## Not ported yet — don't test these
+## Not ported yet — don't test
 
-- **Repair rework**: missing limbs do **not** regenerate, and android part items are still crafted at the
-  android parts station. *(Blocks removing the parts station and moving the reactor recipe.)*
-- **Subcore recovery**: "destroyed" androids cannot actually be resurrected or reprinted yet — the subcore
-  survives and is not mourned, but there is no extraction surgery and no assembler.
-- **Android designer / assembler**, memory need rework, emotion simulators, uncanny valley
-  (parked by design), needs-tab trimming, the control-group "Assigned mechs" tooltip.
+- **Repair rework**: missing limbs do **not** regenerate, and part items are still crafted at the android
+  parts station. *(Blocks removing that station and moving the reactor recipe to a machining table.)*
+- **Subcore recovery**: no extraction surgery, no assembler — a "destroyed" android is not mourned but
+  cannot actually be brought back yet.
+- **Blood organs** (hemopump / neutrofilter / data bus etc.), **android designer / assembler**, memory need
+  rework, emotion simulators, needs-tab trimming, control-group "Assigned mechs" tooltip, uncanny valley
+  (parked by design).

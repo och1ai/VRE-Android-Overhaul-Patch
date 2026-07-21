@@ -18,18 +18,10 @@
 	<Operation Class="PatchOperationReplace">
 		<xpath>Defs/VREAndroids.AndroidGeneDef[defName="VREA_Power"]/description</xpath>
 		<value>
-			<description>This android is powered by a built-in reactor: it runs itself for years and never needs recharging, but the reactor cannot be topped up, and once spent it must be extracted and replaced. An android without a working power core cannot operate in any capacity.</description>
+			<description>This android is powered by a built-in reactor: it powers itself for years and never needs to recharge, but the reactor cannot be topped up and must be replaced once spent. Building a reactor-powered android costs uranium. An android without a working power core is unable to operate in any capacity.</description>
 		</value>
 	</Operation>
 
-	<!-- It is no longer a fixed part of every android, but one of two interchangeable power sources, so it
-	     has to be removable and mutually exclusive with the battery. -->
-	<Operation Class="PatchOperationReplace">
-		<xpath>Defs/VREAndroids.AndroidGeneDef[defName="VREA_Power"]/isCoreComponent</xpath>
-		<value>
-			<isCoreComponent>false</isCoreComponent>
-		</value>
-	</Operation>
 
 	<Operation Class="PatchOperationAdd">
 		<xpath>Defs/VREAndroids.AndroidGeneDef[defName="VREA_Power"]</xpath>
@@ -44,6 +36,13 @@
 					<coreHediff>VREA_Reactor</coreHediff>
 				</li>
 			</modExtensions>
+		</value>
+	</Operation>
+
+	<Operation Class="PatchOperationReplace">
+		<xpath>Defs/VREAndroids.AndroidGeneDef[defName="VREA_Power"]/iconPath</xpath>
+		<value>
+			<iconPath>Items/HealthItemAndroid</iconPath>
 		</value>
 	</Operation>
 

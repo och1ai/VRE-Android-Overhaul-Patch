@@ -1,27 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Patch>
 
-	<!-- Blood becomes a choice of three, the way power did. The original's neutro circulation is retuned in
-	     place into one of the options (same defName, so existing androids migrate for free) and joins the
-	     AndroidBlood exclusion group; the other two arrive as new genes. -->
+	<!-- Blood becomes a choice of three. The original's neutro circulation is retuned in place into one of
+	     the options (same defName, so existing androids migrate for free) and joins the AndroidBlood
+	     exclusion group; the other two arrive as new genes. It stays a core component, exactly as the other
+	     two blood genes are. -->
 
 	<Operation Class="PatchOperationReplace">
 		<xpath>Defs/VREAndroids.AndroidGeneDef[defName="VREA_NeutroCirculation"]/label</xpath>
 		<value>
-			<label>neutroblood</label>
+			<label>neutroamine blood</label>
 		</value>
 	</Operation>
 
-	<!-- No longer a fixed part of every android but one of three interchangeable circulatory systems. -->
 	<Operation Class="PatchOperationReplace">
-		<xpath>Defs/VREAndroids.AndroidGeneDef[defName="VREA_NeutroCirculation"]/isCoreComponent</xpath>
+		<xpath>Defs/VREAndroids.AndroidGeneDef[defName="VREA_NeutroCirculation"]/description</xpath>
 		<value>
-			<isCoreComponent>false</isCoreComponent>
+			<description>Replaces the android's blood with neutroamine: the most power-efficient circulatory option, topped up cheaply with neutroamine. Wounds bleed blue neutroamine, and if left unchecked the android can bleed out and die, though its subcore stays recoverable.</description>
 		</value>
 	</Operation>
 
-	<!-- Thick neutroamine is a far more efficient coolant/carrier than the alternatives, which is what
-	     pays for its awkward refuelling. -->
+	<Operation Class="PatchOperationReplace">
+		<xpath>Defs/VREAndroids.AndroidGeneDef[defName="VREA_NeutroCirculation"]/biostatCpx</xpath>
+		<value>
+			<biostatCpx>2</biostatCpx>
+		</value>
+	</Operation>
+
 	<Operation Class="PatchOperationAdd">
 		<xpath>Defs/VREAndroids.AndroidGeneDef[defName="VREA_NeutroCirculation"]</xpath>
 		<value>
