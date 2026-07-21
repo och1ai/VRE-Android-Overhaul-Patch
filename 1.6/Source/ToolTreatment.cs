@@ -44,5 +44,24 @@ namespace VREAndroidsOverhaul
         {
             return IdeoTreatsAndroidAsTool(Faction.OfPlayerSilentFail?.ideos?.PrimaryIdeo, android);
         }
+
+        // True only when it is one of THIS mod's precepts doing the treating. The original already applies
+        // every tool consequence for its own "androids: tools" precept, so the overlay's patches must fire
+        // only for the cases it added - otherwise effects that accumulate (the slave headcount) would be
+        // applied twice. In practice all these precepts share one issue and an ideoligion can hold only
+        // one, but the check costs nothing and does not rely on that.
+        public static bool TreatedAsToolByOverlayPreceptOnly(Ideo ideo, Pawn android)
+        {
+            if (!IdeoTreatsAndroidAsTool(ideo, android))
+            {
+                return false;
+            }
+            return tools == null || !ideo.HasPrecept(tools);
+        }
+
+        public static bool TreatedAsToolByColonyOverlayPreceptOnly(Pawn android)
+        {
+            return TreatedAsToolByOverlayPreceptOnly(Faction.OfPlayerSilentFail?.ideos?.PrimaryIdeo, android);
+        }
     }
 }

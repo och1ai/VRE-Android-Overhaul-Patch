@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+
+	<!-- 7b sleep cycle: the subroutine gives an android a real Rest need. The original excludes Rest from
+	     every android through its settings def, and that exclusion is consulted from inside a prefix that
+	     refuses the need outright - there is no seam to make an exception from the outside.
+
+	     So the entry comes off the list, and SleepCycle_Patches.cs puts the refusal back for androids that
+	     do NOT carry the subroutine. Same shape as the psylink change: the original's blanket rule is
+	     restated in this assembly with the one exception the overhaul adds. -->
+
+	<Operation Class="PatchOperationRemove">
+		<xpath>Defs/VREAndroids.AndroidSettings[defName="VREA_AndroidSettings"]/excludedNeedsForAndroids/li[.="Rest"]</xpath>
+	</Operation>
+
+</Patch>

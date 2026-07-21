@@ -7,4 +7,7 @@
 	<VREAOverhaul.IsAndroid>{PAWN_nameDef} is an android</VREAOverhaul.IsAndroid>
 	<VREAOverhaul.NoOccultistSubroutine>{PAWN_nameDef} has no occultist subroutine</VREAOverhaul.NoOccultistSubroutine>
 
+	<!-- Full sentences shown as their own message. -->
+	<VREAOverhaul.CannotConvertAndroid>{PAWN_nameDef} has no ideological subroutine and cannot hold beliefs.</VREAOverhaul.CannotConvertAndroid>
+
 </LanguageData>

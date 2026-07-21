@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+	<!-- Belief modelling. Without this subroutine a base android follows no ideoligion at all, which is
+	     what makes the colony's own precepts about androids (tool / respected / equal) the thing that
+	     decides how it is treated. Awakened androids hold beliefs on their own and do not need it. -->
+	<VREAndroids.AndroidGeneDef ParentName="VREA_SubroutineBase" MayRequire="Ludeon.RimWorld.Ideology">
+		<defName>VREA_Ideological</defName>
+		<label>ideological</label>
+		<description>A belief-modelling subroutine that lets the android genuinely follow an ideoligion and take up a role such as leader or moral guide. Androids without it follow no ideoligion at all, and cannot be converted. Requires intact social capacity.</description>
+		<geneClass>VREAndroidsOverhaul.Gene_Ideological</geneClass>
+		<iconPath>UI/Structures/Structure_Ideological</iconPath>
+		<displayOrderInCategory>31</displayOrderInCategory>
+		<biostatCpx>2</biostatCpx>
+		<biostatMet>-3</biostatMet>
+	</VREAndroids.AndroidGeneDef>
+
+</Defs>

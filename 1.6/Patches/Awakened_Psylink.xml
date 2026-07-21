@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+
+	<!-- 7c/7h: an awakened android is as psychically sensitive as any organic mind, so it may carry a
+	     psylink. The original blocks the psychic amplifier for every android by listing the hediff in its
+	     settings def, which is consulted by both the "can this android receive this hediff" check and the
+	     "is this surgery available on this android" check.
+
+	     Taking the entry off that list re-opens BOTH paths for every android, so the overlay's C#
+	     (Psylink_Patches.cs) closes them again for non-awakened androids only. Doing it this way round
+	     means the awakened exception lives in one place instead of being fought for inside the original's
+	     own blanket handler. -->
+
+	<Operation Class="PatchOperationRemove">
+		<xpath>Defs/VREAndroids.AndroidSettings[defName="VREA_AndroidSettings"]/androidsShouldNotReceiveHediffs/li[.="PsychicAmplifier"]</xpath>
+	</Operation>
+
+</Patch>
