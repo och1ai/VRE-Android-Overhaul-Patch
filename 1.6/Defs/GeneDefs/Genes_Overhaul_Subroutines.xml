@@ -74,11 +74,17 @@
 	<VREAndroids.AndroidGeneDef ParentName="VREA_SubroutineBase" MayRequire="Ludeon.RimWorld.Anomaly">
 		<defName>VREA_Occultist</defName>
 		<label>occultist</label>
-		<description>Forbidden subroutines let this android interface with the dark and the anomalous. It is the only android that can take part in psychic rituals - including being the subject of an infused death refusal - and the only one able to capture, contain, suppress and study entities. Its routines read an entity's agitation directly, letting it suppress one markedly faster than an organic mind could. Studying still requires that the android is not incapable of Intellectual.</description>
+		<description>Forbidden subroutines let this android interface with the dark and the anomalous. It is the only android that can take part in psychic rituals - including being the subject of an infused death refusal - and the only one able to capture, contain, suppress and study entities.\n\nThe same routines read the twisted patterns of dark psychic energy directly: it learns far more from every entity it studies, works through a study faster, and calms an agitated entity more quickly than an organic mind could. Studying still requires that the android is not incapable of Intellectual.</description>
 		<iconPath>UI/PsychicRituals/PsychicRitual_VoidProvocation</iconPath>
 		<displayOrderInCategory>51</displayOrderInCategory>
 		<biostatCpx>2</biostatCpx>
 		<biostatMet>-4</biostatMet>
+		<!-- StudyEfficiency / EntityStudyRate mirror Anomaly's own "occultist" trait exactly (+1 and +0.5,
+		     i.e. double knowledge per study and a 50% faster study interaction). -->
+		<statOffsets>
+			<StudyEfficiency>1</StudyEfficiency>
+			<EntityStudyRate>0.5</EntityStudyRate>
+		</statOffsets>
 		<statFactors>
 			<ActivitySuppressionRate>1.5</ActivitySuppressionRate>
 		</statFactors>
