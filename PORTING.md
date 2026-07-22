@@ -35,44 +35,57 @@ giver, job driver and float-menu option are all ported, plus `RealDeathFromData`
 destroyed. The persona is captured on death and carried by the item.
 **Still open:** nothing consumes a recovered subcore yet - that is the assembler (2).
 
-### 2. Android designer — DO THIS BEFORE THE ASSEMBLER
-`Window_AndroidDesign` (653 lines) + `VREA_UIHelper` (190). Also the 7e hair-colour palette (story
-override, gene only via gene-swatch) and keeping skin/hair/body-shape genes out of the component editor
-(`GeneValidator`).
+### 2. The UI cluster: designer + assembler + creation windows — ONE unit, ~1900 lines
 
-**Why the order changed:** a trial port of the assembler showed it references `Window_AndroidDesign`
-directly, so it cannot compile until the designer exists. The assembler files were parked rather than
-committed half-built.
+A trial port of the designer showed it and the assembler are **mutually dependent**, so they cannot be
+done in sequence:
 
-### 3. Assembler (printer rework)
-`Building_AndroidCreationStation` (954 lines, a 5x rewrite of the original's 184 - so `thingClass`
-repointing to a copied class, not a subclass), `UnfinishedAndroid` staged render, `ITab_AndroidBills`
-(lives inside the building file), `WorkGiver_CompleteAndroidCycle` + `JobDriver_CompleteAndroidCycle`
-(inside `WorkGiver_CreateAndroid.cs`), print/resurrect/reprint bills.
+- `Window_AndroidDesign` references the assembler's `curDesign`, `printMode`, the `PrintMode` enum,
+  `MakeDesignAndroid` and `GestationTicks`.
+- `Building_AndroidCreationStation` opens `Window_AndroidDesign`.
+- Both reach `Window_AndroidCreation.onTypeResult`, a fork addition, which drags in
+  `Window_CreateAndroidBase` (853 lines in the fork).
 
-Trial port found the complete dependency list - nothing else is missing:
-- **Stock-assembly accessor swaps** (the fork builds against a publicized Assembly-CSharp):
-  `apparel.wornApparel` -> `WornApparel`, `equipment.equipment` -> `AllEquipmentListForReading`,
-  `ThingDefCount.thingDef`/`.count` -> `.ThingDef`/`.Count`.
-- **Access modifiers**: `DrawAt`, `Tick`, `TickInterval`, `FillTab`, `MakeNewToils` are all `protected`.
-- **Fork helpers to supply**: `Utils.AndroidMaterialCost`, `RemoveDuplicateGenes`,
-  `suppressAndroidNotifications`, `SyncBloodOrgans` (no-op until 4), plus redirects for `HasSubcore`,
-  `SyncPowerCore`, `SyncAndroidIdeo`, `IsSkinColorGene`/`IsHairColorGene` which already exist here.
-- **Defs to add/resolve**: `VREA_AndroidAssembling`, `VREA_CompleteAndroidCycle`, `VREA_ResurrectAndroid`,
-  and DefOf-style lookups for `VREA_AndroidSubcore` / `VREA_BatteryPowered`.
-- `PawnUtility_GetPosture_Patch.forceStandingPawn` (fork-only static, port with the patch).
+So the unit is: `Window_CreateAndroidBase` (853) + `Window_AndroidDesign` (653) + `VREA_UIHelper` (190) +
+`Window_AndroidModification` (122) + `Window_AndroidCreation` (108) + `Building_AndroidCreationStation`
+(954) + `UnfinishedAndroid` (101) + `WorkGiver_CreateAndroid` (95). Copy them all, then resolve one shared
+surface (below) in a single pass. Partial ports do not compile, so nothing lands until the whole unit does.
 
-### 4. Blood organs
+**The one structural blocker:** `Window_CreateAndroidBase` uses `requiresOneOf` / `conflictsWith`, which
+are fields the fork ADDED to `AndroidGeneDef`. The overlay cannot extend the original's def class. Options,
+cheapest first: (a) drop those two features from the ported window (requirements/conflict tooltips are
+cosmetic - exclusions already work via `exclusionTags`); (b) carry the data in our own `DefModExtension` on
+the overlay's genes and read that instead; (c) Harmony-patch the def loader. **(b) is the recommended
+route** - it keeps the feature and costs one extension class plus a lookup helper.
+
+**Shared surface to supply once** (found by trial-porting both halves; nothing else is missing):
+- Accessor swaps for the stock assembly: `apparel.wornApparel` -> `WornApparel`,
+  `equipment.equipment` -> `AllEquipmentListForReading`, `ThingDefCount.thingDef`/`.count` ->
+  `.ThingDef`/`.Count`.
+- Access modifiers: `DrawAt`, `Tick`, `TickInterval`, `FillTab`, `MakeNewToils`, `Satisfied`,
+  `TryGiveJob`, `Designation`, provider `Drafted`/`Undrafted`/`Multiselect`/`GetSingleOptionFor`.
+- Fork `Utils` members to add locally: `AndroidMaterialCost`, `RemoveDuplicateGenes`,
+  `suppressAndroidNotifications`, `SyncBloodOrgans` (no-op until 4), `AllSkinColorAndroidGenes`,
+  `SkinColorOf`, `IsBloodGene`, `IsPowerGene`. Already present and only needing a redirect:
+  `HasSubcore`, `SyncPowerCore`, `SyncAndroidIdeo`, `IsSkinColorGene`, `IsHairColorGene`.
+- DefOf-style lookups: `VREA_AndroidSubcore`, `VREA_BatteryPowered`, `VREA_ReactorPowered` (= the
+  retuned `VREA_Power`), `VREA_NormalBlood`, `VREA_Ideological`, `VREA_AndroidAssembling`,
+  `VREA_CompleteAndroidCycle`, `VREA_ResurrectAndroid`, `VRE_AndroidXenotypeIcon7`.
+- `PawnUtility_GetPosture_Patch.forceStandingPawn` (fork-only static, port with that patch).
+- Defs: assembler `thingClass` + `inspectorTabs` repoint, label/description, the resurrect recipe and the
+  cycle work giver; drop the tool-cabinet linkable and its place worker.
+
+### 3. Blood organs
 `BloodOrgansExtension`, `Gene_AndroidBlood`, per-blood-type organ hediffs (hemopump/neutrofilter/data
 bus/heatsink/fluid reprocessor) and the load-time reconcile. Cosmetic-ish but part of the parts economy.
 
-### 5. Editor UX for exclusive hardware
+### 4. Editor UX for exclusive hardware (part of 2 once that lands)
 `Window_CreateAndroidBase` / `Window_AndroidCreation` / `Window_AndroidModification`: blood/power/chassis
 swap-on-click, locked components at the behaviorist station, requirement and conflict tooltips
 (`requiresOneOf` / `conflictsWith` need the extended `AndroidGeneDef`, which the overlay cannot add —
 needs a different mechanism).
 
-### 6. Smaller behavioural deltas
+### 5. Smaller behavioural deltas
 - `MechanitorControlGroupGizmo` "Assigned mechs" tooltip (reflective, needs the power need).
 - `Pawn_HealthTracker_MakeDowned` + `CompPowerTrader` inspect + `ThingWithComps_GetGizmos` +
   `InspectTabBase_UpdateSize` + `NeedsCardUtility` sizing.
@@ -83,7 +96,7 @@ needs a different mechanism).
 - `PawnGenerator` dev-spawn fix for awakened androids.
 - `Gene_RainVulnerability` / `Gene_SelfDestructProtocols` deltas.
 
-### 7. Deferred by design
+### 6. Deferred by design
 - **Uncanny valley** — parked pending the user's redesign.
 - 7h awakened extras: void mental breaks, reading books.
 
