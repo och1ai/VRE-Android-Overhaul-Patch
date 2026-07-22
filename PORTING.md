@@ -35,45 +35,21 @@ giver, job driver and float-menu option are all ported, plus `RealDeathFromData`
 destroyed. The persona is captured on death and carried by the item.
 **Still open:** nothing consumes a recovered subcore yet - that is the assembler (2).
 
-### 2. The UI cluster: designer + assembler + creation windows — ONE unit, ~1900 lines
+### 2. UI cluster (designer + assembler + creation windows) — DONE, UNTESTED
+All eight files ported: `Window_CreateAndroidBase`, `Window_AndroidCreation`, `Window_AndroidModification`,
+`Window_AndroidDesign`, `VREA_UIHelper`, `Building_AndroidCreationStation` (+ `ITab_AndroidBills`),
+`UnfinishedAndroid`, `WorkGiver_CreateAndroid` (+ the cycle work giver and job driver). Wired up by
+`Patches/Assembler.xml` (thingClass, bills tab, label/description, job and work-giver classes, polyanalyzer
+output) and `Defs/Assembler_Overhaul.xml` (cycle job/work giver, resurrect recipe, assembling effecter).
 
-A trial port of the designer showed it and the assembler are **mutually dependent**, so they cannot be
-done in sequence:
+Shared surface lives in `Source/ForkCompat.cs`: the fork's `Utils` helpers, an `OverhaulDefOf`, and
+`VanillaGeneUI` reflection wrappers for `GeneUIUtility.DrawStat`, `DrawIconSelector` and
+`ValidSymbolRegex`, which vanilla keeps private.
 
-- `Window_AndroidDesign` references the assembler's `curDesign`, `printMode`, the `PrintMode` enum,
-  `MakeDesignAndroid` and `GestationTicks`.
-- `Building_AndroidCreationStation` opens `Window_AndroidDesign`.
-- Both reach `Window_AndroidCreation.onTypeResult`, a fork addition, which drags in
-  `Window_CreateAndroidBase` (853 lines in the fork).
-
-So the unit is: `Window_CreateAndroidBase` (853) + `Window_AndroidDesign` (653) + `VREA_UIHelper` (190) +
-`Window_AndroidModification` (122) + `Window_AndroidCreation` (108) + `Building_AndroidCreationStation`
-(954) + `UnfinishedAndroid` (101) + `WorkGiver_CreateAndroid` (95). Copy them all, then resolve one shared
-surface (below) in a single pass. Partial ports do not compile, so nothing lands until the whole unit does.
-
-**The one structural blocker:** `Window_CreateAndroidBase` uses `requiresOneOf` / `conflictsWith`, which
-are fields the fork ADDED to `AndroidGeneDef`. The overlay cannot extend the original's def class. Options,
-cheapest first: (a) drop those two features from the ported window (requirements/conflict tooltips are
-cosmetic - exclusions already work via `exclusionTags`); (b) carry the data in our own `DefModExtension` on
-the overlay's genes and read that instead; (c) Harmony-patch the def loader. **(b) is the recommended
-route** - it keeps the feature and costs one extension class plus a lookup helper.
-
-**Shared surface to supply once** (found by trial-porting both halves; nothing else is missing):
-- Accessor swaps for the stock assembly: `apparel.wornApparel` -> `WornApparel`,
-  `equipment.equipment` -> `AllEquipmentListForReading`, `ThingDefCount.thingDef`/`.count` ->
-  `.ThingDef`/`.Count`.
-- Access modifiers: `DrawAt`, `Tick`, `TickInterval`, `FillTab`, `MakeNewToils`, `Satisfied`,
-  `TryGiveJob`, `Designation`, provider `Drafted`/`Undrafted`/`Multiselect`/`GetSingleOptionFor`.
-- Fork `Utils` members to add locally: `AndroidMaterialCost`, `RemoveDuplicateGenes`,
-  `suppressAndroidNotifications`, `SyncBloodOrgans` (no-op until 4), `AllSkinColorAndroidGenes`,
-  `SkinColorOf`, `IsBloodGene`, `IsPowerGene`. Already present and only needing a redirect:
-  `HasSubcore`, `SyncPowerCore`, `SyncAndroidIdeo`, `IsSkinColorGene`, `IsHairColorGene`.
-- DefOf-style lookups: `VREA_AndroidSubcore`, `VREA_BatteryPowered`, `VREA_ReactorPowered` (= the
-  retuned `VREA_Power`), `VREA_NormalBlood`, `VREA_Ideological`, `VREA_AndroidAssembling`,
-  `VREA_CompleteAndroidCycle`, `VREA_ResurrectAndroid`, `VRE_AndroidXenotypeIcon7`.
-- `PawnUtility_GetPosture_Patch.forceStandingPawn` (fork-only static, port with that patch).
-- Defs: assembler `thingClass` + `inspectorTabs` repoint, label/description, the resurrect recipe and the
-  cycle work giver; drop the tool-cabinet linkable and its place worker.
+**Carried gap:** `requiresOneOf` / `conflictsWith` cannot exist on the original's `AndroidGeneDef`, so
+`RequiredHardware` / `RequirementSatisfiedBy` / `ConflictInSelection` report "no requirement, no conflict".
+Mutually exclusive groups still work (vanilla `exclusionTags`); only the requirement and conflict TOOLTIPS
+are missing. Restoring them needs our own `DefModExtension` carrying that data.
 
 ### 3. Blood organs
 `BloodOrgansExtension`, `Gene_AndroidBlood`, per-blood-type organ hediffs (hemopump/neutrofilter/data

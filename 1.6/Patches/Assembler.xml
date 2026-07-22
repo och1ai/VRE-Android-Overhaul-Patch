@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+
+	<!-- The creation station becomes the android assembler: a printer that builds an android on its own
+	     over timed cycles, with a bills tab for resurrections, instead of a workbench a crafter stands at
+	     for the whole job. The class is a rewrite rather than an extension, so the thingClass is repointed
+	     at the overlay's copy. -->
+
+	<Operation Class="PatchOperationReplace">
+		<xpath>Defs/ThingDef[defName="VREA_AndroidCreationStation"]/thingClass</xpath>
+		<value>
+			<thingClass>VREAndroidsOverhaul.Building_AndroidCreationStation</thingClass>
+		</value>
+	</Operation>
+
+	<Operation Class="PatchOperationReplace">
+		<xpath>Defs/ThingDef[defName="VREA_AndroidCreationStation"]/label</xpath>
+		<value>
+			<label>android assembler</label>
+		</value>
+	</Operation>
+
+	<Operation Class="PatchOperationReplace">
+		<xpath>Defs/ThingDef[defName="VREA_AndroidCreationStation"]/description</xpath>
+		<value>
+			<description>An advanced 3D printer for fabricating humanoids layer by layer, of the kind used by ultratech societies - or by archotech-sent ambassadors seeded to infiltrate and study distant human cultures. It can print new androids, resurrect a dead one, or reprint a body from a recovered subcore. Once a colonist has loaded the required materials, the printer builds the android on its own over time, drawing power throughout - no further manual labour is needed. An android's appearance, hardware and subroutines are set when the print is queued.</description>
+		</value>
+	</Operation>
+
+	<Operation Class="PatchOperationAdd">
+		<xpath>Defs/ThingDef[defName="VREA_AndroidCreationStation"]</xpath>
+		<value>
+			<inspectorTabs>
+				<li>VREAndroidsOverhaul.ITab_AndroidBills</li>
+			</inspectorTabs>
+		</value>
+	</Operation>
+
+	<!-- The assembler works on its own, so it is no longer a workbench that tool cabinets speed up. -->
+	<Operation Class="PatchOperationRemove">
+		<xpath>Defs/ThingDef[defName="VREA_AndroidCreationStation"]/comps/li[@Class="CompProperties_AffectedByFacilities"]</xpath>
+	</Operation>
+
+	<Operation Class="PatchOperationRemove">
+		<xpath>Defs/ThingDef[defName="VREA_AndroidCreationStation"]/placeWorkers</xpath>
+	</Operation>
+
+	<Operation Class="PatchOperationReplace">
+		<xpath>Defs/ThingDef[defName="VREA_UnfinishedAndroid"]/thingClass</xpath>
+		<value>
+			<thingClass>VREAndroidsOverhaul.UnfinishedAndroid</thingClass>
+		</value>
+	</Operation>
+
+	<Operation Class="PatchOperationReplace">
+		<xpath>Defs/JobDef[defName="VREA_CreateAndroid"]/driverClass</xpath>
+		<value>
+			<driverClass>VREAndroidsOverhaul.JobDriver_CreateAndroid</driverClass>
+		</value>
+	</Operation>
+
+	<Operation Class="PatchOperationReplace">
+		<xpath>Defs/WorkGiverDef[defName="VREA_CreateAndroid"]/giverClass</xpath>
+		<value>
+			<giverClass>VREAndroidsOverhaul.WorkGiver_CreateAndroid</giverClass>
+		</value>
+	</Operation>
+
+	<!-- The polyanalyzer now outputs the identity-carrying subcore. -->
+	<Operation Class="PatchOperationReplace">
+		<xpath>Defs/ThingDef[defName="VREA_SubcorePolyanalyzer"]/comps/li[subcoreScannerOutputDef="VREA_PersonaSubcore"]/subcoreScannerOutputDef</xpath>
+		<value>
+			<subcoreScannerOutputDef>VREA_AndroidSubcore</subcoreScannerOutputDef>
+		</value>
+	</Operation>
+
+</Patch>

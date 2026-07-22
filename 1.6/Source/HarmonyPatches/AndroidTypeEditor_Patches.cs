@@ -23,7 +23,7 @@ namespace VREAndroidsOverhaul
 
         public static MethodBase TargetMethod()
         {
-            return AccessTools.Constructor(typeof(Window_CreateAndroidBase), new[] { typeof(Action) });
+            return AccessTools.Constructor(typeof(VREAndroids.Window_CreateAndroidBase), new[] { typeof(Action) });
         }
 
         public static bool Prepare()
@@ -38,7 +38,7 @@ namespace VREAndroidsOverhaul
             return false;
         }
 
-        public static void Postfix(Window_CreateAndroidBase __instance)
+        public static void Postfix(VREAndroids.Window_CreateAndroidBase __instance)
         {
             List<GeneDef> selected = __instance.SelectedGenes;
             if (selected == null)

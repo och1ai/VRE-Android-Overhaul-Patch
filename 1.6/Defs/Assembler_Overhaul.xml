@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+	<!-- Defs the assembler rework adds: the cycle work giver and its job, the resurrect bill, and the
+	     assembling effecter. The building, its bills tab and the unfinished-android render are repointed onto
+	     the overlay's classes by Patches/Assembler.xml. -->
+
+	<JobDef>
+		<defName>VREA_CompleteAndroidCycle</defName>
+		<driverClass>VREAndroidsOverhaul.JobDriver_CompleteAndroidCycle</driverClass>
+		<reportString>completing assembly cycle at TargetA.</reportString>
+		<allowOpportunisticPrefix>true</allowOpportunisticPrefix>
+	</JobDef>
+
+	<WorkGiverDef>
+		<defName>VREA_CompleteAndroidCycle</defName>
+		<label>completing android assembly cycle</label>
+		<giverClass>VREAndroidsOverhaul.WorkGiver_CompleteAndroidCycle</giverClass>
+		<workType>Crafting</workType>
+		<priorityInType>110</priorityInType>
+		<verb>complete an assembly cycle at</verb>
+		<gerund>completing an assembly cycle at</gerund>
+		<requiredCapacities>
+			<li>Manipulation</li>
+		</requiredCapacities>
+		<prioritizeSustains>true</prioritizeSustains>
+	</WorkGiverDef>
+
+<RecipeDef>
+	  <defName>VREA_ResurrectAndroid</defName>
+	  <label>resurrect android</label>
+	  <description>Resurrect a dead android. As long as the body still holds an intact subcore, the assembler reprints its damaged components and reboots the android back to life over one assembly cycle (4 days). A colonist first loads the dead body and 50 steel.</description>
+	  <jobString>Resurrecting android.</jobString>
+	  <workAmount>240000</workAmount>
+	  <ingredients>
+	    <li>
+	      <filter>
+	        <thingDefs>
+	          <li>Steel</li>
+	        </thingDefs>
+	      </filter>
+	      <count>50</count>
+	    </li>
+	  </ingredients>
+	  <fixedIngredientFilter>
+	    <thingDefs>
+	      <li>Steel</li>
+	    </thingDefs>
+	  </fixedIngredientFilter>
+	</RecipeDef>
+
+<EffecterDef>
+	  <defName>VREA_AndroidAssembling</defName>
+	  <children>
+	    <li>
+	      <subEffecterClass>SubEffecter_Sustainer</subEffecterClass>
+	      <soundDef>Recipe_Machining</soundDef>
+	    </li>
+	    <li>
+	      <subEffecterClass>SubEffecter_SprayerChance</subEffecterClass>
+	      <fleckDef>DustPuff</fleckDef>
+	      <chancePerTick>0.035</chancePerTick>
+	      <scale>0.9~1.3</scale>
+	      <rotationRate>-60~60</rotationRate>
+	      <speed>0.6~1.8</speed>
+	      <spawnLocType>OnTarget</spawnLocType>
+	    </li>
+	    <li>
+	      <subEffecterClass>SubEffecter_SprayerChance</subEffecterClass>
+	      <fleckDef>SparkFlash</fleckDef>
+	      <positionLerpFactor>0.49</positionLerpFactor>
+	      <chancePerTick>0.2</chancePerTick>
+	      <scale>2.5~3.5</scale>
+	      <spawnLocType>OnTarget</spawnLocType>
+	    </li>
+	    <li>
+	      <subEffecterClass>SubEffecter_SprayerChance</subEffecterClass>
+	      <moteDef>Mote_SparkThrown</moteDef>
+	      <positionLerpFactor>0.49</positionLerpFactor>
+	      <chancePerTick>0.2</chancePerTick>
+	      <scale>0.24~0.34</scale>
+	      <airTime>0.08~0.16</airTime>
+	      <rotationRate>-240~240</rotationRate>
+	      <speed>7.2~24</speed>
+	      <angle>135~225</angle>
+	      <positionRadius>0.02</positionRadius>
+	      <spawnLocType>OnTarget</spawnLocType>
+	    </li>
+	  </children>
+	</EffecterDef>
+
+</Defs>
