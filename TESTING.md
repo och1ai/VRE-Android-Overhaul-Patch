@@ -118,7 +118,14 @@ android patient.
 - [ ] An android with **component overheating** but no memory hardware grows a memory bar **only while
       overheating**, drains ~3x faster, and the bar disappears again once it cools down.
 
-## 12. Misc
+## 12. Social tab
+
+- [ ] A base android with **no emotion simulators and no ideological subroutine**: Social tab is just the
+      interaction log filling the card — no relations section, no ideoligion section, no empty gaps.
+- [ ] An android with **emotion simulators**, or an **awakened** one, or one with the **ideological**
+      subroutine: normal Social tab.
+
+## 13. Misc
 
 - [ ] Android corpses cannot be eaten.
 - [ ] Neutrocasket lets you set a target fuel amount (max 120, default 40).
@@ -129,6 +136,6 @@ android patient.
 
 - **Subcore recovery**: no extraction surgery, no assembler — a "destroyed" android is not mourned but
   cannot actually be brought back yet.
-- **Blood organs** (hemopump / neutrofilter / data bus etc.), **android designer / assembler**, memory need
-  rework, emotion simulators, needs-tab trimming, control-group "Assigned mechs" tooltip, uncanny valley
-  (parked by design).
+- **Blood organs**, **android designer / assembler**, control-group "Assigned mechs" tooltip, right-click
+  "Repair" order, stand waste production, uncanny valley (parked by design). Full list and order in
+  `PORTING.md`.
