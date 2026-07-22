@@ -22,6 +22,15 @@
 	<VREAOverhaul.AndroidKilled>Android killed</VREAOverhaul.AndroidKilled>
 	<VREAOverhaul.AndroidKilledDesc>{PAWN_labelShort}'s subcore has been destroyed. With it gone, the android is truly dead and can never be brought back.</VREAOverhaul.AndroidKilledDesc>
 
+	<!-- Subcore extraction and the stored persona. These keep the fork's key names because the ported
+	     files reference them directly; the original mod defines none of them. -->
+	<VREA.UnknownPersona>unknown persona</VREA.UnknownPersona>
+	<VREA.SubcoreStoredPersona>Stored android: {0}</VREA.SubcoreStoredPersona>
+	<VREA.DesignatorExtractSubcore>Extract android subcore</VREA.DesignatorExtractSubcore>
+	<VREA.DesignatorExtractSubcoreDesc>Designate a dead android's body so a colonist will extract its subcore. The recovered subcore stores the android's identity and can be used to reprint or resurrect it.</VREA.DesignatorExtractSubcoreDesc>
+	<VREA.MessageMustDesignateSubcore>Must designate a dead android that still has a subcore.</VREA.MessageMustDesignateSubcore>
+	<VREAOverhaul.AndroidKilledNoBodyDesc>{0}'s subcore has been destroyed. The stored android is gone for good and can never be brought back.</VREAOverhaul.AndroidKilledNoBodyDesc>
+
 	<!-- Alerts. -->
 	<VREAOverhaul.AlertUncontrolledAndroids>Uncontrolled androids</VREAOverhaul.AlertUncontrolledAndroids>
 	<VREAOverhaul.AlertUncontrolledAndroidsDesc>One or more of your mechlike androids has no overseer. Without a mechanitor connected, they stand dormant and cannot work. Connect them to a mechanitor with enough bandwidth to bring them back online.\n\nUnlike mechanoids, an uncontrolled android will never go feral - it simply waits.\n\nThe following androids are dormant</VREAOverhaul.AlertUncontrolledAndroidsDesc>

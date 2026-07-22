@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+	<JobDef>
+		<defName>VREA_ExtractSubcore</defName>
+		<driverClass>VREAndroidsOverhaul.JobDriver_ExtractSubcore</driverClass>
+		<reportString>extracting subcore from TargetA.</reportString>
+	</JobDef>
+
+	<WorkGiverDef>
+		<defName>VREA_ExtractSubcore</defName>
+		<label>extract android subcore</label>
+		<giverClass>VREAndroidsOverhaul.WorkGiver_ExtractSubcore</giverClass>
+		<workType>Crafting</workType>
+		<verb>extract subcore from</verb>
+		<gerund>extracting subcore from</gerund>
+		<priorityInType>210</priorityInType>
+		<requiredCapacities>
+			<li>Manipulation</li>
+		</requiredCapacities>
+	</WorkGiverDef>
+
+</Defs>

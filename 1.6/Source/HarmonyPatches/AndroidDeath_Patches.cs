@@ -21,7 +21,7 @@ namespace VREAndroidsOverhaul
             {
                 return;
             }
-            if (AndroidDeath.HasSubcore(__instance, out Hediff subcore) && HeadOrTorsoDestroyed(__instance))
+            if (AndroidDeath.HasSubcore(__instance, out Hediff_AndroidSubcore subcore) && HeadOrTorsoDestroyed(__instance))
             {
                 __instance.health.RemoveHediff(subcore);
             }

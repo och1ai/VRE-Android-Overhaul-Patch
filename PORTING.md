@@ -29,13 +29,11 @@ the fork's version of a def/class in full and match it field for field before wr
 
 ## Remaining, in dependency order
 
-### 1. Subcore recovery — the biggest gap
-Without it, "android destroyed" promises a recovery the mod cannot deliver.
-- `AndroidPersonaData` (395 lines) — the stored identity, also needed by the designer and assembler.
-- Subcore item `AndroidSubcore`, extraction surgery, designator, work giver, job driver, float-menu option.
-- `Hediff_AndroidSubcore.SpawnSubcore` (pops the core, disowns the husk, blows off the head).
-- Hide the subcore from the health list (`HealthCardUtility_VisibleHediffs`).
-- `Utils.AndroidRealDeathFromData` for a stored core being destroyed.
+### 1. Subcore recovery — DONE (extraction half)
+`AndroidPersonaData`, the `AndroidSubcore` item, `SpawnSubcore`, the extraction surgery, designator, work
+giver, job driver and float-menu option are all ported, plus `RealDeathFromData` for a stored core being
+destroyed. The persona is captured on death and carried by the item.
+**Still open:** nothing consumes a recovered subcore yet - that is the assembler (2).
 
 ### 2. Assembler (printer rework)
 Depends on 1. `Building_AndroidCreationStation` cycle rework, `UnfinishedAndroid` staged render,
