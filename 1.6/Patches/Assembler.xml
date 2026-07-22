@@ -66,9 +66,12 @@
 		</value>
 	</Operation>
 
-	<!-- The polyanalyzer now outputs the identity-carrying subcore. -->
+	<!-- The polyanalyzer now outputs the identity-carrying subcore. The fork renamed the def outright
+	     (VREA_PersonaSubcore -> VREA_AndroidSubcore); an overlay cannot rename the original's def, so it
+	     adds its own and repoints the one thing that produces it. Scanner settings live under <building>,
+	     not <comps> - the printer's whole ingredient chain hangs off this single line. -->
 	<Operation Class="PatchOperationReplace">
-		<xpath>Defs/ThingDef[defName="VREA_SubcorePolyanalyzer"]/comps/li[subcoreScannerOutputDef="VREA_PersonaSubcore"]/subcoreScannerOutputDef</xpath>
+		<xpath>Defs/ThingDef[defName="VREA_SubcorePolyanalyzer"]/building/subcoreScannerOutputDef</xpath>
 		<value>
 			<subcoreScannerOutputDef>VREA_AndroidSubcore</subcoreScannerOutputDef>
 		</value>
