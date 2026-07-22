@@ -106,7 +106,19 @@ android patient.
 - [ ] The **reactor** recipe is available at the **machining table**.
 - [ ] Only one crafter works on a given android at a time.
 
-## 11. Misc
+## 11. Editor defaults and needs tab
+
+- [ ] A **new androidtype** starts with **reactor powered** selected and battery deselected, and
+      **neutroamine blood** selected with hemogenic and bloodless deselected.
+- [ ] **Memory recharging** starts **deselected** — a stock android is built with no working memory.
+- [ ] A non-awakened android's needs tab shows **only Power and Memory**; an awakened one shows the full
+      set.
+- [ ] Without the memory hardware there is **no memory bar** at all, and the android never reformats.
+- [ ] With the memory hardware the bar drains and the android reformats when it bottoms out.
+- [ ] An android with **component overheating** but no memory hardware grows a memory bar **only while
+      overheating**, drains ~3x faster, and the bar disappears again once it cools down.
+
+## 12. Misc
 
 - [ ] Android corpses cannot be eaten.
 - [ ] Neutrocasket lets you set a target fuel amount (max 120, default 40).

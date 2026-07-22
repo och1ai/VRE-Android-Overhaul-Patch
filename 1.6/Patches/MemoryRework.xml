@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+
+	<!-- Working memory becomes optional hardware instead of something every android is born with. The
+	     original's "memory processing" gene is retuned in place (same defName, so saves migrate) into the
+	     optional "memory recharging", dropped from the default loadout, and the memory need only exists
+	     while the android actually has a memory system to maintain. -->
+
+	<Operation Class="PatchOperationReplace">
+		<xpath>Defs/VREAndroids.AndroidGeneDef[defName="VREA_MemoryProcessing"]/label</xpath>
+		<value>
+			<label>memory recharging</label>
+		</value>
+	</Operation>
+
+	<Operation Class="PatchOperationReplace">
+		<xpath>Defs/VREAndroids.AndroidGeneDef[defName="VREA_MemoryProcessing"]/description</xpath>
+		<value>
+			<description>Fits the android with active working memory. As on classic android designs, this gives it a memory need: its memory steadily fills during operation and must be periodically reformatted, or the android locks into a reformatting reboot until the drive is cleared. An android without this hardware keeps no working memory and never needs to reformat.</description>
+		</value>
+	</Operation>
+
+	<Operation Class="PatchOperationReplace">
+		<xpath>Defs/VREAndroids.AndroidGeneDef[defName="VREA_MemoryProcessing"]/displayOrderInCategory</xpath>
+		<value>
+			<displayOrderInCategory>23</displayOrderInCategory>
+		</value>
+	</Operation>
+
+	<Operation Class="PatchOperationReplace">
+		<xpath>Defs/VREAndroids.AndroidGeneDef[defName="VREA_MemoryProcessing"]/biostatCpx</xpath>
+		<value>
+			<biostatCpx>2</biostatCpx>
+		</value>
+	</Operation>
+
+	<!-- Optional, so it can be deselected in the editor - which also stops it being auto-selected as
+	     immutable core hardware. Running no working memory frees up a lot of capacity. -->
+	<Operation Class="PatchOperationAdd">
+		<xpath>Defs/VREAndroids.AndroidGeneDef[defName="VREA_MemoryProcessing"]</xpath>
+		<value>
+			<biostatMet>10</biostatMet>
+			<isCoreComponent>false</isCoreComponent>
+		</value>
+	</Operation>
+
+	<!-- Off by default: a new android is built with no working memory unless the player picks it. -->
+	<Operation Class="PatchOperationRemove">
+		<xpath>Defs/XenotypeDef[@Name="VREA_AndroidXenotypeBase"]/genes/li[.="VREA_MemoryProcessing"]</xpath>
+	</Operation>
+
+	<Operation Class="PatchOperationRemove">
+		<xpath>Defs/XenotypeDef[@Name="VREA_AndroidXenotypeAwakenedBase"]/genes/li[.="VREA_MemoryProcessing"]</xpath>
+	</Operation>
+
+	<!-- Heat scrambles the drive, so an overheating android gets a temporary memory need even when it was
+	     built with no memory hardware at all - which means the overheating gene has to enable the need too,
+	     or there would be nothing to show. -->
+	<Operation Class="PatchOperationReplace">
+		<xpath>Defs/VREAndroids.AndroidGeneDef[defName="VREA_ComponentOverheating"]/description</xpath>
+		<value>
+			<description>Androids do not suffer heatstroke. Instead, high temperatures scramble their working memory: while overheating, a memory need appears and steadily worsens, and if it bottoms out the android loses control, locked in a constant reformatting state until it cools down.</description>
+		</value>
+	</Operation>
+
+	<Operation Class="PatchOperationAdd">
+		<xpath>Defs/VREAndroids.AndroidGeneDef[defName="VREA_ComponentOverheating"]</xpath>
+		<value>
+			<enablesNeeds>
+				<li>VREA_MemorySpace</li>
+			</enablesNeeds>
+		</value>
+	</Operation>
+
+	<!-- The need itself only drains while there is a memory system to maintain. -->
+	<Operation Class="PatchOperationReplace">
+		<xpath>Defs/NeedDef[defName="VREA_MemorySpace"]/needClass</xpath>
+		<value>
+			<needClass>VREAndroidsOverhaul.Need_AndroidMemory</needClass>
+		</value>
+	</Operation>
+
+</Patch>
