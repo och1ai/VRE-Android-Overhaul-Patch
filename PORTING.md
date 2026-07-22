@@ -35,15 +35,32 @@ giver, job driver and float-menu option are all ported, plus `RealDeathFromData`
 destroyed. The persona is captured on death and carried by the item.
 **Still open:** nothing consumes a recovered subcore yet - that is the assembler (2).
 
-### 2. Assembler (printer rework)
-Depends on 1. `Building_AndroidCreationStation` cycle rework, `UnfinishedAndroid` staged render,
-`ITab_AndroidBills`, `WorkGiver_CompleteAndroidCycle`, print/resurrect/reprint bills. Class repointing via
-`thingClass` should carry most of it.
+### 2. Android designer — DO THIS BEFORE THE ASSEMBLER
+`Window_AndroidDesign` (653 lines) + `VREA_UIHelper` (190). Also the 7e hair-colour palette (story
+override, gene only via gene-swatch) and keeping skin/hair/body-shape genes out of the component editor
+(`GeneValidator`).
 
-### 3. Android designer
-Depends on 1 (persona) and 2 (where it is invoked from). `Window_AndroidDesign` (653 lines) +
-`VREA_UIHelper` (190). Also the 7e hair-colour palette (story override, gene only via gene-swatch) and
-keeping skin/hair/body-shape genes out of the component editor (`GeneValidator`).
+**Why the order changed:** a trial port of the assembler showed it references `Window_AndroidDesign`
+directly, so it cannot compile until the designer exists. The assembler files were parked rather than
+committed half-built.
+
+### 3. Assembler (printer rework)
+`Building_AndroidCreationStation` (954 lines, a 5x rewrite of the original's 184 - so `thingClass`
+repointing to a copied class, not a subclass), `UnfinishedAndroid` staged render, `ITab_AndroidBills`
+(lives inside the building file), `WorkGiver_CompleteAndroidCycle` + `JobDriver_CompleteAndroidCycle`
+(inside `WorkGiver_CreateAndroid.cs`), print/resurrect/reprint bills.
+
+Trial port found the complete dependency list - nothing else is missing:
+- **Stock-assembly accessor swaps** (the fork builds against a publicized Assembly-CSharp):
+  `apparel.wornApparel` -> `WornApparel`, `equipment.equipment` -> `AllEquipmentListForReading`,
+  `ThingDefCount.thingDef`/`.count` -> `.ThingDef`/`.Count`.
+- **Access modifiers**: `DrawAt`, `Tick`, `TickInterval`, `FillTab`, `MakeNewToils` are all `protected`.
+- **Fork helpers to supply**: `Utils.AndroidMaterialCost`, `RemoveDuplicateGenes`,
+  `suppressAndroidNotifications`, `SyncBloodOrgans` (no-op until 4), plus redirects for `HasSubcore`,
+  `SyncPowerCore`, `SyncAndroidIdeo`, `IsSkinColorGene`/`IsHairColorGene` which already exist here.
+- **Defs to add/resolve**: `VREA_AndroidAssembling`, `VREA_CompleteAndroidCycle`, `VREA_ResurrectAndroid`,
+  and DefOf-style lookups for `VREA_AndroidSubcore` / `VREA_BatteryPowered`.
+- `PawnUtility_GetPosture_Patch.forceStandingPawn` (fork-only static, port with the patch).
 
 ### 4. Blood organs
 `BloodOrgansExtension`, `Gene_AndroidBlood`, per-blood-type organ hediffs (hemopump/neutrofilter/data
