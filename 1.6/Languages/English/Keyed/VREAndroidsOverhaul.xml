@@ -31,6 +31,57 @@
 	<VREA.MessageMustDesignateSubcore>Must designate a dead android that still has a subcore.</VREA.MessageMustDesignateSubcore>
 	<VREAOverhaul.AndroidKilledNoBodyDesc>{0}'s subcore has been destroyed. The stored android is gone for good and can never be brought back.</VREAOverhaul.AndroidKilledNoBodyDesc>
 
+	<!-- Android designer and androidtype component editor. Copied verbatim from the fork: the ported
+	     windows reference these key names directly and the original mod defines none of them. -->
+	<VREA.Or>or</VREA.Or>
+	<VREA.ComponentRequires>Requires: {0}</VREA.ComponentRequires>
+	<VREA.ComponentMissingRequirement>{0} requires {1}</VREA.ComponentMissingRequirement>
+	<VREA.ComponentConflictsWith>Conflicts with: {0}</VREA.ComponentConflictsWith>
+	<VREA.DesignAndroid>Design android</VREA.DesignAndroid>
+	<VREA.Identity>Identity</VREA.Identity>
+	<VREA.FullName>Full name</VREA.FullName>
+	<VREA.AndroidAge>Android age</VREA.AndroidAge>
+	<VREA.YearsOld>{0} years old</VREA.YearsOld>
+	<VREA.StartPrint>Start print</VREA.StartPrint>
+	<VREA.AndroidType>Android type</VREA.AndroidType>
+	<VREA.SelectAndroidType>Select androidtype</VREA.SelectAndroidType>
+	<VREA.SelectTypeFirst>Select an androidtype first.</VREA.SelectTypeFirst>
+	<VREA.CreateAndroidType>Create androidtype</VREA.CreateAndroidType>
+	<VREA.Confirm>Confirm</VREA.Confirm>
+	<VREA.CreateNewType>Create new type...</VREA.CreateNewType>
+	<VREA.LoadSavedType>Load saved type...</VREA.LoadSavedType>
+	<VREA.Randomize>Randomize</VREA.Randomize>
+	<VREA.Rotate>Rotate</VREA.Rotate>
+	<VREA.NameFirst>First</VREA.NameFirst>
+	<VREA.NameNick>Nickname</VREA.NameNick>
+	<VREA.NameLast>Last</VREA.NameLast>
+	<VREA.Appearance>Appearance</VREA.Appearance>
+	<VREA.HeadShape>Head</VREA.HeadShape>
+	<VREA.BodyShape>Body</VREA.BodyShape>
+	<VREA.SkinColour>Skin colour</VREA.SkinColour>
+	<VREA.HairType>Hair</VREA.HairType>
+	<VREA.HairColour>Hair colour</VREA.HairColour>
+	<VREA.BeardType>Beard</VREA.BeardType>
+	<VREA.BodyTattoo>Body tattoo</VREA.BodyTattoo>
+	<VREA.FaceTattoo>Face tattoo</VREA.FaceTattoo>
+	<VREA.Ideoligion>Ideoligion</VREA.Ideoligion>
+	<VREA.Conviction>Conviction</VREA.Conviction>
+
+	<!-- Android assembler: inspect pane, cycle progress and the print/reprint gizmos. -->
+	<VREA.PrintingProgress>Printing progress: {0}%</VREA.PrintingProgress>
+	<VREA.PrintingPaused>paused, no power</VREA.PrintingPaused>
+	<VREA.PrintingAndroid>Printing {0}</VREA.PrintingAndroid>
+	<VREA.ResurrectingAndroid>Resurrecting {0}</VREA.ResurrectingAndroid>
+	<VREA.ReprintingAndroid>Reprinting {0}</VREA.ReprintingAndroid>
+	<VREA.CurrentPrintingCycle>Current assembly cycle</VREA.CurrentPrintingCycle>
+	<VREA.PrintingCyclesRemaining>Assembly cycles remaining</VREA.PrintingCyclesRemaining>
+	<VREA.AwaitingCycleCompletion>Waiting for a crafter to complete the cycle</VREA.AwaitingCycleCompletion>
+	<VREA.PrintAndroid>Print android</VREA.PrintAndroid>
+	<VREA.PrintAndroidDesc>Design a new android - its hardware, subroutines and appearance - and print it here. A colonist brings the materials, then the printer builds it on its own over time.</VREA.PrintAndroidDesc>
+	<VREA.ReprintAndroid>Reprint from subcore</VREA.ReprintAndroid>
+	<VREA.ReprintAndroidDesc>Select a recovered android subcore to load into the printer. A fresh body is printed carrying the stored android's full identity.</VREA.ReprintAndroidDesc>
+	<VREA.NoSubcores>No recovered subcores available</VREA.NoSubcores>
+
 	<!-- Alerts. -->
 	<VREAOverhaul.AlertUncontrolledAndroids>Uncontrolled androids</VREAOverhaul.AlertUncontrolledAndroids>
 	<VREAOverhaul.AlertUncontrolledAndroidsDesc>One or more of your mechlike androids has no overseer. Without a mechanitor connected, they stand dormant and cannot work. Connect them to a mechanitor with enough bandwidth to bring them back online.\n\nUnlike mechanoids, an uncontrolled android will never go feral - it simply waits.\n\nThe following androids are dormant</VREAOverhaul.AlertUncontrolledAndroidsDesc>
