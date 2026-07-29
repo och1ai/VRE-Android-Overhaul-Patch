@@ -96,6 +96,18 @@ actually reachable — every entry point opens the overlay's windows (see 2).
 
 ---
 
+## Repoint integrity check
+
+`Source/OverlayRepoints.cs` restates every class repoint done by `Patches/*.xml` as a startup assertion,
+because a `PatchOperation` whose xpath stops matching fails **quietly**: the game starts, most of the mod
+works, and one subsystem silently keeps running the original's code. Anything that did not take is named in
+the log and then set from code.
+
+On a healthy load it prints `[VRE-Android Overhaul] all N def repoints applied.` Any other message from it
+is a real bug in the matching patch file — fix the xpath, do not rely on the code fallback.
+
+---
+
 ## Known overlay-specific gaps
 
 - `requiresOneOf` / `conflictsWith` are fork-only fields on `AndroidGeneDef`. The overlay cannot extend the
