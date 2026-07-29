@@ -106,6 +106,19 @@ the log and then set from code.
 On a healthy load it prints `[VRE-Android Overhaul] all N def repoints applied.` Any other message from it
 is a real bug in the matching patch file — fix the xpath, do not rely on the code fallback.
 
+**Repointing a def is not enough on its own.** A save stores every thing, gene, hediff and need with the
+class it was running as and rebuilds it from that stored name, never from the def — so a def repoint only
+reaches things created *after* the overlay was added. An assembler already standing in a colony keeps
+opening the original's window forever; an android already alive keeps the original's power gene, reactor
+and needs. Nothing is logged and it reads exactly like the feature was never ported.
+
+`Source/HarmonyPatches/SavedClass_Patches.cs` declares each rewrite to
+`BackCompatibility.GetBackCompatibleType` (the hook the game uses for renamed classes; its converter chain
+is a private list mods cannot join, hence the postfix). **Every class repoint added to `Patches/*.xml` needs
+an entry there too**, unless the class is only ever created fresh. Replacements must subclass what they
+replace — or, as with the assembler, tolerate the saved nodes they will not find — and any entry on a class
+the overlay does not own must also match the node's def, so nothing outside this mod is touched.
+
 ---
 
 ## Known overlay-specific gaps
