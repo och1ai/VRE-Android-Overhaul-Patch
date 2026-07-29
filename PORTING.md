@@ -84,8 +84,22 @@ Mutually exclusive groups still work (vanilla `exclusionTags`); only the require
 are missing. Restoring them needs our own `DefModExtension` carrying that data.
 
 ### 3. Blood organs
-`BloodOrgansExtension`, `Gene_AndroidBlood`, per-blood-type organ hediffs (hemopump/neutrofilter/data
-bus/heatsink/fluid reprocessor) and the load-time reconcile. Cosmetic-ish but part of the parts economy.
+Code: `BloodOrgansExtension`, `BloodOrgan`, `Gene_AndroidBlood`, `GameComponent_AndroidBloodOrgans` (the
+load-time reconcile). **`ForkCompat.SyncBloodOrgans` is an empty method** — the call sites are already
+wired, so this is the one thing standing between them and working organs.
+Defs: hediffs `VREA_HemoPump`, `VREA_NeutroPump`, `VREA_HemoFilter`, `VREA_DataBus`, `VREA_Heatsink`,
+`VREA_FluidReprocessor`, plus the `VREA_NeutroPump` item and the `VREA_InstallNeutroPump` recipe.
+
+### 3b. Neutroamine economy
+`Recipe_ExtractNeutroamine` (the extract-hemogen-style surgery) is not ported, and the reservoir is still
+the original's 25 rather than 40 (`Recipe_AdministerNeutroamineForAndroid.NeutroaminePerFullReservoir`).
+The 40-neutroamine **print cost** is done, in `Window_AndroidCreation.OnGenesChanged`.
+
+### 3c. Bespoke charging job
+`JobDriver_ChargeAndroid` + `JobGiver_ChargeAndroid` as the fork writes them, the `VREA_ChargeAndroid` job
+def, the `VREA_Transition_LowPower` rule pack, and the charging mote / cable pulse / MechCharger sounds.
+Charging itself works today via a vanilla `LayDown` job plus a stand `Tick` postfix — what is missing is the
+job proper and all of its feedback.
 
 ### 4. Editor UX for exclusive hardware (part of 2 once that lands)
 Blood/power/chassis swap-on-click and the locked components at the behaviorist station are ported and now
@@ -94,13 +108,18 @@ actually reachable — every entry point opens the overlay's windows (see 2).
 `AndroidGeneDef`, which the overlay cannot add — needs a different mechanism).
 
 ### 5. Smaller behavioural deltas
+Verified against the fork on 2026-07-29; everything below is confirmed absent, not assumed.
+- **`ForkCompat.suppressAndroidNotifications` is a dead flag** — written in six places (the assembler's
+  preview build, its spawn path, the designer) and read nowhere, because the fork's
+  `PawnUtility_ShouldSendNotificationAbout_Patch` was never ported. Same failure `forceStandingPawn` had.
+  Until it lands, the throwaway preview pawns spam downed/undowned notices.
 - `MechanitorControlGroupGizmo` "Assigned mechs" tooltip (reflective, needs the power need).
-- `Pawn_HealthTracker_MakeDowned` + `CompPowerTrader` inspect + `ThingWithComps_GetGizmos` +
-  `InspectTabBase_UpdateSize` + `NeedsCardUtility` sizing.
-- `PawnUtility_ShouldSendNotificationAbout` (designer-preview notification muting — only matters with 3).
-- `FloatMenuOptionProvider_RepairAndroid` (right-click "Repair" order).
+- `ThingWithComps_GetGizmos`: the extract-subcore toggle on a selected corpse. Extraction itself works —
+  designator, job driver, surgery recipe and the item are all ported — this is only the shortcut.
+- `Pawn_HealthTracker_MakeDowned` + `CompPowerTrader` inspect + `InspectTabBase_UpdateSize` +
+  `NeedsCardUtility` sizing.
+- `FloatMenuOptionProvider_RepairAndroid` and `Recipe_RemoveArtificialBodyPart`.
 - Stand waste production while charging (`ZeroWaste` / `ExtraWaste` genes).
-- `Recipe_ExtractNeutroamine`, neutroamine reservoir 40, print cost 40.
 - `PawnGenerator` dev-spawn fix for awakened androids.
 - `Gene_RainVulnerability` / `Gene_SelfDestructProtocols` deltas.
 - `PawnUtility_GetPosture_Patch`: the `forceStandingPawn` half is ported
