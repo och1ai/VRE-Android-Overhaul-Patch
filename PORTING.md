@@ -43,6 +43,20 @@ driver). Wired up by `Patches/Assembler.xml` (thingClass, bills tab, label/descr
 classes, polyanalyzer output) and `Defs/Assembler_Overhaul.xml` (cycle job/work giver, resurrect recipe,
 assembling effecter).
 
+**Printing flow audited against the fork (2026-07-29).** All four print-path sources (`Building_
+AndroidCreationStation`, `UnfinishedAndroid`, `WorkGiver_CreateAndroid`, `JobDriver_CreateAndroid`) are
+verbatim ports; the three defs the fork adds (`VREA_CompleteAndroidCycle` job + work giver,
+`VREA_AndroidAssembling`, `VREA_ResurrectAndroid`) match content-for-content; the polyanalyzer's only fork
+delta is the subcore output line, which is patched. Two gaps were closed:
+
+- `VREA_UnfinishedAndroid` was only having its `thingClass` repointed. The fork also overrides four fields
+  inherited from vanilla's `UnfinishedBase`, and two of them are load-bearing: `drawerType` (the inherited
+  `MapMeshOnly` means `UnfinishedAndroid.DrawAt` is never called, so the staged body is simply never drawn)
+  and `alwaysHaulable` (a colonist carries the half-built android off to a stockpile and the print stops).
+  Plus `selectable` and a zeroed `DeteriorationRate`.
+- `ForkCompat.forceStandingPawn` was a dead field — nothing read it, so the body being regrown was drawn
+  lying down. Now backed by `PrintedBodyPosture_Patch.cs`.
+
 **Editor entry points repointed.** All of the overhaul's editor behaviour (the drone default icon instead
 of the vanilla blank "Basic" face, one blood type + one power source preselected instead of every core
 component, the appearance genes hidden because they moved to the designer) lives in the rewritten
@@ -89,6 +103,10 @@ actually reachable — every entry point opens the overlay's windows (see 2).
 - `Recipe_ExtractNeutroamine`, neutroamine reservoir 40, print cost 40.
 - `PawnGenerator` dev-spawn fix for awakened androids.
 - `Gene_RainVulnerability` / `Gene_SelfDestructProtocols` deltas.
+- `PawnUtility_GetPosture_Patch`: the `forceStandingPawn` half is ported
+  (`PrintedBodyPosture_Patch.cs`), but the fork also made the original's `isPawnRendering` `[ThreadStatic]`,
+  which is what stops an android on a charging stand flickering between standing and lying. Fixing that
+  means unpatching and restating the original's prefix.
 
 ### 6. Deferred by design
 - **Uncanny valley** — parked pending the user's redesign.

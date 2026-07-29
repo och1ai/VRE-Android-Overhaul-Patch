@@ -65,6 +65,20 @@ namespace VREAndroidsOverhaul
                 () => unfinished.thingClass == typeof(UnfinishedAndroid),
                 () => unfinished.thingClass = typeof(UnfinishedAndroid));
 
+            // Not class repoints, but the same silent failure - and the pair that broke the printer. Left on
+            // the values UnfinishedBase hands down, the android-in-progress is drawn by the map mesh (so the
+            // staged body DrawAt paints never appears at all) and is haulable (so a colonist carries the
+            // half-built android off to a stockpile and the print stops).
+            Repoint("the unfinished android's drawer type", unfinished,
+                () => unfinished.drawerType == DrawerType.RealtimeOnly,
+                () => unfinished.drawerType = DrawerType.RealtimeOnly);
+            Repoint("the unfinished android's haulability", unfinished,
+                () => !unfinished.alwaysHaulable,
+                () => unfinished.alwaysHaulable = false);
+            Repoint("the unfinished android's selectability", unfinished,
+                () => !unfinished.selectable,
+                () => unfinished.selectable = false);
+
             JobDef createJob = DefDatabase<JobDef>.GetNamedSilentFail("VREA_CreateAndroid");
             Repoint("the create-android job driver", createJob,
                 () => createJob.driverClass == typeof(JobDriver_CreateAndroid),

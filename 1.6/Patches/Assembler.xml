@@ -52,6 +52,31 @@
 		</value>
 	</Operation>
 
+	<!-- The android-in-progress is no longer a workbench product a crafter carries around: it belongs to the
+	     printer for the whole build. Vanilla's UnfinishedBase makes it haulable, selectable, map-mesh drawn
+	     and deteriorating, and none of that suits a body being assembled.
+
+	     drawerType is the important one: the staged visual - a shell during the first cycle, then the real
+	     body from the second on - is drawn from UnfinishedAndroid.DrawAt, which the game only calls for
+	     realtime drawers. Left on the inherited MapMeshOnly the body is simply never drawn. And left
+	     haulable, a colonist carries the half-built android off to a stockpile and the print stops. -->
+	<Operation Class="PatchOperationAdd">
+		<xpath>Defs/ThingDef[defName="VREA_UnfinishedAndroid"]</xpath>
+		<value>
+			<alwaysHaulable>false</alwaysHaulable>
+			<selectable>false</selectable>
+			<drawerType>RealtimeOnly</drawerType>
+		</value>
+	</Operation>
+
+	<!-- It does not rot on the platform either, even outdoors and unroofed. -->
+	<Operation Class="PatchOperationReplace">
+		<xpath>Defs/ThingDef[defName="VREA_UnfinishedAndroid"]/statBases/DeteriorationRate</xpath>
+		<value>
+			<DeteriorationRate>0</DeteriorationRate>
+		</value>
+	</Operation>
+
 	<Operation Class="PatchOperationReplace">
 		<xpath>Defs/JobDef[defName="VREA_CreateAndroid"]/driverClass</xpath>
 		<value>

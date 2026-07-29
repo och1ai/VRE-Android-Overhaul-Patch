@@ -1,4 +1,5 @@
 using RimWorld;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -142,8 +143,13 @@ namespace VREAndroidsOverhaul
         // undowns it; this suppresses the resulting notices.
         public static bool suppressAndroidNotifications;
 
-        // Set while a designer preview pawn is being drawn, so it is rendered standing rather than in
-        // whatever posture its (throwaway) job implies. Consumed by the posture patch once ported.
+        // Set while the body being regrown in the printer is drawn, so it is rendered upright as if the
+        // platform were holding it up rather than lying dead on the floor. Read by
+        // PawnUtility_GetPosture_ForcedStanding_Patch.
+        //
+        // Must be [ThreadStatic]: the pre-draw pass runs on parallel worker threads for many pawns at once,
+        // so a plain static would be cleared by another pawn's render mid-way and make the posture flicker.
+        [ThreadStatic]
         public static Pawn forceStandingPawn;
     }
 
