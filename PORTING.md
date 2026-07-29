@@ -36,11 +36,29 @@ destroyed. The persona is captured on death and carried by the item.
 **Still open:** nothing consumes a recovered subcore yet - that is the assembler (2).
 
 ### 2. UI cluster (designer + assembler + creation windows) — DONE, UNTESTED
-All eight files ported: `Window_CreateAndroidBase`, `Window_AndroidCreation`, `Window_AndroidModification`,
-`Window_AndroidDesign`, `VREA_UIHelper`, `Building_AndroidCreationStation` (+ `ITab_AndroidBills`),
-`UnfinishedAndroid`, `WorkGiver_CreateAndroid` (+ the cycle work giver and job driver). Wired up by
-`Patches/Assembler.xml` (thingClass, bills tab, label/description, job and work-giver classes, polyanalyzer
-output) and `Defs/Assembler_Overhaul.xml` (cycle job/work giver, resurrect recipe, assembling effecter).
+All nine files ported: `Window_CreateAndroidBase`, `Window_CreateAndroidXenotype`, `Window_AndroidCreation`,
+`Window_AndroidModification`, `Window_AndroidDesign`, `VREA_UIHelper`, `Building_AndroidCreationStation`
+(+ `ITab_AndroidBills`), `UnfinishedAndroid`, `WorkGiver_CreateAndroid` (+ the cycle work giver and job
+driver). Wired up by `Patches/Assembler.xml` (thingClass, bills tab, label/description, job and work-giver
+classes, polyanalyzer output) and `Defs/Assembler_Overhaul.xml` (cycle job/work giver, resurrect recipe,
+assembling effecter).
+
+**Editor entry points repointed.** All of the overhaul's editor behaviour (the drone default icon instead
+of the vanilla blank "Basic" face, one blood type + one power source preselected instead of every core
+component, the appearance genes hidden because they moved to the designer) lives in the rewritten
+`Window_CreateAndroidBase`, so only windows deriving from OUR base get it. Three call sites still built the
+ORIGINAL's windows — which is why the rewrite only ever showed up on the assembler-designer path.
+`Source/HarmonyPatches/AndroidTypeEditor_Patches.cs` now repoints each:
+- starting-pawns "android editor" button — transpiler swapping the one `newobj` (a prefix is impossible:
+  the original names its first parameter `__instance`, which Harmony reserves and passes as null on a
+  static method);
+- character card "android editor..." option — prefix restating the option, because its `newobj` sits inside
+  a compiler-generated closure;
+- behaviourist station `TryAcceptPawn` — transpiler, because closing the stock window instead would run its
+  `Close()` → `CancelModification()` and eject the colonist the method just loaded.
+
+Each patch has a `Prepare()` guard and each transpiler falls back to untouched IL with a warning, so a
+missing anchor degrades to the unmodified editor rather than failing hard.
 
 Shared surface lives in `Source/ForkCompat.cs`: the fork's `Utils` helpers, an `OverhaulDefOf`, and
 `VanillaGeneUI` reflection wrappers for `GeneUIUtility.DrawStat`, `DrawIconSelector` and
@@ -56,10 +74,10 @@ are missing. Restoring them needs our own `DefModExtension` carrying that data.
 bus/heatsink/fluid reprocessor) and the load-time reconcile. Cosmetic-ish but part of the parts economy.
 
 ### 4. Editor UX for exclusive hardware (part of 2 once that lands)
-`Window_CreateAndroidBase` / `Window_AndroidCreation` / `Window_AndroidModification`: blood/power/chassis
-swap-on-click, locked components at the behaviorist station, requirement and conflict tooltips
-(`requiresOneOf` / `conflictsWith` need the extended `AndroidGeneDef`, which the overlay cannot add —
-needs a different mechanism).
+Blood/power/chassis swap-on-click and the locked components at the behaviorist station are ported and now
+actually reachable — every entry point opens the overlay's windows (see 2).
+**Still open:** requirement and conflict tooltips (`requiresOneOf` / `conflictsWith` need the extended
+`AndroidGeneDef`, which the overlay cannot add — needs a different mechanism).
 
 ### 5. Smaller behavioural deltas
 - `MechanitorControlGroupGizmo` "Assigned mechs" tooltip (reflective, needs the power need).
