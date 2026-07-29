@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+
+	<!-- Blood is a choice now, so only a neutroamine-blood android has a neutroamine reservoir - and it holds
+	     40 rather than the original's 100, making neutroamine blood the cheap option to run.
+
+	     The refuel job is repointed here because the original's driver divides by its reservoir size inside a
+	     lambda inside an iterator, which is no place to transpile. The administer recipe itself is an implied
+	     def generated in C#, so no xpath can reach it; it is repointed from OverlayRepoints instead. -->
+	<Operation Class="PatchOperationReplace">
+		<xpath>Defs/JobDef[defName="VREA_RefuelWithNeutroamine"]/driverClass</xpath>
+		<value>
+			<driverClass>VREAndroidsOverhaul.JobDriver_RefuelWithNeutroamine</driverClass>
+		</value>
+	</Operation>
+
+</Patch>

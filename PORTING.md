@@ -90,10 +90,28 @@ wired, so this is the one thing standing between them and working organs.
 Defs: hediffs `VREA_HemoPump`, `VREA_NeutroPump`, `VREA_HemoFilter`, `VREA_DataBus`, `VREA_Heatsink`,
 `VREA_FluidReprocessor`, plus the `VREA_NeutroPump` item and the `VREA_InstallNeutroPump` recipe.
 
-### 3b. Neutroamine economy
-`Recipe_ExtractNeutroamine` (the extract-hemogen-style surgery) is not ported, and the reservoir is still
-the original's 25 rather than 40 (`Recipe_AdministerNeutroamineForAndroid.NeutroaminePerFullReservoir`).
-The 40-neutroamine **print cost** is done, in `Window_AndroidCreation.OnGenesChanged`.
+### 3b. Neutroamine economy — DONE
+`Recipe_ExtractNeutroamine` is ported and added as an implied def (`Neutroamine_Patches.cs`), because its
+`recipeUsers` is every humanlike in the load order and XML cannot enumerate that — the same reason the
+original generates its administer recipe in code.
+
+The reservoir moved from the original's 100 to 40. The original hardcodes that figure in **four** places and
+they only make sense together, so each had to be reached a different way:
+- the administer recipe worker → `Recipe_AdministerNeutroamineForAndroidOverhaul` (which also gates the
+  recipe to neutroamine-blood androids). Its def is implied, generated in C#, so no xpath reaches it: the
+  repoint lives in `OverlayRepoints`, where it is the mechanism rather than a fallback. The recipe's
+  ingredient base count is set there too.
+- the refuel job → `driverClass` repointed (`Patches/Neutroamine.xml`); the original divides by its constant
+  inside a lambda inside an iterator, which is no place to transpile.
+- the refuel float-menu option → transpiled, but the constant is in the option's click action, which the
+  compiler lifted into a display class whose generated name carries a recompile-dependent index. Found by
+  shape (the one `<GetSingleOptionFor>b__*` lambda) instead of hard-coded.
+- the neutro casket's refill rate → transpiled (one `ldc.r4 -0.01` in `TickInterval`).
+
+The float-menu option and the job driver in particular must move together: the option sets `job.count` from
+the reservoir figure the driver then divides by.
+
+The 40-neutroamine **print cost** was already done, in `Window_AndroidCreation.OnGenesChanged`.
 
 ### 3c. Bespoke charging job
 `JobDriver_ChargeAndroid` + `JobGiver_ChargeAndroid` as the fork writes them, the `VREA_ChargeAndroid` job
@@ -109,10 +127,6 @@ actually reachable — every entry point opens the overlay's windows (see 2).
 
 ### 5. Smaller behavioural deltas
 Verified against the fork on 2026-07-29; everything below is confirmed absent, not assumed.
-- **`ForkCompat.suppressAndroidNotifications` is a dead flag** — written in six places (the assembler's
-  preview build, its spawn path, the designer) and read nowhere, because the fork's
-  `PawnUtility_ShouldSendNotificationAbout_Patch` was never ported. Same failure `forceStandingPawn` had.
-  Until it lands, the throwaway preview pawns spam downed/undowned notices.
 - `MechanitorControlGroupGizmo` "Assigned mechs" tooltip (reflective, needs the power need).
 - `ThingWithComps_GetGizmos`: the extract-subcore toggle on a selected corpse. Extraction itself works —
   designator, job driver, surgery recipe and the item are all ported — this is only the shortcut.

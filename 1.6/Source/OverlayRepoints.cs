@@ -109,6 +109,23 @@ namespace VREAndroidsOverhaul
                 () => repairGiver.giverClass == typeof(WorkGiver_RepairAndroid),
                 () => SetGiverClass(repairGiver, typeof(WorkGiver_RepairAndroid)));
 
+            // --- neutroamine (Patches/Neutroamine.xml) ---
+            JobDef refuelJob = DefDatabase<JobDef>.GetNamedSilentFail("VREA_RefuelWithNeutroamine");
+            Repoint("the refuel-with-neutroamine job driver", refuelJob,
+                () => refuelJob.driverClass == typeof(JobDriver_RefuelWithNeutroamine),
+                () => refuelJob.driverClass = typeof(JobDriver_RefuelWithNeutroamine));
+
+            // The administer-neutroamine recipe is an implied def the original builds in code, so no xpath
+            // can reach it. Unlike everything else here, this is the repoint itself rather than a fallback.
+            RecipeDef administer = DefDatabase<RecipeDef>.GetNamedSilentFail("VREA_Administer_Neutroamine");
+            Repoint("the administer-neutroamine recipe worker", administer,
+                () => administer.workerClass == typeof(Recipe_AdministerNeutroamineForAndroidOverhaul),
+                () => SetRecipeWorker(administer, typeof(Recipe_AdministerNeutroamineForAndroidOverhaul)));
+            Repoint("the administer-neutroamine reservoir size",
+                administer?.ingredients?.Any() == true ? administer : null,
+                () => administer.ingredients[0].GetBaseCount() == AndroidNeutroamine.PerFullReservoir,
+                () => administer.ingredients[0].SetBaseCount(AndroidNeutroamine.PerFullReservoir));
+
             // --- power cores (Patches/PowerCores.xml) ---
             GeneDef powerGene = DefDatabase<GeneDef>.GetNamedSilentFail("VREA_Power");
             Repoint("the power gene's class", powerGene,
@@ -173,6 +190,13 @@ namespace VREAndroidsOverhaul
                 def.inspectorTabsResolved = new List<InspectTabBase>();
             }
             def.inspectorTabsResolved.Add(InspectTabManager.GetSharedInstance(tabType));
+        }
+
+        private static void SetRecipeWorker(RecipeDef def, Type workerClass)
+        {
+            def.workerClass = workerClass;
+            // Worker is built on first use and cached; drop it so the new class is what gets instantiated.
+            AccessTools.Field(typeof(RecipeDef), "workerInt")?.SetValue(def, null);
         }
 
         private static void SetGiverClass(WorkGiverDef def, Type giverClass)

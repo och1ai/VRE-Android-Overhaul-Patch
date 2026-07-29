@@ -86,4 +86,12 @@
 	<VREAOverhaul.AlertUncontrolledAndroids>Uncontrolled androids</VREAOverhaul.AlertUncontrolledAndroids>
 	<VREAOverhaul.AlertUncontrolledAndroidsDesc>One or more of your mechlike androids has no overseer. Without a mechanitor connected, they stand dormant and cannot work. Connect them to a mechanitor with enough bandwidth to bring them back online.\n\nUnlike mechanoids, an uncontrolled android will never go feral - it simply waits.\n\nThe following androids are dormant</VREAOverhaul.AlertUncontrolledAndroidsDesc>
 
+	<!-- Extract neutroamine surgery. These are new keys - the original only has the underscore-separated
+	     VREA_ExtractNeutroamine, which belongs to the neutro tank, so there is no collision. -->
+	<VREA.ExtractNeutroamine>extract neutroamine</VREA.ExtractNeutroamine>
+	<VREA.ExtractNeutroamineDesc>Draw neutroamine from a neutroamine-blood android's reservoir into neutroamine. Each extraction pulls a portion of the reservoir; it can be repeated, but draining the reservoir dry would kill the android.</VREA.ExtractNeutroamineDesc>
+	<VREA.ExtractingNeutroamine>Extracting neutroamine.</VREA.ExtractingNeutroamine>
+	<VREA.MessageCannotExtractNeutroamine>{PAWN_nameDef} does not have enough neutroamine left to extract - draining it dry would kill them.</VREA.MessageCannotExtractNeutroamine>
+	<VREA.MessageNotEnoughNeutroamineToExtract>{PAWN_nameDef} did not have enough neutroamine to extract.</VREA.MessageNotEnoughNeutroamineToExtract>
+
 </LanguageData>
