@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+
+	<!-- The heart organ the original installs in every android is the one the neutroamine blood type keeps,
+	     so it is relabelled to match what it actually does: it moves neutroamine, not neuro-anything. The
+	     fork renames the def outright; an overlay cannot, because VREA_NeuroPump is the defName the
+	     original's own item, install recipe and starting scenario all point at, and the one every android
+	     already alive carries. The label is the whole of the difference. -->
+
+	<Operation Class="PatchOperationReplace">
+		<xpath>Defs/HediffDef[defName="VREA_NeuroPump"]/label</xpath>
+		<value>
+			<label>neutropump</label>
+		</value>
+	</Operation>
+
+	<Operation Class="PatchOperationReplace">
+		<xpath>Defs/HediffDef[defName="VREA_NeuroPump"]/labelNoun</xpath>
+		<value>
+			<labelNoun>a neutropump</labelNoun>
+		</value>
+	</Operation>
+
+	<Operation Class="PatchOperationReplace">
+		<xpath>Defs/HediffDef[defName="VREA_NeuroPump"]/description</xpath>
+		<value>
+			<description>An installed neutropump.</description>
+		</value>
+	</Operation>
+
+	<Operation Class="PatchOperationReplace">
+		<xpath>Defs/ThingDef[defName="VREA_NeuroPump"]/label</xpath>
+		<value>
+			<label>neutropump</label>
+		</value>
+	</Operation>
+
+	<Operation Class="PatchOperationReplace">
+		<xpath>Defs/ThingDef[defName="VREA_NeuroPump"]/description</xpath>
+		<value>
+			<description>A synthetic, android neutropump. Distributes neutroamine across all android subsystems.</description>
+		</value>
+	</Operation>
+
+	<Operation Class="PatchOperationReplace">
+		<xpath>Defs/RecipeDef[defName="VREA_InstallNeuroPump"]/label</xpath>
+		<value>
+			<label>install neutropump</label>
+		</value>
+	</Operation>
+
+	<Operation Class="PatchOperationReplace">
+		<xpath>Defs/RecipeDef[defName="VREA_InstallNeuroPump"]/description</xpath>
+		<value>
+			<description>Install a neutropump.</description>
+		</value>
+	</Operation>
+
+	<Operation Class="PatchOperationReplace">
+		<xpath>Defs/RecipeDef[defName="VREA_InstallNeuroPump"]/jobString</xpath>
+		<value>
+			<jobString>Installing neutropump.</jobString>
+		</value>
+	</Operation>
+
+</Patch>

@@ -31,9 +31,24 @@
 		<xpath>Defs/VREAndroids.AndroidGeneDef[defName="VREA_NeutroCirculation"]</xpath>
 		<value>
 			<biostatMet>12</biostatMet>
+			<geneClass>VREAndroidsOverhaul.Gene_AndroidBlood</geneClass>
 			<exclusionTags>
 				<li>AndroidBlood</li>
 			</exclusionTags>
+		</value>
+	</Operation>
+
+	<!-- Which circulatory organs this blood type runs. Appended to the modExtensions the original already
+	     declares, next to its VEF blood-colour extension. -->
+	<Operation Class="PatchOperationAdd">
+		<xpath>Defs/VREAndroids.AndroidGeneDef[defName="VREA_NeutroCirculation"]/modExtensions</xpath>
+		<value>
+			<li Class="VREAndroidsOverhaul.BloodOrgansExtension">
+				<organs>
+					<li><part>Heart</part><hediff>VREA_NeuroPump</hediff></li>
+					<li><part>Kidney</part><hediff>VREA_Neutrofilter</hediff></li>
+				</organs>
+			</li>
 		</value>
 	</Operation>
 

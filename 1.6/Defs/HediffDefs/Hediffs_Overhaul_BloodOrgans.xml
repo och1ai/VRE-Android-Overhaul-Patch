@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+	<!-- Circulatory organs for the two blood types the original does not have. They are installed
+	     automatically from the blood gene's BloodOrgansExtension, so unlike the original's body parts they
+	     need no item and no surgery recipe - which also keeps them out of the counterpart table the
+	     original builds by scanning install recipes, so they are never handed to the wrong blood type.
+
+	     The neutroamine pair is the original's own VREA_NeuroPump and VREA_Neutrofilter, relabelled by
+	     Patches/BloodOrgans.xml. -->
+
+	<!-- Hemogenic: red synthetic blood, moved and cleaned like the real thing. -->
+	<HediffDef ParentName="VREA_AndroidBodyPartBase">
+		<defName>VREA_HemoPump</defName>
+		<label>hemopump</label>
+		<labelNoun>a hemopump</labelNoun>
+		<description>A synthetic pump that circulates the android's red synthetic blood across all subsystems.</description>
+		<addedPartProps>
+			<solid>true</solid>
+		</addedPartProps>
+	</HediffDef>
+
+	<HediffDef ParentName="VREA_AndroidBodyPartBase">
+		<defName>VREA_HemoFilter</defName>
+		<label>hemofilter</label>
+		<labelNoun>a hemofilter</labelNoun>
+		<description>A synthetic filter that cleans and recycles the android's red synthetic blood.</description>
+		<addedPartProps>
+			<solid>true</solid>
+		</addedPartProps>
+	</HediffDef>
+
+	<!-- Bloodless solid-state internals (no circulating fluid at all). -->
+	<HediffDef ParentName="VREA_AndroidBodyPartBase">
+		<defName>VREA_DataBus</defName>
+		<label>data bus</label>
+		<labelNoun>a data bus</labelNoun>
+		<description>A solid-state data and power bus that routes signals and current through the frame. With no fluid to move, it takes the place of a pump.</description>
+		<addedPartProps>
+			<solid>true</solid>
+		</addedPartProps>
+	</HediffDef>
+
+	<HediffDef ParentName="VREA_AndroidBodyPartBase">
+		<defName>VREA_Heatsink</defName>
+		<label>heatsink</label>
+		<labelNoun>a heatsink</labelNoun>
+		<description>A passive, mechanite-laced heatsink that dissipates waste heat directly, with no fluid to filter or recycle.</description>
+		<addedPartProps>
+			<solid>true</solid>
+		</addedPartProps>
+	</HediffDef>
+
+	<HediffDef ParentName="VREA_AndroidBodyPartBase">
+		<defName>VREA_FluidReprocessor</defName>
+		<label>fluid reprocessor</label>
+		<labelNoun>a fluid reprocessor</labelNoun>
+		<description>A compact reprocessor that recovers and recycles the small amounts of residual lubricants and working fluids within an otherwise dry frame.</description>
+		<addedPartProps>
+			<solid>true</solid>
+		</addedPartProps>
+	</HediffDef>
+
+</Defs>

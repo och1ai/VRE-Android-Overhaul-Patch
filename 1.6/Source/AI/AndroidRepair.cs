@@ -256,8 +256,16 @@ namespace VREAndroidsOverhaul
 
         private static HediffDef CounterpartFor(BodyPartDef part, Pawn android)
         {
-            // The power core depends on which power gene the android carries, not on a fixed counterpart
-            // table, so it is resolved from the gene's extension.
+            // Circulatory organs depend on which blood the android runs and the power core on which power
+            // gene it carries, so neither comes from the original's fixed counterpart table - both are
+            // resolved from the gene's extension.
+            //
+            // A circulatory part answers for itself even when the answer is null: a blood type that leaves
+            // a part bare must get nothing there, not the table's neutroamine organ.
+            if (BloodOrganUtil.IsBloodOrganPart(part))
+            {
+                return BloodOrganUtil.OrganFor(part, android);
+            }
             HediffDef fromPowerGene = AndroidRepairUtil.PowerCoreFor(part, android);
             return fromPowerGene ?? part.GetAndroidCounterPart();
         }

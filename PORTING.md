@@ -19,6 +19,7 @@ the fork's version of a def/class in full and match it field for field before wr
 | Mechlike (mechanitor oversight) | Full port: colony-mech integration, dormancy, work-mode think tree, uncontrolled-androids alert |
 | Power cores | Original power gene retuned into "reactor powered"; battery as a `Hediff_AndroidReactor` subclass; need class repointed; charging via a stand `Tick` postfix instead of a bespoke job |
 | Blood types | Neutro gene retuned in place; hemogenic needs no code at all; bloodless closes four bleed paths; coagulation hardware |
+| Blood organs | `BloodOrgansExtension` per blood gene; reconciled from the blood gene's `PostAdd` and again after the original's body gene |
 | Destroyed vs killed | Subcore hediff in the brain + kill/corpse/letter/thought/relation/tale/funeral gating |
 | Repair rework | `driverClass`/`giverClass` repointed; parts workbench out of the build menu, part items uncraftable, reactor recipe moved to the machining table |
 | Memory rework | Memory gene retuned into optional hardware; need class repointed; heat-scrambled need via the overheating gene |
@@ -83,12 +84,34 @@ Shared surface lives in `Source/ForkCompat.cs`: the fork's `Utils` helpers, an `
 Mutually exclusive groups still work (vanilla `exclusionTags`); only the requirement and conflict TOOLTIPS
 are missing. Restoring them needs our own `DefModExtension` carrying that data.
 
-### 3. Blood organs
-Code: `BloodOrgansExtension`, `BloodOrgan`, `Gene_AndroidBlood`, `GameComponent_AndroidBloodOrgans` (the
-load-time reconcile). **`ForkCompat.SyncBloodOrgans` is an empty method** — the call sites are already
-wired, so this is the one thing standing between them and working organs.
-Defs: hediffs `VREA_HemoPump`, `VREA_NeutroPump`, `VREA_HemoFilter`, `VREA_DataBus`, `VREA_Heatsink`,
-`VREA_FluidReprocessor`, plus the `VREA_NeutroPump` item and the `VREA_InstallNeutroPump` recipe.
+### 3. Blood organs — DONE
+`Source/Genes/BloodOrgans.cs` carries the whole feature: `BloodOrgansExtension` / `BloodOrgan` declaring
+which organ each blood type puts on which part, `BloodOrganUtil.SyncBloodOrgans` reconciling an android to
+its blood type, `Gene_AndroidBlood` (now the `geneClass` of all three blood genes) and a once-only
+`GameComponent_BloodOrganMigration` for saves that predate it. `ForkCompat.SyncBloodOrgans` is no longer a
+stub, so the three call sites already wired in the assembler work as written. The five hediffs the original
+lacks are new defs (`Defs/HediffDefs/Hediffs_Overhaul_BloodOrgans.xml`); the neutroamine pair is the
+original's own `VREA_NeuroPump` and `VREA_Neutrofilter`.
+
+Two things the overlay has to do that the fork does not:
+
+- **The original's body gene has no "part already carries an implant" guard** — that check is the fork's own
+  addition, made in the same edit that has the loop skip circulatory parts. The original installs its fixed
+  counterpart on every part unconditionally, so an android would be built with the neutroamine organs
+  whatever blood it runs, *and* would stack a second pump on top of the right one whenever the blood gene
+  was applied first. Both are settled by a postfix on `Gene_SyntheticBody.PostAdd` that re-syncs, and by the
+  sync's first pass dropping duplicates on a part as well as organs from the wrong blood type. Free of
+  side effects: removing a hediff does not drop its `spawnThingOnRemoved` item — only the removal surgery
+  does.
+- **The heart organ is relabelled, not renamed.** The fork renames `VREA_NeuroPump` to `VREA_NeutroPump`;
+  the overlay cannot, because that defName is what the original's item, install recipe and starting scenario
+  point at and what every android already alive carries. `Patches/BloodOrgans.xml` relabels the hediff, item
+  and recipe instead, which is the whole of the difference.
+
+Blood organs are resolved from the blood gene in the repair path too (`CounterpartFor`), so regrowing a
+heart gives back the organ that android's blood type actually uses. A circulatory part answers for itself
+even when the answer is null, so a blood type that leaves a part bare keeps it bare instead of falling
+through to the original's counterpart table.
 
 ### 3b. Neutroamine economy — DONE
 `Recipe_ExtractNeutroamine` is ported and added as an implied def (`Neutroamine_Patches.cs`), because its
@@ -179,3 +202,13 @@ the overlay does not own must also match the node's def, so nothing outside this
   `exclusionTags` (plus a startup pass for generated genes, see `IdeoCapability_Exclusion`).
 - Charging is done with a vanilla `LayDown` job on the stand plus a `Tick` postfix, not the fork's bespoke
   `JobDriver_ChargeAndroid` — no charging mote or cable pulse yet.
+- **Suspected, unfixed: the power core has the duplicate the blood organs just got fixed.** The same
+  unguarded loop that installs the neutroamine organs also installs `VREA_Reactor` on the stomach, so a
+  reactor android whose power gene was applied before the body gene ends up with two reactors —
+  `SyncPowerCore` only strips cores whose def differs from the gene's, and its install guard then sees the
+  core is present and adds nothing. A battery android is stripped correctly, but if the stripping happens at
+  `SpawnSetup` rather than during generation it runs on a spawned pawn, and `Hediff_AndroidReactor.
+  PostRemoved` spawns a toxic wastepack whenever `MapHeld != null`. Neither has been reproduced in game;
+  found by reading the original's `Gene_SyntheticBody.PostAdd` while porting the organs. Fixing it is the
+  same shape as the organ fix (keep the first core, drop the rest) plus a way to remove a reactor without
+  its waste.

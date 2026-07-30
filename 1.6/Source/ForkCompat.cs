@@ -131,10 +131,8 @@ namespace VREAndroidsOverhaul
         public static void SyncPowerCore(Pawn pawn, GeneDef geneOverride = null) =>
             PowerCoreUtil.SyncPowerCore(pawn, geneOverride);
 
-        // Per-blood-type circulatory organs are not ported yet (see PORTING.md); nothing to reconcile.
-        public static void SyncBloodOrgans(Pawn pawn, GeneDef geneOverride = null)
-        {
-        }
+        public static void SyncBloodOrgans(Pawn pawn, GeneDef geneOverride = null) =>
+            BloodOrganUtil.SyncBloodOrgans(pawn, geneOverride);
 
         public static bool HasSubcore(Pawn pawn, out Hediff_AndroidSubcore subcore) =>
             AndroidDeath.HasSubcore(pawn, out subcore);

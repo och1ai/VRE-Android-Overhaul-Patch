@@ -126,6 +126,14 @@ namespace VREAndroidsOverhaul
                 () => administer.ingredients[0].GetBaseCount() == AndroidNeutroamine.PerFullReservoir,
                 () => administer.ingredients[0].SetBaseCount(AndroidNeutroamine.PerFullReservoir));
 
+            // --- blood organs (Patches/BloodTypes.xml) ---
+            // Only the original's blood gene is checked: the other two are the overlay's own defs, which
+            // cannot half-apply.
+            GeneDef neutroGene = DefDatabase<GeneDef>.GetNamedSilentFail("VREA_NeutroCirculation");
+            Repoint("the neutroamine blood gene's class", neutroGene,
+                () => neutroGene.geneClass == typeof(Gene_AndroidBlood),
+                () => neutroGene.geneClass = typeof(Gene_AndroidBlood));
+
             // --- power cores (Patches/PowerCores.xml) ---
             GeneDef powerGene = DefDatabase<GeneDef>.GetNamedSilentFail("VREA_Power");
             Repoint("the power gene's class", powerGene,
@@ -148,11 +156,15 @@ namespace VREAndroidsOverhaul
                 () => memory.needClass == typeof(Need_AndroidMemory),
                 () => memory.needClass = typeof(Need_AndroidMemory));
 
-            // The power-core extension carries data - which hediff, and the body part it sits in - so there
-            // is nothing safe to reconstruct from code if its patch did not apply. Reported only.
+            // These two extensions carry data - which hediff goes on which body part - so there is nothing
+            // safe to reconstruct from code if their patch did not apply. Reported only.
             if (powerGene != null && !powerGene.HasModExtension<PowerCoreExtension>())
             {
                 unrepairable.Add("the power gene's core extension");
+            }
+            if (neutroGene != null && !neutroGene.HasModExtension<BloodOrgansExtension>())
+            {
+                unrepairable.Add("the neutroamine blood gene's organ extension");
             }
 
             if (absent.Any())

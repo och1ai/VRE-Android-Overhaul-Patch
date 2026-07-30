@@ -72,6 +72,27 @@ namespace VREAndroidsOverhaul
                 defName = "VREA_Power",
                 replacement = typeof(Gene_AndroidPower),
             },
+            // The same for the three blood types. The neutroamine one is the original's; the other two are
+            // the overlay's own, but had no class of their own until the circulatory organs arrived, so a
+            // save from before that holds them as plain genes as well.
+            new Rewrite
+            {
+                savedClass = "Verse.Gene",
+                defName = "VREA_NeutroCirculation",
+                replacement = typeof(Gene_AndroidBlood),
+            },
+            new Rewrite
+            {
+                savedClass = "Verse.Gene",
+                defName = "VREA_NormalBlood",
+                replacement = typeof(Gene_AndroidBlood),
+            },
+            new Rewrite
+            {
+                savedClass = "Verse.Gene",
+                defName = "VREA_Bloodless",
+                replacement = typeof(Gene_AndroidBlood),
+            },
         };
 
         private static readonly HashSet<string> Reported = new HashSet<string>();

@@ -10,6 +10,7 @@
 	<VREAndroids.AndroidGeneDef ParentName="VREA_HardwareBase">
 		<defName>VREA_NormalBlood</defName>
 		<label>hemogenic</label>
+		<geneClass>VREAndroidsOverhaul.Gene_AndroidBlood</geneClass>
 		<description>An infiltrator-grade circulatory system used by glitterworld intelligence agencies, machine-persona networks and distant archotechs: it runs synthetic blood that behaves like the real thing, so the android bleeds red and passes for organic. Topped up with hemogen packs; if its wounds bleed out it can die like an organic, though its subcore stays recoverable.</description>
 		<iconPath>UI/Icons/Genes/Hardware/Gene_HemogenicBlood</iconPath>
 		<displayOrderInCategory>11</displayOrderInCategory>
@@ -18,6 +19,14 @@
 		<exclusionTags>
 			<li>AndroidBlood</li>
 		</exclusionTags>
+		<modExtensions>
+			<li Class="VREAndroidsOverhaul.BloodOrgansExtension">
+				<organs>
+					<li><part>Heart</part><hediff>VREA_HemoPump</hediff></li>
+					<li><part>Kidney</part><hediff>VREA_HemoFilter</hediff></li>
+				</organs>
+			</li>
+		</modExtensions>
 	</VREAndroids.AndroidGeneDef>
 
 	<!-- Bloodless: runs dry. Never bleeds, and takes hits like a mechanoid - grey metal wounds, sparks and
@@ -26,6 +35,7 @@
 	<VREAndroids.AndroidGeneDef>
 		<defName>VREA_Bloodless</defName>
 		<label>bloodless</label>
+		<geneClass>VREAndroidsOverhaul.Gene_AndroidBlood</geneClass>
 		<description>This android runs completely dry, with no circulating fluid whatsoever. It never bleeds and its wounds reveal bare metal, but it gains no efficiency from a circulatory system and has no reservoir to refill.</description>
 		<iconPath>UI/Icons/Genes/Hardware/Gene_Bloodless</iconPath>
 		<displayOrderInCategory>11</displayOrderInCategory>
@@ -45,6 +55,16 @@
 				<customBloodSmearThingDef>Filth_MachineBits</customBloodSmearThingDef>
 				<customBloodEffect>Damage_HitMechanoid</customBloodEffect>
 				<customWoundsFromFleshtype>Mechanoid</customWoundsFromFleshtype>
+			</li>
+			<!-- Nothing circulates, so the pump and one filter give way to solid-state internals: a data
+			     bus in place of the heart, and a heatsink alongside the fluid reprocessor. Kidney is listed
+			     twice, so the two organs land on one kidney each. -->
+			<li Class="VREAndroidsOverhaul.BloodOrgansExtension">
+				<organs>
+					<li><part>Heart</part><hediff>VREA_DataBus</hediff></li>
+					<li><part>Kidney</part><hediff>VREA_FluidReprocessor</hediff></li>
+					<li><part>Kidney</part><hediff>VREA_Heatsink</hediff></li>
+				</organs>
 			</li>
 		</modExtensions>
 	</VREAndroids.AndroidGeneDef>
