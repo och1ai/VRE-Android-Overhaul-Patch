@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+	<!-- Combat-log line for an android that drops because it ran out of power. Mirrors the vanilla
+	     "downed" transition grammar (random collapse/weakly variants), but names the cause as "low power"
+	     instead of the capacitor-array hediff the battery is implemented as. -->
+	<RulePackDef>
+		<defName>VREA_Transition_LowPower</defName>
+		<include>
+			<li>Transition_Include</li>
+		</include>
+		<rulePack>
+			<rulesStrings>
+				<li>r_logentry->low power caused [SUBJECT_definite] to [collapsemeta].</li>
+				<li>r_logentry->low power made [SUBJECT_definite] [collapsemeta].</li>
+				<li>r_logentry->[SUBJECT_definite] [collapsedmeta] [duetoa] low power.</li>
+				<li>r_logentry(p=0.1)->[SUBJECT_definite] [collapsedmeta] from lack of power.</li>
+
+				<li>collapse->collapse</li>
+				<li>collapse->drop</li>
+				<li>collapse->crumple</li>
+				<li>collapse->power down</li>
+
+				<li>collapsed->collapsed</li>
+				<li>collapsed->dropped</li>
+				<li>collapsed->crumpled</li>
+				<li>collapsed->powered down</li>
+
+				<li>helplessly->helplessly</li>
+				<li>helplessly->weakly</li>
+				<li>helplessly->feebly</li>
+
+				<li>collapsemeta->[collapse]</li>
+				<li>collapsemeta(p=0.5)->[collapse] [helplessly]</li>
+
+				<li>collapsedmeta->[collapsed]</li>
+				<li>collapsedmeta(p=0.5)->[collapsed] [helplessly]</li>
+			</rulesStrings>
+		</rulePack>
+	</RulePackDef>
+
+</Defs>

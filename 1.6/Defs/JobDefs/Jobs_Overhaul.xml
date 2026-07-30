@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
 
+	<!-- Charging at an android stand. Not casually interruptible: an android that broke off work because
+	     its battery was nearly flat should finish topping up rather than wander off again. -->
+	<JobDef>
+		<defName>VREA_ChargeAndroid</defName>
+		<driverClass>VREAndroidsOverhaul.JobDriver_ChargeAndroid</driverClass>
+		<reportString>charging at TargetA.</reportString>
+		<casualInterruptible>false</casualInterruptible>
+	</JobDef>
+
 	<JobDef>
 		<defName>VREA_ExtractSubcore</defName>
 		<driverClass>VREAndroidsOverhaul.JobDriver_ExtractSubcore</driverClass>

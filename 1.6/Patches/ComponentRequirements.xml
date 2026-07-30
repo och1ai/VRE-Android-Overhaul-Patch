@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+
+	<!-- Which hardware each component depends on. Shown as a "Requires: ..." line in the designer and the
+	     behaviourist station, and enforced before an android can be created, reprogrammed or reprinted -
+	     the same way Biotech's sanguophage genes require the hemogenic gene.
+
+	     The fork puts this on its own AndroidGeneDef subclass; the overlay carries it in a mod extension,
+	     since it cannot add fields to the original's def class. None of these six defs declares
+	     modExtensions of its own, so each gets the whole node.
+
+	     The two overlay-owned components with requirements (coagulation, ideological) declare theirs
+	     directly in Defs/GeneDefs. -->
+
+	<!-- The RAM components are the working memory that memory processing manages; with no memory hardware
+	     there is nothing for them to size. -->
+	<Operation Class="PatchOperationAdd">
+		<xpath>Defs/VREAndroids.AndroidGeneDef[defName="VREA_SlowRAM"]</xpath>
+		<value>
+			<modExtensions>
+				<li Class="VREAndroidsOverhaul.AndroidComponentRequirements">
+					<requiresOneOf>
+						<li>VREA_MemoryProcessing</li>
+					</requiresOneOf>
+				</li>
+			</modExtensions>
+		</value>
+	</Operation>
+
+	<Operation Class="PatchOperationAdd">
+		<xpath>Defs/VREAndroids.AndroidGeneDef[defName="VREA_FastRAM"]</xpath>
+		<value>
+			<modExtensions>
+				<li Class="VREAndroidsOverhaul.AndroidComponentRequirements">
+					<requiresOneOf>
+						<li>VREA_MemoryProcessing</li>
+					</requiresOneOf>
+				</li>
+			</modExtensions>
+		</value>
+	</Operation>
+
+	<!-- Waste is what a reactor produces, and self-recharge is what tops one up. A battery android neither
+	     makes waste nor has anything for solar trickle to feed. VREA_Power is the original's power gene,
+	     retuned into "reactor powered" by Patches/PowerCores.xml. -->
+	<Operation Class="PatchOperationAdd">
+		<xpath>Defs/VREAndroids.AndroidGeneDef[defName="VREA_ZeroWaste"]</xpath>
+		<value>
+			<modExtensions>
+				<li Class="VREAndroidsOverhaul.AndroidComponentRequirements">
+					<requiresOneOf>
+						<li>VREA_Power</li>
+					</requiresOneOf>
+				</li>
+			</modExtensions>
+		</value>
+	</Operation>
+
+	<Operation Class="PatchOperationAdd">
+		<xpath>Defs/VREAndroids.AndroidGeneDef[defName="VREA_ExtraWaste"]</xpath>
+		<value>
+			<modExtensions>
+				<li Class="VREAndroidsOverhaul.AndroidComponentRequirements">
+					<requiresOneOf>
+						<li>VREA_Power</li>
+					</requiresOneOf>
+				</li>
+			</modExtensions>
+		</value>
+	</Operation>
+
+	<Operation Class="PatchOperationAdd">
+		<xpath>Defs/VREAndroids.AndroidGeneDef[defName="VREA_SelfRecharge"]</xpath>
+		<value>
+			<modExtensions>
+				<li Class="VREAndroidsOverhaul.AndroidComponentRequirements">
+					<requiresOneOf>
+						<li>VREA_Power</li>
+					</requiresOneOf>
+				</li>
+			</modExtensions>
+		</value>
+	</Operation>
+
+	<!-- Synthesising neutroamine only means something with a neutroamine reservoir to put it in. -->
+	<Operation Class="PatchOperationAdd">
+		<xpath>Defs/VREAndroids.AndroidGeneDef[defName="VREA_NeutroSynthesis"]</xpath>
+		<value>
+			<modExtensions>
+				<li Class="VREAndroidsOverhaul.AndroidComponentRequirements">
+					<requiresOneOf>
+						<li>VREA_NeutroCirculation</li>
+					</requiresOneOf>
+				</li>
+			</modExtensions>
+		</value>
+	</Operation>
+
+</Patch>

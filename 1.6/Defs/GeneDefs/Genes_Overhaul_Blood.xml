@@ -80,6 +80,14 @@
 		<biostatCpx>1</biostatCpx>
 		<biostatMet>-3</biostatMet>
 		<isCoreComponent>false</isCoreComponent>
+		<modExtensions>
+			<li Class="VREAndroidsOverhaul.AndroidComponentRequirements">
+				<requiresOneOf>
+					<li>VREA_NormalBlood</li>
+					<li>VREA_NeutroCirculation</li>
+				</requiresOneOf>
+			</li>
+		</modExtensions>
 	</VREAndroids.AndroidGeneDef>
 
 </Defs>

@@ -13,6 +13,16 @@
 		<displayOrderInCategory>31</displayOrderInCategory>
 		<biostatCpx>2</biostatCpx>
 		<biostatMet>-3</biostatMet>
+		<!-- Belief modelling needs a working social model. The pair is also made mutually exclusive at
+		     startup by IdeoCapability_Exclusion, which has to run in code because the aptitude genes are
+		     generated at load time; this is what puts the reason in the tooltip. -->
+		<modExtensions>
+			<li Class="VREAndroidsOverhaul.AndroidComponentRequirements">
+				<conflictsWith>
+					<li>VREA_AptitudeIncapable_Social</li>
+				</conflictsWith>
+			</li>
+		</modExtensions>
 	</VREAndroids.AndroidGeneDef>
 
 </Defs>

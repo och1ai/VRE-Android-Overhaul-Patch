@@ -35,13 +35,13 @@
 					</subNodes>
 				</li>
 
-				<!-- Recharge: an android running on an internal reactor has nothing to plug into, so it
-				     simply sleeps. (Charging stands come with the power-core rework.) -->
+				<!-- Recharge: a battery android walks to an android stand and tops up from the grid. A
+				     reactor android has nothing to plug into, so it just sleeps without spending charge. -->
 				<li Class="VREAndroidsOverhaul.ThinkNode_ConditionalAndroidWorkMode">
 					<workMode>Recharge</workMode>
 					<subNodes>
 						<li Class="JobGiver_SeekAllowedArea" />
-						<li Class="VREAndroidsOverhaul.JobGiver_AndroidDormant" />
+						<li Class="VREAndroidsOverhaul.JobGiver_AndroidRecharge" />
 					</subNodes>
 				</li>
 

@@ -51,18 +51,59 @@ namespace VREAndroidsOverhaul
             return null;
         }
 
-        // Hardware requirements and conflicts are declared on the fork's extended AndroidGeneDef
-        // (`requiresOneOf` / `conflictsWith`), which an overlay cannot add to the original's def class.
-        // Until that data is carried by a DefModExtension of our own, nothing declares a requirement, so
-        // these report "no requirement" and "no conflict" - the mutually exclusive groups are still
-        // enforced by vanilla exclusionTags, which is the part that actually matters.
-        public static List<GeneDef> RequiredHardware(this GeneDef geneDef) => null;
+        // Hardware requirements and conflicts. The fork declares these as fields on its extended
+        // AndroidGeneDef, which an overlay cannot add to the original's def class, so the data comes from
+        // an AndroidComponentRequirements mod extension instead. Mutually exclusive groups are a separate
+        // mechanism and stay on vanilla exclusionTags.
 
-        public static bool RequirementSatisfiedBy(this GeneDef geneDef, List<GeneDef> selected) => true;
+        // The hardware a component depends on (requires at least one of), or null if it has none.
+        public static List<GeneDef> RequiredHardware(this GeneDef geneDef)
+        {
+            List<GeneDef> req = geneDef?.GetModExtension<AndroidComponentRequirements>()?.requiresOneOf;
+            return req != null && req.Count > 0 ? req : null;
+        }
 
-        public static GeneDef ConflictInSelection(this GeneDef geneDef, List<GeneDef> selected) => null;
+        // True when this component's hardware requirement, if any, is met by the current selection.
+        public static bool RequirementSatisfiedBy(this GeneDef geneDef, List<GeneDef> selected)
+        {
+            List<GeneDef> req = geneDef.RequiredHardware();
+            if (req == null)
+            {
+                return true;
+            }
+            for (int i = 0; i < req.Count; i++)
+            {
+                if (selected.Contains(req[i]))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
 
-        public static List<string> ConflictsWith(this GeneDef geneDef) => null;
+        // The first selected component this one is declared to clash with, or null if there is no clash.
+        public static GeneDef ConflictInSelection(this GeneDef geneDef, List<GeneDef> selected)
+        {
+            List<string> names = geneDef.ConflictsWith();
+            if (names == null)
+            {
+                return null;
+            }
+            foreach (GeneDef other in selected)
+            {
+                if (other != geneDef && names.Contains(other.defName))
+                {
+                    return other;
+                }
+            }
+            return null;
+        }
+
+        public static List<string> ConflictsWith(this GeneDef geneDef)
+        {
+            List<string> names = geneDef?.GetModExtension<AndroidComponentRequirements>()?.conflictsWith;
+            return names != null && names.Count > 0 ? names : null;
+        }
 
         private static List<GeneDef> cachedSkinColorGenes;
 
@@ -195,6 +236,9 @@ namespace VREAndroidsOverhaul
         public static readonly GeneDef NormalBlood = DefDatabase<GeneDef>.GetNamedSilentFail("VREA_NormalBlood");
         public static readonly GeneDef Ideological = DefDatabase<GeneDef>.GetNamedSilentFail("VREA_Ideological");
         public static readonly JobDef CompleteAndroidCycle = DefDatabase<JobDef>.GetNamedSilentFail("VREA_CompleteAndroidCycle");
+        public static readonly JobDef ChargeAndroid = DefDatabase<JobDef>.GetNamedSilentFail("VREA_ChargeAndroid");
+        public static readonly RulePackDef TransitionLowPower =
+            DefDatabase<RulePackDef>.GetNamedSilentFail("VREA_Transition_LowPower");
         public static readonly RecipeDef ResurrectAndroid = DefDatabase<RecipeDef>.GetNamedSilentFail("VREA_ResurrectAndroid");
         public static readonly XenotypeIconDef AndroidXenotypeIcon7 =
             DefDatabase<XenotypeIconDef>.GetNamedSilentFail("VRE_AndroidXenotypeIcon7");

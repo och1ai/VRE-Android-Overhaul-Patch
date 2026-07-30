@@ -17,7 +17,7 @@ the fork's version of a def/class in full and match it field for field before wr
 | Sleep cycle | Removed `Rest` from the excluded-needs list, restated the refusal for androids without the subroutine |
 | Death delay | New gene; postfixes layered on the original's `ShouldBeDowned` + a new `ShouldBeDead` gate |
 | Mechlike (mechanitor oversight) | Full port: colony-mech integration, dormancy, work-mode think tree, uncontrolled-androids alert |
-| Power cores | Original power gene retuned into "reactor powered"; battery as a `Hediff_AndroidReactor` subclass; need class repointed; charging via a stand `Tick` postfix instead of a bespoke job |
+| Power cores | Original power gene retuned into "reactor powered"; battery as a `Hediff_AndroidReactor` subclass; need class repointed; charge job at a stand, with a slow stand-side trickle for anything parked on one |
 | Blood types | Neutro gene retuned in place; hemogenic needs no code at all; bloodless closes four bleed paths; coagulation hardware |
 | Blood organs | `BloodOrgansExtension` per blood gene; reconciled from the blood gene's `PostAdd` and again after the original's body gene |
 | Destroyed vs killed | Subcore hediff in the brain + kill/corpse/letter/thought/relation/tale/funeral gating |
@@ -136,25 +136,53 @@ the reservoir figure the driver then divides by.
 
 The 40-neutroamine **print cost** was already done, in `Window_AndroidCreation.OnGenesChanged`.
 
-### 3c. Bespoke charging job
-`JobDriver_ChargeAndroid` + `JobGiver_ChargeAndroid` as the fork writes them, the `VREA_ChargeAndroid` job
-def, the `VREA_Transition_LowPower` rule pack, and the charging mote / cable pulse / MechCharger sounds.
-Charging itself works today via a vanilla `LayDown` job plus a stand `Tick` postfix — what is missing is the
-job proper and all of its feedback.
+### 3c. Bespoke charging job — DONE
+`JobDriver_ChargeAndroid` is ported into `Source/AI/AndroidCharging.cs` with the `VREA_ChargeAndroid` job
+def, the charging mote, the cable pulse and the MechCharger start/loop sounds. The android now walks to a
+powered stand, stands on it and draws 200 W from the grid until full, instead of lying down on it as a bed.
+`VREA_Transition_LowPower` and its `MakeDowned` / `BattleLog.Add` pair are ported too
+(`LowPowerCollapse_Patches.cs`), so a battery android that runs dry gets a low-power collapse line in the
+combat log rather than "a capacitor array caused X to fall unconscious".
 
-### 4. Editor UX for exclusive hardware (part of 2 once that lands)
+The "recharge" work mode now sends a battery android to a stand (`JobGiver_AndroidRecharge`), which is what
+the fork's think tree does; a reactor android and a battery android with no stand available still fall
+through to powering down.
+
+Two deliberate departures from the fork:
+
+- **The stand's `Tick` postfix stays**, at its slow rate, alongside the job. The fork does not have one, but
+  it also does not make its stand a bed — here the stand is the original's `Building_Bed`, and an android
+  already too flat to run a job has to be hauled onto one, at which point nothing would ever charge it. The
+  postfix skips anyone running the charge job, because `CurOccupant` is *any* android standing still on the
+  cell, that one included, and two chargers at once would double the rate and fight over the stand's power
+  output.
+- **No charging waste.** The fork's driver feeds `Stand.AddChargingWaste` and refuses a stand that is full
+  of it; the stand's waste system is a separate unported item (§5), so those two lines are left out.
+
+### 4. Editor UX for exclusive hardware — DONE
 Blood/power/chassis swap-on-click and the locked components at the behaviorist station are ported and now
 actually reachable — every entry point opens the overlay's windows (see 2).
-**Still open:** requirement and conflict tooltips (`requiresOneOf` / `conflictsWith` need the extended
-`AndroidGeneDef`, which the overlay cannot add — needs a different mechanism).
+
+Requirements and conflicts are ported too. The fork declares `requiresOneOf` / `conflictsWith` as fields on
+its own `AndroidGeneDef` subclass, which an overlay cannot add to the original's def class; the same data
+now rides along in an `AndroidComponentRequirements` mod extension, read by the four `ForkCompat` helpers
+the editor windows were already written against. So this was data, not UI: the "Requires: ..." and
+"Conflicts with: ..." lines, their red states and the refusal to accept an invalid selection all came alive
+at once.
+
+Six of the eight belong to the original's genes (`Patches/ComponentRequirements.xml`); coagulation and the
+ideological subroutine are overlay defs and declare theirs inline. `VREA_MemoryRecharge` and
+`VREA_ReactorPowered` are fork defNames — the overlay retunes the original's `VREA_MemoryProcessing` and
+`VREA_Power` in their place, so the requirements point at those. Checked against every shipped androidtype:
+none of them carries a component whose requirement it would now fail.
 
 ### 5. Smaller behavioural deltas
 Verified against the fork on 2026-07-29; everything below is confirmed absent, not assumed.
 - `MechanitorControlGroupGizmo` "Assigned mechs" tooltip (reflective, needs the power need).
 - `ThingWithComps_GetGizmos`: the extract-subcore toggle on a selected corpse. Extraction itself works —
   designator, job driver, surgery recipe and the item are all ported — this is only the shortcut.
-- `Pawn_HealthTracker_MakeDowned` + `CompPowerTrader` inspect + `InspectTabBase_UpdateSize` +
-  `NeedsCardUtility` sizing.
+- `CompPowerTrader` inspect + `InspectTabBase_UpdateSize` + `NeedsCardUtility` sizing.
+  (`Pawn_HealthTracker_MakeDowned` came with the charge job, see §3c.)
 - `FloatMenuOptionProvider_RepairAndroid` and `Recipe_RemoveArtificialBodyPart`.
 - Stand waste production while charging (`ZeroWaste` / `ExtraWaste` genes).
 - `PawnGenerator` dev-spawn fix for awakened androids.
@@ -197,11 +225,12 @@ the overlay does not own must also match the node's def, so nothing outside this
 
 ## Known overlay-specific gaps
 
-- `requiresOneOf` / `conflictsWith` are fork-only fields on `AndroidGeneDef`. The overlay cannot extend the
-  original's def class, so gene requirements are expressed in descriptions and exclusions use vanilla
-  `exclusionTags` (plus a startup pass for generated genes, see `IdeoCapability_Exclusion`).
-- Charging is done with a vanilla `LayDown` job on the stand plus a `Tick` postfix, not the fork's bespoke
-  `JobDriver_ChargeAndroid` — no charging mote or cable pulse yet.
+- `requiresOneOf` / `conflictsWith` are fork-only fields on `AndroidGeneDef`, so the overlay carries the
+  same data in an `AndroidComponentRequirements` mod extension (§4). Mutually exclusive *groups* remain a
+  separate mechanism, on vanilla `exclusionTags` plus a startup pass for the load-time-generated genes
+  (`IdeoCapability_Exclusion`).
+- The android stand is the original's `Building_Bed`, not the fork's unassignable charger, so it is still
+  owner-assignable and the charge job claims a stand for its android on the way in.
 - **Suspected, unfixed: the power core has the duplicate the blood organs just got fixed.** The same
   unguarded loop that installs the neutroamine organs also installs `VREA_Reactor` on the stomach, so a
   reactor android whose power gene was applied before the body gene ends up with two reactors —
