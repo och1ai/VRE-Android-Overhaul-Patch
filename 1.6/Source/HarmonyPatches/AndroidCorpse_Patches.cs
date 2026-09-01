@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using HarmonyLib;
 using RimWorld;
 using Verse;
@@ -20,6 +21,49 @@ namespace VREAndroidsOverhaul
             {
                 __result = false;
             }
+        }
+    }
+
+    // An "extract subcore" toggle on a dead android's body, carrying the subcore item's own icon. It
+    // queues the same designation the Orders designator does, so the recovery is discoverable straight
+    // from the selected corpse - the way a mechlink or a cortical stack is pulled from a dead pawn -
+    // instead of only from a menu the player has to know to go looking in.
+    [HarmonyPatch(typeof(ThingWithComps), nameof(ThingWithComps.GetGizmos))]
+    public static class ThingWithComps_GetGizmos_Patch
+    {
+        public static IEnumerable<Gizmo> Postfix(IEnumerable<Gizmo> gizmos, ThingWithComps __instance)
+        {
+            foreach (Gizmo gizmo in gizmos)
+            {
+                yield return gizmo;
+            }
+            DesignationDef designation = SubcoreDefOf.ExtractSubcoreDesignation;
+            if (designation == null || SubcoreDefOf.SubcoreItem == null
+                || !(__instance is Corpse corpse) || !corpse.Spawned || corpse.Map == null
+                || !AndroidDeath.HasSubcore(corpse.InnerPawn, out _))
+            {
+                yield break;
+            }
+            yield return new Command_Toggle
+            {
+                defaultLabel = "VREA.DesignatorExtractSubcore".Translate(),
+                defaultDesc = "VREA.DesignatorExtractSubcoreDesc".Translate(),
+                icon = SubcoreDefOf.SubcoreItem.uiIcon,
+                isActive = () => corpse.Map.designationManager.DesignationOn(corpse, designation) != null,
+                toggleAction = delegate
+                {
+                    DesignationManager manager = corpse.Map.designationManager;
+                    Designation existing = manager.DesignationOn(corpse, designation);
+                    if (existing != null)
+                    {
+                        manager.RemoveDesignation(existing);
+                    }
+                    else
+                    {
+                        manager.AddDesignation(new Designation(corpse, designation));
+                    }
+                }
+            };
         }
     }
 }
