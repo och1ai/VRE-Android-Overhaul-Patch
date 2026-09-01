@@ -13,17 +13,17 @@ the fork's version of a def/class in full and match it field for field before wr
 | Anomaly: obelisk immunity, occultist gating | New Harmony patches; `CanInteract` rejection so vanilla draws its own disabled option |
 | Ideoligion: tool precepts, colonist-bar icon + blue name, funeral gating | New patches; the four tool consequences fire only for the overlay's own precepts |
 | Ideological subroutine | New gene + `SetIdeo` choke point + convert-ability gate + load migration |
-| Psychic sensitivity, awakened psylink, golden cube | Retuned the original's psy gene in place; removed the amplifier from its blocklist and restated the rule with the awakening exception |
+| Psychic sensitivity, awakened psylink, golden cube | Retuned the original's psy gene in place; removed the amplifier from its blocklist and restated the rule with the awakening exception, on all four paths (AddHediff, surgery availability, `ChangeLevel`, and the neuroformer item's own use check) |
 | Sleep cycle | Removed `Rest` from the excluded-needs list, restated the refusal for androids without the subroutine |
 | Death delay | New gene; postfixes layered on the original's `ShouldBeDowned` + a new `ShouldBeDead` gate |
 | Mechlike (mechanitor oversight) | Full port: colony-mech integration, dormancy, work-mode think tree, uncontrolled-androids alert |
 | Power cores | Original power gene retuned into "reactor powered"; battery as a `Hediff_AndroidReactor` subclass; need class repointed; charge job at a stand, with a slow stand-side trickle for anything parked on one |
-| Blood types | Neutro gene retuned in place; hemogenic needs no code at all; bloodless closes four bleed paths; coagulation hardware |
+| Blood types | Neutro gene retuned in place; hemogenic needs its bleed rate computed (vanilla's is always 0 on an android, see below); bloodless closes four bleed paths; coagulation hardware |
 | Blood organs | `BloodOrgansExtension` per blood gene; reconciled from the blood gene's `PostAdd` and again after the original's body gene |
-| Destroyed vs killed | Subcore hediff in the brain + kill/corpse/letter/thought/relation/tale/funeral gating |
+| Destroyed vs killed | Subcore hediff in the brain + kill/corpse/letter/thought/relation/tale/funeral gating; the original's blanket death block narrowed so androids can actually die (§4c) |
 | Repair rework | `driverClass`/`giverClass` repointed; parts workbench out of the build menu, part items uncraftable, reactor recipe moved to the machining table |
 | Memory rework | Memory gene retuned into optional hardware; need class repointed; heat-scrambled need via the overheating gene |
-| Needs tab, social tab | `ShowOnNeedList` postfix (power + memory only); `DrawSocialCard` prefix for a log-only card |
+| Needs tab, social tab | `ShowOnNeedList` postfix (power + memory only) + card sized to the bars it draws; the social tab hidden outright when it would hold nothing (§4b) |
 | Misc | Android corpses inedible, drafted tend, neutrocasket configurable fuel |
 
 ---
@@ -113,6 +113,30 @@ heart gives back the organ that android's blood type actually uses. A circulator
 even when the answer is null, so a blood type that leaves a part bare keeps it bare instead of falling
 through to the original's counterpart table.
 
+### 3a. Hemogenic bleeding — vanilla does NOT work on an android
+`Hediff_Injury.BleedRate` returns **0** for any wound on a part that carries a directly-added part whose
+hediff is not flagged `organicAddedBodypart`. Every part of an android is exactly that: the original's
+`Gene_SyntheticBody` installs a `Hediff_AndroidPart` (a `Hediff_AddedPart`) on all of them, off
+`VREA_AndroidBodyPartBase`, which declares `addedPartProps` and leaves `organicAddedBodypart` at its default
+`false`. Vanilla only sets that flag `true` on Anomaly's fleshy prosthetics.
+
+That is *why* the original ships its own replacement rate for neutroamine androids — its
+`Hediff_Injury_BleedRate_Patch` prefix returns a formula that skips the added-part and solid-part checks.
+Nothing about it is neutroamine-specific; it is the compensation for androids being made of added parts.
+
+So "hemogenic falls through to vanilla and bleeds red like anyone else" was wrong. The blood *filth* still
+appeared, because the damage worker spawns that from `RaceProps.BloodDef` and never consults the bleed rate,
+which made it look like it was working — but the rate, the health tab's bleeding line, the bleeding-to-death
+timer and blood loss were all zero. `Hediff_Injury_BleedRate_Patch` in `Blood_Patches.cs` now calls the
+original's own public `BleedRate` helper for a hemogenic android, so it bleeds at exactly the rate
+neutroamine leaks.
+
+**The fork has this bug too, and worse.** Its `Hediff_Injury_BleedRate_Patch` *deleted* the original's
+replacement formula and routes every blood type through vanilla, with a comment asserting that normal-blood
+and neutroamine androids "bleed via the vanilla logic". They do not — in the fork, neutroamine androids stop
+bleeding as well. The overlay dodged that half only because it never unpatched the original's prefix. Do not
+port the fork's version of this file.
+
 ### 3b. Neutroamine economy — DONE
 `Recipe_ExtractNeutroamine` is ported and added as an implied def (`Neutroamine_Patches.cs`), because its
 `recipeUsers` is every humanlike in the load order and XML cannot enumerate that — the same reason the
@@ -176,13 +200,103 @@ ideological subroutine are overlay defs and declare theirs inline. `VREA_MemoryR
 `VREA_Power` in their place, so the requirements point at those. Checked against every shipped androidtype:
 none of them carries a component whose requirement it would now fail.
 
+### 4b. Needs tab sizing / Social tab visibility — DONE
+The two tabs had their *content* trimmed (the `ShowOnNeedList` postfix and the log-only social card) but
+not their *size*, so both still opened at full humanlike height with a large empty area under the content.
+Two fork patches now ported into `Source/HarmonyPatches/TabSizing_Patches.cs`:
+
+- `NeedsCardUtility.GetSize` postfix — a non-awakened android's needs card is measured from the bars it
+  actually shows (`225 x needCount * min(70, FullSize.y / needCount)`) instead of the humanlike default.
+  The card is only ever full height because `pawn.needs.mood` is non-null, which the overhaul keeps for the
+  awakening mechanic and never draws.
+- `NeedsCardUtility.DoNeedsMoodAndThoughts` prefix — draws just `DoNeeds` for those androids, so no
+  mood/thoughts column is laid out in the space that is no longer there.
+The fork's third patch here, an `InspectTabBase.UpdateSize` postfix shrinking the Social tab from 510 to
+185 px for a log-only android, was ported and then **removed again**: at the user's request the Social tab
+is now hidden outright for those androids (see below), so a reduced height had nothing left to apply to.
+
+Verified against the stock (non-publicized) `Assembly-CSharp`: `GetSize`, `DoNeedsMoodAndThoughts`,
+`DoNeeds` and `FullSize` are all public, so they are patched and called directly.
+`ITab_Pawn_Social.SelPawnForSocialInfo` has a private getter and is reached through `AccessTools`, exactly
+as the fork does. `NeedsCardUtility.DoMoodAndThoughts` is private and is already patched by the original
+mod, so the overhaul does not touch it.
+
+**Deliberate departure from the fork: the Social tab is removed, not shrunk.** The fork keeps a log-only
+card at reduced height; the user asked for the tab and its button to disappear entirely when there would be
+nothing in it. `ITab_Pawn_Social_IsVisible_Patch` postfixes the tab's `IsVisible` getter for that. The
+`DrawSocialCard` prefix is kept as the rule for what such a card *would* hold, for any path that draws it
+without going through the tab.
+
+The fork's `SocialTabLogOnly` predicate moved into `ForkCompat` so the visibility gate and the card read one
+definition and cannot disagree. It calls the **original's** `Utils.Emotionless`
+(`PsychologyDisabled && !EmotionSimulators`) rather than the fork's (`!EmotionSimulators && !IsAwakened`);
+the two agree in practice, because `VREA_PsychologyDisabled` is a `VREA_HardwareBase` gene — so
+`isCoreComponent`, present on every android and not deselectable in the editor — and carries
+`removeWhenAwakened`, so awakening drops it. `SocialCardUtility.DrawRelationsAndOpinions` needed no port at
+all: the original mod already prefixes it with the same `Emotionless()` check.
+
+### 4c. Death, resurrection and reprint — DONE
+The destroyed-vs-killed model, the subcore, the extraction chain and the assembler's resurrect bill were all
+already ported. What was missing was the thing that makes any of it reachable: **androids could barely die.**
+
+The original blocks death twice over, and both are blanket rules:
+- a postfix on `ShouldBeDead` returning `false` for *any* death cause while the brain is intact;
+- a postfix on `ShouldBeDeadFromRequiredCapacity` nulling *every* missing capacity, likewise brain-gated.
+
+Between them, nothing short of decapitation ends an android, so there was hardly ever a corpse to resurrect
+or a subcore to pull. Both are now unpatched (`VREAndroidsOverhaulMod.UnpatchOriginal`) and restated in
+`Source/HarmonyPatches/AndroidLethality_Patches.cs` as the fork has them — narrowed to the two causes that
+genuinely describe a broken machine rather than a dead one:
+
+- `ShouldBeDeadFromLethalDamageThreshold` → always false for an android. The accumulated-damage rule is a
+  statistical "enough is enough" for flesh; a chassis is repaired part by part instead.
+- `ShouldBeDeadFromRequiredCapacity` → nulled **only** for `Consciousness`, and only with the brain intact.
+  Being switched off is not dying.
+
+Everything else kills normally: a destroyed vital organ, a destroyed torso (the core-part efficiency check),
+a hediff whose `CauseDeathNow()` fires — including **blood loss at full severity**, which only started
+working for hemogenic androids with the §3a fix, so the two changes complete each other. That death is then
+usually a *destruction* rather than a kill, because the subcore survives it, which is precisely what leaves
+a body to resurrect at the assembler or a subcore to extract and reprint from.
+
+**This is a real difficulty change.** Androids used to be near-unkillable; they now die on the same terms as
+anyone else apart from those two exemptions. The death delay subroutine is the in-game answer to that: it
+holds both the downing and the death off for two hours (`DelayedDeactivation_Patches.cs`), for a critical
+failure anywhere but the head.
+
+Also ported here: `ThingWithComps_GetGizmos_Patch` (now in `AndroidCorpse_Patches.cs`), the "extract
+subcore" toggle on a selected dead android, so the recovery is reachable from the corpse itself and not only
+from the Orders designator.
+
+Everything else in the death/resurrect cluster needed no work: the fork's `CompAbilityEffect_Resurrect_Valid`,
+`JobDriver_Resurrect_Resurrect`, `ResurrectionUtility_ResurrectWithSideEffects`,
+`MutantUtility_CanResurrectAsShambler`, `Corpse_GetInspectString`, the three `CompRottable` patches,
+`Designator_ExtractSkull_CanDesignateThing`, `Building_SubcoreScanner_CanAcceptPawn`,
+`CompTargetable_BaseTargetValidator` and `IncidentWorker_UnnaturalCorpseArrival_ValidatePawn` are all
+**byte-identical to the original's**, so they come free with the base mod.
+
+### 4d. Editor and cosmetic requests (user-directed, beyond the fork)
+Three changes asked for in session, none of them ports:
+
+- **Hardware is locked at the behaviourist station.** The fork locked only blood, power and chassis there
+  and let the rest of the hardware be swapped from the chair. `Window_AndroidModification` now treats
+  everything in the `VREA_Hardware` display category as locked, so the station reprograms **subroutines
+  only**; hardware is chosen when the body is printed. The full editor is untouched.
+- **Furskin in the designer's cosmetic section.** A checkbox under Body shape toggling Biotech's `Furskin`.
+  It needs the explicit capture in `AcceptInner` as well as the preview toggle: the component capture keeps
+  only android genes and body-type genes, so a plain cosmetic gene would be dropped on accept.
+  `EnforceChosenAppearanceGenes` leaves it alone (it strips only skin-colour, hair-colour, body-type and
+  melanin genes). The gene carries `skinIsHairColor`, so the hair swatches colour the fur.
+- **"Adds need: memory space (overheating)"** on the component-overheating gene. Vanilla builds that line in
+  the private `GeneDef.GetDescriptionFull`; the postfix qualifies the need label there rather than on the
+  `DescriptionFull` property, which caches and would re-append the qualifier on every call.
+
 ### 5. Smaller behavioural deltas
 Verified against the fork on 2026-07-29; everything below is confirmed absent, not assumed.
 - `MechanitorControlGroupGizmo` "Assigned mechs" tooltip (reflective, needs the power need).
-- `ThingWithComps_GetGizmos`: the extract-subcore toggle on a selected corpse. Extraction itself works —
-  designator, job driver, surgery recipe and the item are all ported — this is only the shortcut.
-- `CompPowerTrader` inspect + `InspectTabBase_UpdateSize` + `NeedsCardUtility` sizing.
-  (`Pawn_HealthTracker_MakeDowned` came with the charge job, see §3c.)
+- `CompPowerTrader` inspect: the android stand's "(200 W when active)" power line.
+  (`InspectTabBase_UpdateSize` and the `NeedsCardUtility` sizing are done, see §4b;
+  `Pawn_HealthTracker_MakeDowned` came with the charge job, see §3c.)
 - `FloatMenuOptionProvider_RepairAndroid` and `Recipe_RemoveArtificialBodyPart`.
 - Stand waste production while charging (`ZeroWaste` / `ExtraWaste` genes).
 - `PawnGenerator` dev-spawn fix for awakened androids.
