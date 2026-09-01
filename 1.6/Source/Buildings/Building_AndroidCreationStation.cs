@@ -232,6 +232,12 @@ namespace VREAndroidsOverhaul
         // Dev: jump to the end of the current cycle and complete it, exactly as a crafter would.
         public void DevCompleteCycle()
         {
+            // A merely queued print has no unfinished android yet - its materials are still waiting on a
+            // hauler. Start it here for free rather than doing nothing at all, which is how the button read.
+            if (unfinishedAndroid == null && HasPendingJob)
+            {
+                DevStartWithoutMaterials();
+            }
             if (unfinishedAndroid == null)
             {
                 return;
@@ -239,6 +245,19 @@ namespace VREAndroidsOverhaul
             currentWorkAmountDone = Mathf.Min((cyclesCompleted + 1) * TicksPerCycle, totalWorkAmount);
             awaitingCycleCompletion = true;
             CompleteCycle(null);
+        }
+
+        // Dev: begin a queued print with none of its materials delivered. The body or subcore a resurrect
+        // or reprint needs is still consumed - it carries the identity being restored, so there is nothing
+        // to conjure in its place - but it is taken from wherever it lies instead of being hauled in first.
+        private void DevStartWithoutMaterials()
+        {
+            var inputs = new List<Thing>();
+            if (pendingInput != null)
+            {
+                inputs.Add(pendingInput);
+            }
+            DeliverAndStart(inputs);
         }
 
         // Dev: run every remaining cycle through to the finished android.
@@ -461,7 +480,12 @@ namespace VREAndroidsOverhaul
                 {
                     Corpse corpse = placedThings.OfType<Corpse>().FirstOrDefault();
                     if (corpse == null) { pendingInput = null; printMode = PrintMode.Print; return; }
-                    corpse.DeSpawn();
+                    // Normally the hauler has just set the body down here. A dev-started resurrect can
+                    // instead catch it in a pawn's arms, where TryAddOrTransfer moves it across directly.
+                    if (corpse.Spawned)
+                    {
+                        corpse.DeSpawn();
+                    }
                     innerContainer.TryAddOrTransfer(corpse, canMergeWithExistingStacks: false);
                     SpawnUnfinishedMarker();
                     StoreResources(placedThings.Where(t => t != corpse));
