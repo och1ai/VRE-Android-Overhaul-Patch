@@ -30,6 +30,13 @@ namespace VREAndroidsOverhaul
         // seeded to the closest match on the first preview so one of each is always present.
         private GeneDef chosenSkinGene;
         private GeneDef chosenHairGene;
+        // Furskin is a plain Biotech cosmetic gene rather than an android component, so it is tracked
+        // here like the colour picks and re-added explicitly on accept - the component capture below
+        // only keeps android genes and body-type genes, and would otherwise drop it.
+        private GeneDef chosenFurGene;
+
+        // Resolved by name so nothing breaks if the gene is ever absent.
+        private static GeneDef FurGene => DefDatabase<GeneDef>.GetNamedSilentFail("Furskin");
         private GeneDef chosenBodyGene;
 
         // Preserved across type changes so re-picking the type doesn't wipe the chosen identity.
@@ -132,6 +139,12 @@ namespace VREAndroidsOverhaul
                 chosenHairGene = ClosestColorGene(Utils.HairColorAndroidGenes, g => g.hairColorOverride.Value, android.story.HairColor);
             }
             if (chosenHairGene != null) android.story.HairColor = chosenHairGene.hairColorOverride.Value;
+            // Seed the fur toggle from the body itself, so reopening the designer on an android that
+            // already has fur shows it ticked instead of silently clearing it on the next accept.
+            if (FurGene != null && android.genes.GetGene(FurGene) != null)
+            {
+                chosenFurGene = FurGene;
+            }
             // Seed only a first name from the generated body the first time (no nickname / last name),
             // then keep the player's edits.
             if (firstName.NullOrEmpty() && nickName.NullOrEmpty() && lastName.NullOrEmpty())
@@ -288,6 +301,22 @@ namespace VREAndroidsOverhaul
             {
                 VREA_UIHelper.Cycler(ref pos, "VREA.BodyShape".Translate(), bodyGenes, chosenBodyGene ?? CurrentBodyGene(),
                     g => g.bodyType.Value.ToString(), ApplyBodyGene);
+            }
+
+            // Fur: a synthetic pelt over the chassis. It renders in the HAIR colour (the gene carries
+            // skinIsHairColor), so the hair swatches below drive the fur's colour, and the gene's own
+            // exclusion tags hide the hair and beard styles while it is on.
+            GeneDef fur = FurGene;
+            if (fur != null)
+            {
+                VREA_UIHelper.LabelRow(ref pos, fur.LabelCap, out Rect furRect, 24f);
+                bool hasFur = chosenFurGene != null;
+                bool wantsFur = hasFur;
+                Widgets.Checkbox(furRect.x, furRect.y + 3f, ref wantsFur);
+                if (wantsFur != hasFur)
+                {
+                    ApplyFurGene(wantsFur ? fur : null);
+                }
             }
 
             // Skin colour: swatches come from every android skin-colour gene (melanin tones + tints). The
@@ -513,6 +542,7 @@ namespace VREAndroidsOverhaul
                 .Select(g => g.def).ToList();
             if (chosenSkinGene != null) geneDefs.Add(chosenSkinGene);
             if (chosenHairGene != null) geneDefs.Add(chosenHairGene);
+            if (chosenFurGene != null) geneDefs.Add(chosenFurGene);
             customXenotype.genes.AddRange(geneDefs.Distinct());
 
             var design = new AndroidPersonaData();
@@ -620,6 +650,38 @@ namespace VREAndroidsOverhaul
                 if (android.genes.GetGene(bodyGene) == null)
                 {
                     android.genes.AddGene(bodyGene, false);
+                }
+            }
+            finally
+            {
+                ForkCompat.suppressAndroidNotifications = false;
+            }
+            Refresh();
+        }
+
+        // Adds or removes the fur gene on the live preview, mirroring ApplyBodyGene's notification muting.
+        private void ApplyFurGene(GeneDef furGene)
+        {
+            chosenFurGene = furGene;
+            GeneDef fur = FurGene;
+            if (fur == null)
+            {
+                return;
+            }
+            try
+            {
+                ForkCompat.suppressAndroidNotifications = true;
+                Gene existing = android.genes.GetGene(fur);
+                if (furGene == null)
+                {
+                    if (existing != null)
+                    {
+                        android.genes.RemoveGene(existing);
+                    }
+                }
+                else if (existing == null)
+                {
+                    android.genes.AddGene(fur, false);
                 }
             }
             finally
