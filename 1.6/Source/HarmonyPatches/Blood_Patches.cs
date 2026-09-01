@@ -6,9 +6,9 @@ using VREAndroids;
 namespace VREAndroidsOverhaul
 {
     // Three circulatory options instead of one. The original only ever intercepts bleeding for its own
-    // neutroamine gene, so a hemogenic android needs no patching at all - it falls through to the vanilla
-    // logic and bleeds red like anyone else. Only the two ends of the range need code: a bloodless frame
-    // that must never bleed, and the coagulation subroutine that slows bleeding down.
+    // neutroamine gene; the other two both need code. A bloodless frame must never bleed, the coagulation
+    // subroutine slows bleeding down, and a hemogenic one has to have its bleed rate computed for it,
+    // because vanilla's own rate is always zero on an android (see Hediff_Injury_BleedRate_Patch).
     internal static class BloodTypes
     {
         private static GeneDef bloodless, coagulation, hemogenic;
@@ -73,9 +73,9 @@ namespace VREAndroidsOverhaul
         }
     }
 
-    // Per-wound bleeding: zero on a dry frame, and slowed by the coagulation subroutine. A postfix, so the
-    // original's own neutroamine handling (which computes its own rate in a prefix) still runs first and
-    // is scaled correctly rather than being overwritten.
+    // Per-wound bleeding: zero on a dry frame, computed for a hemogenic one, and slowed by the coagulation
+    // subroutine. A postfix, so the original's own neutroamine handling (which computes its own rate in a
+    // prefix) still runs first and is scaled correctly rather than being overwritten.
     [HarmonyPatch(typeof(Hediff_Injury), "BleedRate", MethodType.Getter)]
     public static class Hediff_Injury_BleedRate_Patch
     {
@@ -85,18 +85,42 @@ namespace VREAndroidsOverhaul
         [HarmonyPriority(int.MinValue)]
         public static void Postfix(Hediff_Injury __instance, ref float __result)
         {
-            if (__result <= 0f)
-            {
-                return;
-            }
-            if (BloodTypes.IsBloodless(__instance.pawn))
+            Pawn pawn = __instance.pawn;
+            if (BloodTypes.IsBloodless(pawn))
             {
                 __result = 0f;
+                return;
             }
-            else if (BloodTypes.HasCoagulation(__instance.pawn))
+            if (BloodTypes.IsHemogenic(pawn))
+            {
+                __result = HemogenicBleedRate(__instance);
+            }
+            if (__result > 0f && BloodTypes.HasCoagulation(pawn))
             {
                 __result *= CoagulationBleedFactor;
             }
+        }
+
+        // A hemogenic android does NOT simply fall through to working vanilla logic, which is what this
+        // file first assumed. Vanilla zeroes a wound's bleed rate whenever the injured part carries a
+        // directly-added part whose hediff is not flagged organicAddedBodypart - and EVERY part of an
+        // android is exactly that: the original's Gene_SyntheticBody installs a Hediff_AndroidPart on all
+        // of them, off VREA_AndroidBodyPartBase, which sets addedPartProps and leaves organicAddedBodypart
+        // at its default false.
+        //
+        // So a hemogenic android splattered blood - that filth comes from the damage worker, not from
+        // here - while its bleed rate stayed 0, and with it the health tab's bleeding line, the
+        // bleeding-to-death timer and any blood loss at all.
+        //
+        // The original already had to solve this for its own neutroamine androids, with a replacement rate
+        // that skips the added-part check. Call that same public helper instead of restating the formula:
+        // hemogenic then bleeds at exactly the rate neutroamine leaks, and any retune of it carries over.
+        // It drops two vanilla guards along the way - the solid-part check and BleedingStoppedDueToAge -
+        // which is already true of every neutroamine android in the original, so the two blood types stay
+        // comparable. (The solid-part one is moot regardless: android parts declare solid=false.)
+        private static float HemogenicBleedRate(Hediff_Injury injury)
+        {
+            return VREAndroids.Hediff_Injury_BleedRate_Patch.BleedRate(injury);
         }
     }
 
