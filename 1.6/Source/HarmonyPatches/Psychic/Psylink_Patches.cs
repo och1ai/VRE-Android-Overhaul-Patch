@@ -95,6 +95,28 @@ namespace VREAndroidsOverhaul
         }
     }
 
+    // The neuroformer is an ITEM a pawn USES, not a surgery, so neither the recipe gate above nor the
+    // original's hediff blocklist ever sees it - both only cover surgery and AddHediff. Left alone, a base
+    // android could be ordered to use one: it walks over, the neuroformer is consumed and destroys itself,
+    // and the psylink is refused at the far end by AddHediff. The item is simply gone.
+    //
+    // CompUsable asks every use-effect comp on the item whether it can be used, and shows the rejection as
+    // the greyed-out float-menu option's reason, so rejecting here is the one choke point that covers the
+    // float menu, the item's own gizmo and the targeting check at once. Keyed to the implant this comp
+    // installs, so no other implant item is affected.
+    [HarmonyPatch(typeof(CompUseEffect_InstallImplant), nameof(CompUseEffect_InstallImplant.CanBeUsedBy))]
+    public static class CompUseEffect_InstallImplant_CanBeUsedBy_Overlay_Patch
+    {
+        public static void Postfix(CompUseEffect_InstallImplant __instance, Pawn p, ref AcceptanceReport __result)
+        {
+            if (__result.Accepted && PsychicAwakening.BlocksPsylink(p, __instance.Props?.hediffDef))
+            {
+                __result = new AcceptanceReport(
+                    "VREAOverhaul.NotAwakened".Translate(p.Named("PAWN")).CapitalizeFirst());
+            }
+        }
+    }
+
     // Gaining psylink levels (rituals, neuroformers, bestowing) goes through ChangeLevel, which the
     // original refuses outright for androids. Its prefix is replaced rather than fought: unpatching just
     // that one method lets the same guard be reinstated with the awakening exception.
