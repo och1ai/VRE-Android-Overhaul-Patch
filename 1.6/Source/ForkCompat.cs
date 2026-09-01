@@ -178,6 +178,16 @@ namespace VREAndroidsOverhaul
         public static bool HasSubcore(Pawn pawn, out Hediff_AndroidSubcore subcore) =>
             AndroidDeath.HasSubcore(pawn, out subcore);
 
+        // True for a "machine" android whose Social tab has nothing to show: emotionless (no
+        // emotion-simulator hardware, not awakened) and without the ideological subroutine, so neither
+        // relations nor an ideoligion/role section. Read both by the tab's visibility gate (which removes
+        // the tab and its button outright) and by the card itself, so the two cannot disagree.
+        public static bool SocialTabLogOnly(this Pawn pawn)
+        {
+            return pawn != null && pawn.IsAndroid() && pawn.Emotionless()
+                && !IdeoCapability.CanHoldIdeoligion(pawn);
+        }
+
         // While a throwaway designer-preview android is being built/edited its gene churn briefly downs and
         // undowns it; this suppresses the resulting notices.
         public static bool suppressAndroidNotifications;
