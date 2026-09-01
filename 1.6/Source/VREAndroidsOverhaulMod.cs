@@ -36,6 +36,15 @@ namespace VREAndroidsOverhaul
             // makes the exception for awakened androids (Psylink_Patches.cs).
             Unpatch(AccessTools.Method(typeof(Hediff_Psylink), "ChangeLevel", new Type[] { typeof(int) }),
                 HarmonyPatchType.Prefix, "psylink level changes");
+
+            // Death. The original's postfix on ShouldBeDead makes an android with a brain immortal against
+            // every cause at once; its required-capacity postfix nulls every missing capacity. Both are
+            // replaced by narrower rules in AndroidLethality_Patches.cs so an android can actually die -
+            // and so be resurrected or reprinted from its subcore.
+            Unpatch(AccessTools.Method(typeof(Pawn_HealthTracker), "ShouldBeDead"),
+                HarmonyPatchType.Postfix, "the blanket android death block");
+            Unpatch(AccessTools.Method(typeof(Pawn_HealthTracker), "ShouldBeDeadFromRequiredCapacity"),
+                HarmonyPatchType.Postfix, "the blanket android required-capacity block");
         }
 
         private static void Unpatch(MethodBase method, HarmonyPatchType type, string what)
