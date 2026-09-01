@@ -51,20 +51,33 @@ namespace VREAndroidsOverhaul
             station.initModification = true;
         }
 
-        // The installed blood type, power source and chassis show in the selected list but are locked:
-        // this station can reprogram subroutines and swap other hardware, but the body's fixed power
-        // core (reactor/battery), blood system and chassis can only be chosen when the body is printed.
+        // The behaviourist station REPROGRAMS an android; it does not rebuild it. Subroutines are software
+        // and can be rewritten freely here - hardware is physical and is chosen when the body is printed,
+        // so every hardware component shows in the selected list but is locked.
+        //
+        // This is wider than the fork, which locked only blood, power and chassis and let the rest of the
+        // hardware be swapped from this chair. Installing or pulling a memory drive, a coagulation module
+        // or a spacer chassis is surgery on a built body, not a reprogramming job, so the station now
+        // refuses all of it: to change hardware, print a new body or use the operations tab.
+        private static bool IsHardware(GeneDef geneDef)
+        {
+            return geneDef.displayCategory?.defName == HardwareCategory
+                || geneDef.IsBloodGene() || geneDef.IsPowerGene() || geneDef.IsChassisGene();
+        }
+
+        private const string HardwareCategory = "VREA_Hardware";
+
         protected override bool IsGeneLocked(GeneDef geneDef)
         {
-            return geneDef.IsBloodGene() || geneDef.IsPowerGene() || geneDef.IsChassisGene();
+            return IsHardware(geneDef);
         }
 
         public override bool GeneValidator(GeneDef x)
         {
-            // Blood type, power source and chassis are fixed once the body is built. Show only the
-            // option this android actually has (locked) and hide the alternatives, so the hardware
-            // list mirrors the selected list instead of offering a swap.
-            if (x.IsBloodGene() || x.IsPowerGene() || x.IsChassisGene())
+            // Hardware is fixed once the body is built. Show only the components this android actually
+            // has (locked) and hide the alternatives, so the hardware list mirrors the selected list
+            // instead of offering a swap that this station cannot perform.
+            if (IsHardware(x))
             {
                 return selectedGenes.Contains(x);
             }
