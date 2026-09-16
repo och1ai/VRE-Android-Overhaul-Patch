@@ -19,6 +19,92 @@ namespace VREAndroidsOverhaul
         private readonly Building_AndroidCreationStation station;
         private readonly Pawn creator;
 
+        // Modify mode: opened from the behaviourist station on an android that already exists, instead of
+        // from the assembler to design one to print. The whole window is shared; the differences are the
+        // preview (the real pawn, not a throwaway), what the component button opens, and what accepting
+        // does. `station` is null in this mode and must not be touched.
+        private readonly Building_AndroidBehavioristStation behaviorStation;
+        private readonly Pawn subject;
+        private bool ModifyMode => behaviorStation != null;
+        // Appearance is edited live on the real pawn in modify mode, so a cancelled window has to put it
+        // back exactly as it was - both the story/style fields and the appearance genes.
+        private LookSnapshot originalLook;
+        private List<GeneDef> originalAppearanceGenes;
+        private bool committed;
+
+        // Exactly the fields this window can change, and nothing else. Deliberately NOT
+        // AndroidPersonaData/OverwritePawn: that is built to reconstruct a printed body and also rewrites
+        // traits, skills, memories, relations, ideology and records - far too much machinery to run over a
+        // live colonist just because someone closed a dialog.
+        private sealed class LookSnapshot
+        {
+            private Name name;
+            private Gender gender;
+            private BodyTypeDef bodyType;
+            private HeadTypeDef headType;
+            private HairDef hair;
+            private Color hairColor;
+            private Color? skinColorOverride;
+            private BeardDef beard;
+            private TattooDef bodyTattoo, faceTattoo;
+            private long bioAgeTicks;
+
+            public static LookSnapshot Of(Pawn pawn)
+            {
+                var snap = new LookSnapshot
+                {
+                    name = pawn.Name,
+                    gender = pawn.gender,
+                    bioAgeTicks = pawn.ageTracker?.AgeBiologicalTicks ?? 0,
+                };
+                if (pawn.story != null)
+                {
+                    snap.bodyType = pawn.story.bodyType;
+                    snap.headType = pawn.story.headType;
+                    snap.hair = pawn.story.hairDef;
+                    snap.hairColor = pawn.story.HairColor;
+                    snap.skinColorOverride = pawn.story.skinColorOverride;
+                }
+                if (pawn.style != null)
+                {
+                    snap.beard = pawn.style.beardDef;
+                    if (ModsConfig.IdeologyActive)
+                    {
+                        snap.bodyTattoo = pawn.style.BodyTattoo;
+                        snap.faceTattoo = pawn.style.FaceTattoo;
+                    }
+                }
+                return snap;
+            }
+
+            public void RestoreTo(Pawn pawn)
+            {
+                pawn.Name = name;
+                pawn.gender = gender;
+                if (pawn.story != null)
+                {
+                    pawn.story.bodyType = bodyType;
+                    pawn.story.headType = headType;
+                    pawn.story.hairDef = hair;
+                    pawn.story.HairColor = hairColor;
+                    pawn.story.skinColorOverride = skinColorOverride;
+                }
+                if (pawn.style != null)
+                {
+                    pawn.style.beardDef = beard;
+                    if (ModsConfig.IdeologyActive)
+                    {
+                        pawn.style.BodyTattoo = bodyTattoo;
+                        pawn.style.FaceTattoo = faceTattoo;
+                    }
+                }
+                if (bioAgeTicks > 0 && pawn.ageTracker != null)
+                {
+                    pawn.ageTracker.AgeBiologicalTicks = bioAgeTicks;
+                }
+            }
+        }
+
         private List<GeneDef> currentGenes;
         private string xenotypeName;
         private XenotypeIconDef iconDef;
@@ -75,6 +161,60 @@ namespace VREAndroidsOverhaul
             RebuildPreview();
         }
 
+        // Behaviourist station entry point. The android is real and already built, so the window edits it
+        // in place: appearance applies as it is changed (it is a respray, not surgery) and the component
+        // selection is queued through the station's own work flow on accept, exactly as the component
+        // editor used to do when it was the station's front door.
+        public Window_AndroidDesign(Building_AndroidBehavioristStation behaviorStation, Pawn subject)
+        {
+            this.behaviorStation = behaviorStation;
+            this.subject = subject;
+            forcePause = true;
+            absorbInputAroundWindow = true;
+            doCloseX = true;
+            android = subject;
+            currentGenes = subject.genes.GenesListForReading
+                .Where(g => g.def.IsAndroidGene()).Select(g => g.def).ToList();
+            xenotypeName = subject.genes?.xenotypeName.NullOrEmpty() ?? true
+                ? "VREA.AndroidName".Translate().ToString()
+                : subject.genes.xenotypeName;
+            iconDef = subject.genes?.iconDef ?? OverhaulDefOf.AndroidXenotypeIcon7;
+            typeChosen = true;
+            bioAgeTicks = subject.ageTracker?.AgeBiologicalTicks ?? 0;
+            SeedNameFrom(subject);
+            originalLook = LookSnapshot.Of(subject);
+            originalAppearanceGenes = CurrentAppearanceGenes();
+            SeedAppearancePicks();
+        }
+
+        // Every gene the designer itself can add or remove: what has to be restored if the window is
+        // cancelled, since these are applied to the live pawn as they are picked.
+        private static bool IsAppearanceGene(GeneDef def)
+        {
+            return def != null && (def.bodyType != null || ForkCompat.IsSkinColorGene(def)
+                || ForkCompat.IsHairColorGene(def) || def == FurGene);
+        }
+
+        private List<GeneDef> CurrentAppearanceGenes()
+        {
+            return android.genes.GenesListForReading.Where(g => IsAppearanceGene(g.def))
+                .Select(g => g.def).ToList();
+        }
+
+        private void SeedNameFrom(Pawn pawn)
+        {
+            if (pawn.Name is NameTriple triple)
+            {
+                firstName = triple.First ?? "";
+                nickName = triple.Nick ?? "";
+                lastName = triple.Last ?? "";
+            }
+            else if (pawn.Name != null)
+            {
+                nickName = pawn.Name.ToStringShort;
+            }
+        }
+
         private static List<GeneDef> DefaultTypeGenes()
         {
             var genes = Utils.AndroidGenesGenesInOrder
@@ -87,6 +227,14 @@ namespace VREAndroidsOverhaul
 
         private void RebuildPreview()
         {
+            // In modify mode the preview IS the android being worked on, so there is nothing to rebuild:
+            // its components are queued through the station rather than applied here, and rebuilding
+            // would throw away the real pawn. Appearance edits already went straight onto it.
+            if (ModifyMode)
+            {
+                Refresh();
+                return;
+            }
             Pawn built;
             try
             {
@@ -114,6 +262,14 @@ namespace VREAndroidsOverhaul
             {
                 android.story.headType = standardHeads.RandomElement();
             }
+            SeedAppearancePicks();
+        }
+
+        // Establishes one concrete body / skin-colour / hair-colour gene and the fur flag on whatever
+        // body the window is showing, seeding each from the body's current look the first time and
+        // preserving the player's picks afterwards.
+        private void SeedAppearancePicks()
+        {
             // Body shape is gene-driven: keep the player's last pick across type changes (seed it the first
             // time from whatever the fresh body rolled) and force exactly that one body gene.
             if (BodyTypeGenes().Any())
@@ -165,6 +321,18 @@ namespace VREAndroidsOverhaul
                 return;
             }
             currentGenes = xeno.genes.ToList();
+            if (ModifyMode)
+            {
+                // Loading a saved androidtype must not become a back door around the hardware lock: keep
+                // the components this body was actually printed with and take only the subroutines from
+                // the loaded type.
+                List<GeneDef> ownHardware = subject.genes.GenesListForReading
+                    .Where(g => g.def.IsAndroidGene() && g.def.IsHardwareGene())
+                    .Select(g => g.def).ToList();
+                currentGenes = ownHardware
+                    .Concat(currentGenes.Where(g => !g.IsHardwareGene()))
+                    .Distinct().ToList();
+            }
             xenotypeName = xeno.name;
             iconDef = xeno.IconDef;
             typeChosen = true;
@@ -175,7 +343,8 @@ namespace VREAndroidsOverhaul
         {
             Text.Font = GameFont.Medium;
             Text.Anchor = TextAnchor.UpperCenter;
-            Widgets.Label(new Rect(0, 0, inRect.width, 34f), "VREA.DesignAndroid".Translate());
+            Widgets.Label(new Rect(0, 0, inRect.width, 34f),
+                ModifyMode ? "VREA.ModifyAndroid".Translate() : "VREA.DesignAndroid".Translate());
             Text.Anchor = TextAnchor.UpperLeft;
             Text.Font = GameFont.Small;
 
@@ -208,7 +377,8 @@ namespace VREAndroidsOverhaul
                 GUI.color = new Color(1f, 1f, 1f, 0.5f);
                 TooltipHandler.TipRegion(acceptRect, "VREA.SelectTypeFirst".Translate());
             }
-            bool clickedStart = Widgets.ButtonText(acceptRect, "VREA.StartPrint".Translate());
+            bool clickedStart = Widgets.ButtonText(acceptRect,
+                ModifyMode ? "VREA.ModifyAndroid".Translate() : "VREA.StartPrint".Translate());
             GUI.color = Color.white;
             if (clickedStart)
             {
@@ -467,6 +637,16 @@ namespace VREAndroidsOverhaul
 
         private void OpenComponentEditor()
         {
+            if (ModifyMode)
+            {
+                // At the behaviourist station the component list is the MODIFICATION editor - subroutines
+                // editable, hardware shown but locked - handed the designer's working selection and
+                // returning its result here instead of queueing the job itself.
+                var editor = new Window_AndroidModification(behaviorStation, subject, null, currentGenes);
+                editor.onTypeResult = SetType;
+                Find.WindowStack.Add(editor);
+                return;
+            }
             var window = new Window_AndroidCreation(station, creator, null);
             window.onTypeResult = SetType;
             Find.WindowStack.Add(window);
@@ -525,6 +705,11 @@ namespace VREAndroidsOverhaul
 
         private void Confirm()
         {
+            if (ModifyMode)
+            {
+                ConfirmModification();
+                return;
+            }
             ApplyName();
             var customXenotype = new CustomXenotype
             {
@@ -564,6 +749,92 @@ namespace VREAndroidsOverhaul
                 }
             }
             Close();
+        }
+
+        // Modify mode accept: the appearance has already been applied to the android as it was edited (a
+        // respray needs no workshop time), so all that is queued here is the component change, through the
+        // station's own work flow - the same bookkeeping the component editor used to do when it was the
+        // station's front door.
+        private void ConfirmModification()
+        {
+            ApplyName();
+            var customXenotype = new CustomXenotype
+            {
+                name = xenotypeName?.Trim(),
+                inheritable = false,
+                iconDef = iconDef,
+            };
+            // currentGenes only ever tracks hardware/subroutines (seeded at open, replaced wholesale by
+            // the component editor or SetType) - it never sees a swatch or cycler pick, because those are
+            // applied live to the pawn instead. FinishAndroidProject strips every android gene and re-adds
+            // only what ends up in curAndroidProject.genes, so without this the station would silently
+            // revert hair/skin colour, body shape and fur to whatever they were when the window opened
+            // (visible as "changing hair colour doesn't work" - it applies to the live preview, then the
+            // finished job undoes it). Rebuild the gene list the same way build-mode's Confirm() does:
+            // drop whatever stale appearance gene currentGenes is carrying and add back what the player
+            // actually has selected now.
+            var geneDefs = currentGenes.Where(g => !IsAppearanceGene(g)).ToList();
+            var liveBodyGene = android.genes.GenesListForReading.FirstOrDefault(g => g.def.bodyType != null)?.def;
+            if (liveBodyGene != null) geneDefs.Add(liveBodyGene);
+            if (chosenSkinGene != null) geneDefs.Add(chosenSkinGene);
+            if (chosenHairGene != null) geneDefs.Add(chosenHairGene);
+            if (chosenFurGene != null) geneDefs.Add(chosenFurGene);
+            currentGenes = geneDefs.Distinct().ToList();
+            customXenotype.genes.AddRange(currentGenes);
+            behaviorStation.curAndroidProject = customXenotype;
+            var have = subject.genes.GenesListForReading.Where(g => g.def.IsAndroidGene())
+                .Select(g => g.def).ToList();
+            int removed = have.Count(d => !currentGenes.Contains(d));
+            int added = currentGenes.Count(d => !have.Contains(d));
+            behaviorStation.totalWorkAmount = (removed * 2000) + (added * 2000);
+            behaviorStation.currentWorkAmountDone = 0;
+            behaviorStation.initModification = true;
+            committed = true;
+            Close();
+        }
+
+        public override void Close(bool doCloseSound = true)
+        {
+            base.Close(doCloseSound);
+            if (!ModifyMode || committed)
+            {
+                return;
+            }
+            // Cancelled: undo the live appearance edits and let the android out of the machine, which is
+            // what the component editor did in this position.
+            RevertAppearance();
+            behaviorStation.CancelModification();
+        }
+
+        private void RevertAppearance()
+        {
+            try
+            {
+                ForkCompat.suppressAndroidNotifications = true;
+                foreach (GeneDef def in CurrentAppearanceGenes())
+                {
+                    Gene gene = subject.genes.GetGene(def);
+                    if (gene != null)
+                    {
+                        subject.genes.RemoveGene(gene);
+                    }
+                }
+                foreach (GeneDef def in originalAppearanceGenes)
+                {
+                    if (subject.genes.GetGene(def) == null)
+                    {
+                        subject.genes.AddGene(def, false);
+                    }
+                }
+            }
+            finally
+            {
+                ForkCompat.suppressAndroidNotifications = false;
+            }
+            originalLook?.RestoreTo(subject);
+            subject.style?.Notify_StyleItemChanged();
+            subject.Drawer?.renderer?.SetAllGraphicsDirty();
+            PortraitsCache.SetDirty(subject);
         }
 
         private List<ThingDefCount> ComputeRequiredItems()

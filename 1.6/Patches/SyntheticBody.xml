@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+
+	<!-- The base chassis is a machine build, not a sealed spacesuit. The original hands every android
+	     FULL vacuum immunity on the synthetic body itself, which leaves the vacuumproof (spacer) hardware
+	     with nothing to grant - it is a component you can select that does exactly nothing.
+
+	     Retuned to the fork's values: partial (50%) vacuum tolerance innately, so full immunity is what
+	     the spacer hardware is for, plus light mechanoid-style armour plating. Space is still cold enough
+	     to give an unprotected android component freezing.
+
+	     The whole statOffsets block is replaced rather than the single VacuumResistance line, because
+	     that line carries MayRequire="Ludeon.RimWorld.Odyssey" and simply is not there without Odyssey -
+	     an xpath onto it would fail (silently, bar one red line at startup) on a load without that DLC.
+	     The replacement keeps the same MayRequire, so it stays conditional exactly as before. -->
+
+	<Operation Class="PatchOperationReplace">
+		<xpath>Defs/VREAndroids.AndroidGeneDef[defName="VREA_SyntheticBody"]/statOffsets</xpath>
+		<value>
+			<statOffsets>
+				<VacuumResistance MayRequire="Ludeon.RimWorld.Odyssey">0.5</VacuumResistance>
+				<ArmorRating_Sharp>0.25</ArmorRating_Sharp>
+				<ArmorRating_Blunt>0.12</ArmorRating_Blunt>
+				<ArmorRating_Heat>0.25</ArmorRating_Heat>
+			</statOffsets>
+		</value>
+	</Operation>
+
+</Patch>

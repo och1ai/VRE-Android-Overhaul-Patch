@@ -198,9 +198,15 @@ namespace VREAndroidsOverhaul
         }
     }
 
-    // The behaviourist station opens the modification editor the moment a colonist is loaded into it, at
-    // the tail of TryAcceptPawn - the rest of which is pawn-transfer bookkeeping we have no reason to
-    // restate. So swap just the one instruction that builds the window.
+    // The behaviourist station opens its editor the moment a colonist is loaded into it, at the tail of
+    // TryAcceptPawn - the rest of which is pawn-transfer bookkeeping we have no reason to restate. So swap
+    // just the one instruction that builds the window.
+    //
+    // What it opens is now the DESIGN window, not the component list. The station reprograms and restyles
+    // an android that already exists, so appearance is the front door; the component list is one button
+    // inside it ("android type"), where subroutines are editable and hardware is locked. That mirrors the
+    // assembler, where the designer is likewise the front door and the component editor sits behind the
+    // same button.
     //
     // Closing the stock window and opening ours instead is not an option: its Close() calls
     // CancelModification() whenever no project is queued yet, which ejects the pawn the method just loaded.
@@ -230,10 +236,11 @@ namespace VREAndroidsOverhaul
         }
 
         // Takes the same three arguments the stock constructor does and leaves one window on the stack, so
-        // the surrounding IL is unchanged.
+        // the surrounding IL is unchanged. The callback is dropped: the stock call site passes null, and
+        // the design window owns the station's cancel/commit handling itself.
         public static Window MakeWindow(Building_AndroidBehavioristStation station, Pawn android, Action callback)
         {
-            return new Window_AndroidModification(station, android, callback);
+            return new Window_AndroidDesign(station, android);
         }
 
         public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)

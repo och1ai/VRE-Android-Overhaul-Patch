@@ -159,12 +159,27 @@ detail below. They used to be near-immortal with an intact brain.
 - [ ] The printed android **actually comes out furred** — the gene survives the print, not just the preview.
 - [ ] Reopening the designer on a furred android shows the box already **ticked** (and accepting again does
       not silently strip the fur).
-- [ ] Behaviourist station opens the **overhaul's** editor (drone icon default, appearance genes absent).
-- [ ] At that station **every hardware component is locked**: blood, power, chassis, memory recharging,
-      coagulation, spacer, overheating, tolerances — all shown as installed but unclickable, with **no
-      alternatives offered**. Only **subroutines** can be added or removed.
-- [ ] The full editor (starting pawns / character card / designer) still lets hardware be chosen freely —
-      the lock is specific to modifying an already-built body.
+- [ ] Loading a colonist android into the **behaviourist station** opens the **design window** (titled
+      *Modify android*, accept button *Modify android*), showing that android's real bio — not the
+      component list.
+- [ ] Its **android type** button opens the component editor, where **every hardware component is locked**
+      (blood, power, chassis, memory recharging, coagulation, spacer, overheating, tolerances) with **no
+      alternatives offered**, and only **subroutines** can be added or removed. Accepting returns to the
+      design window rather than starting the job.
+- [ ] **Load saved type** from that button does **not** change hardware — it takes only the subroutines and
+      keeps the components the body was printed with.
+- [ ] Change hair/colour/tattoos, then **cancel** (X) → the android is unchanged and is **ejected** from the
+      station. Nothing about its traits, skills, relationships or ideoligion shifted.
+- [ ] Change appearance **and** subroutines, then accept → the look changes immediately, the subroutine
+      change takes crafter work, and the android leaves with both applied.
+- [ ] The assembler's own flow is unaffected: designer → *Start print*, with the full component editor and
+      hardware freely selectable.
+
+### 11c. Synthetic body
+- [ ] A base android has **50%** vacuum resistance, not 100%; adding the **vacuumproof/spacer** hardware
+      takes it to full immunity (that component is what full immunity is for).
+- [ ] A base android shows the chassis armour: **Sharp 0.25 / Blunt 0.12 / Heat 0.25** in its stats.
+- [ ] Without Odyssey installed the mod still loads clean (the vacuum line is conditional).
 
 ## 12. Social tab
 

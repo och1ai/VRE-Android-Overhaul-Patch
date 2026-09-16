@@ -15,11 +15,22 @@ namespace VREAndroidsOverhaul
         public Building_AndroidBehavioristStation station;
 
         public Pawn android;
-        public Window_AndroidModification(Building_AndroidBehavioristStation station, Pawn android, Action callback) : base(callback)
+
+        // When set, this window is the design window's component sub-editor rather than the station's own
+        // front door: accepting hands the chosen components back to the designer instead of queueing the
+        // modification here, and closing must not cancel the station's job - the designer owns that.
+        public Action<CustomXenotype> onTypeResult;
+
+        public Window_AndroidModification(Building_AndroidBehavioristStation station, Pawn android,
+            Action callback, List<GeneDef> seedGenes = null) : base(callback)
         {
             this.station = station;
             this.android = android;
-            this.selectedGenes = android.genes.GenesListForReading.Where(x => x.def.IsAndroidGene()).Select(x => x.def).ToList();
+            // Seeded from the designer's working selection when there is one, so reopening this editor
+            // does not silently discard components picked but not yet committed.
+            this.selectedGenes = seedGenes != null
+                ? seedGenes.ToList()
+                : android.genes.GenesListForReading.Where(x => x.def.IsAndroidGene()).Select(x => x.def).ToList();
             forcePause = true;
             // Recompute biostats/conflicts for the android's actual components (the base ctor seeded a
             // default loadout before we swapped in this pawn's genes).
@@ -30,7 +41,7 @@ namespace VREAndroidsOverhaul
         public override void Close(bool doCloseSound = true)
         {
             base.Close(doCloseSound);
-            if (station.curAndroidProject is null)
+            if (onTypeResult == null && station.curAndroidProject is null)
             {
                 station.CancelModification();
             }
@@ -42,6 +53,11 @@ namespace VREAndroidsOverhaul
             customXenotype.genes.AddRange(selectedGenes);
             customXenotype.inheritable = false;
             customXenotype.iconDef = iconDef;
+            if (onTypeResult != null)
+            {
+                onTypeResult(customXenotype);
+                return;
+            }
             station.curAndroidProject = customXenotype;
             var genesToRemove = android.genes.GenesListForReading.Where(x => x.def.IsAndroidGene() 
             && selectedGenes.Contains(x.def) is false).ToList();
@@ -59,17 +75,9 @@ namespace VREAndroidsOverhaul
         // hardware be swapped from this chair. Installing or pulling a memory drive, a coagulation module
         // or a spacer chassis is surgery on a built body, not a reprogramming job, so the station now
         // refuses all of it: to change hardware, print a new body or use the operations tab.
-        private static bool IsHardware(GeneDef geneDef)
-        {
-            return geneDef.displayCategory?.defName == HardwareCategory
-                || geneDef.IsBloodGene() || geneDef.IsPowerGene() || geneDef.IsChassisGene();
-        }
-
-        private const string HardwareCategory = "VREA_Hardware";
-
         protected override bool IsGeneLocked(GeneDef geneDef)
         {
-            return IsHardware(geneDef);
+            return geneDef.IsHardwareGene();
         }
 
         public override bool GeneValidator(GeneDef x)
@@ -77,7 +85,7 @@ namespace VREAndroidsOverhaul
             // Hardware is fixed once the body is built. Show only the components this android actually
             // has (locked) and hide the alternatives, so the hardware list mirrors the selected list
             // instead of offering a swap that this station cannot perform.
-            if (IsHardware(x))
+            if (x.IsHardwareGene())
             {
                 return selectedGenes.Contains(x);
             }

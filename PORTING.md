@@ -280,8 +280,39 @@ Three changes asked for in session, none of them ports:
 
 - **Hardware is locked at the behaviourist station.** The fork locked only blood, power and chassis there
   and let the rest of the hardware be swapped from the chair. `Window_AndroidModification` now treats
-  everything in the `VREA_Hardware` display category as locked, so the station reprograms **subroutines
-  only**; hardware is chosen when the body is printed. The full editor is untouched.
+  everything in the `VREA_Hardware` display category as locked (`ForkCompat.IsHardwareGene`), so the
+  station reprograms **subroutines only**; hardware is chosen when the body is printed. The full editor is
+  untouched.
+- **The behaviourist station opens the DESIGN window, not the component list.** The station restyles and
+  reprograms a body that already exists, so appearance is the front door and the component list is one
+  button inside it - mirroring the assembler, where the designer is likewise the front door. `MakeWindow`
+  in `AndroidTypeEditor_Patches` now builds `Window_AndroidDesign`, which gained a **modify mode**:
+  - the preview is the real pawn rather than a throwaway (`RebuildPreview` returns early), so the bio card
+    shows the actual android;
+  - appearance applies live and is undone on cancel by `LookSnapshot`, a deliberately narrow record of just
+    the fields this window can change. Not `AndroidPersonaData.OverwritePawn`: that exists to rebuild a
+    printed body and also rewrites traits, skills, memories, relations, ideology and records, which is far
+    too much machinery to run over a live colonist because someone closed a dialog;
+  - accepting applies the appearance immediately (a respray needs no workshop time) and queues only the
+    component change through the station's work flow, exactly as the component editor used to;
+  - cancelling reverts and calls `CancelModification()`, which is what the component editor did there;
+  - `Window_AndroidModification` grew an `onTypeResult` callback so it can serve as that sub-editor -
+    returning the chosen components instead of queueing the job and not cancelling the station on close -
+    and takes a seed list so reopening it keeps an uncommitted selection.
+
+  **Loading a saved androidtype is not a back door around the hardware lock:** in modify mode `SetType`
+  keeps the components the body was actually printed with and takes only the subroutines from the loaded
+  type.
+
+  **Bug found and fixed post-port: appearance edits at the station reverted on completion.** A colour
+  swatch or the body/fur cyclers only ever wrote the live pawn's `story`/`genes` for the preview; they never
+  touched `currentGenes`, which is what `ConfirmModification` sends as `curAndroidProject`. The base mod's
+  `FinishAndroidProject` strips every android gene from the pawn and rebuilds only from `curAndroidProject.
+  genes`, so any hair/skin colour, body shape or fur change made in this window would look right until the
+  crafter finished the job, then silently snap back to whatever it was when the window opened. Fixed by
+  having `ConfirmModification` drop the stale appearance genes from `currentGenes` and re-add whatever the
+  player actually picked (`chosenSkinGene`/`chosenHairGene`/`chosenFurGene`/the live body gene), the same way
+  build-mode's `Confirm()` already does.
 - **Furskin in the designer's cosmetic section.** A checkbox under Body shape toggling Biotech's `Furskin`.
   It needs the explicit capture in `AcceptInner` as well as the preview toggle: the component capture keeps
   only android genes and body-type genes, so a plain cosmetic gene would be dropped on accept.
@@ -290,6 +321,17 @@ Three changes asked for in session, none of them ports:
 - **"Adds need: memory space (overheating)"** on the component-overheating gene. Vanilla builds that line in
   the private `GeneDef.GetDescriptionFull`; the postfix qualifies the need label there rather than on the
   `DescriptionFull` property, which caches and would re-append the qualifier on every call.
+
+### 4e. Synthetic body retune — fork parity
+The base chassis had **full** vacuum immunity in the original, which left the vacuumproof (spacer) hardware
+granting nothing - a component you could select that did literally nothing. `Patches/SyntheticBody.xml`
+restores the fork's values: `VacuumResistance` **0.5**, so full immunity is what the spacer is for, plus the
+fork's light armour plating (Sharp 0.25, Blunt 0.12, Heat 0.25) which the overlay had never carried.
+
+The whole `statOffsets` block is replaced rather than the one `VacuumResistance` line, because that line
+carries `MayRequire="Ludeon.RimWorld.Odyssey"` and is simply absent without that DLC - an xpath onto it
+would fail (silently, bar one red startup line) on a load without Odyssey. The replacement keeps the same
+`MayRequire`, so it stays conditional exactly as before.
 
 ### 5. Smaller behavioural deltas
 Verified against the fork on 2026-07-29; everything below is confirmed absent, not assumed.

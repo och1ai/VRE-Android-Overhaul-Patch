@@ -25,6 +25,18 @@ namespace VREAndroidsOverhaul
 
         public static bool IsChassisGene(this GeneDef g) => HasTag(g, ChassisTag);
 
+        // Physical components, as opposed to subroutines: everything the base mod files under the hardware
+        // display category, plus the three mutually exclusive groups that are recognised by tag. Hardware
+        // is chosen when a body is printed and cannot be reprogrammed, so the behaviourist station locks
+        // it and refuses to let a loaded androidtype swap it either.
+        public const string HardwareCategoryName = "VREA_Hardware";
+
+        public static bool IsHardwareGene(this GeneDef g)
+        {
+            return g != null && (g.displayCategory?.defName == HardwareCategoryName
+                || g.IsBloodGene() || g.IsPowerGene() || g.IsChassisGene());
+        }
+
         public static bool IsSkinColorGene(GeneDef g) => g.skinColorBase.HasValue || g.skinColorOverride.HasValue;
 
         public static bool IsHairColorGene(GeneDef g) => g.hairColorOverride.HasValue;
