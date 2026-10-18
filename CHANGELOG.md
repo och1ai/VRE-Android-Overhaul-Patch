@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.2
+
+* The Mechs tab no longer renders empty when an android is listed, and shows the android power level in the Energy column.
+
 ## 0.1.1
 
 * Loading a saved androidtype keeps a single power source and blood type instead of selecting both the battery and the reactor.

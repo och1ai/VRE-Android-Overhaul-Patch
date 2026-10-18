@@ -60,7 +60,7 @@ namespace VREAndroidsOverhaul
             }
             if (MechOversightUtil.IsOversightAndroid(mech))
             {
-                need = mech.needs?.AllNeeds.FirstOrDefault(n => n.def.defName == "VREA_ReactorPower");
+                need = mech.needs?.AllNeeds.FirstOrDefault(n => n is VREAndroids.Need_ReactorPower);
                 return need == null ? mech.LabelCap
                     : mech.LabelCap + " (" + need.CurLevelPercentage.ToStringPercent() + " " + "VREAOverhaul.ChargeLower".Translate() + ")";
             }
