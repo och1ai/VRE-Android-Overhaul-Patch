@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.1
+
+* Loading a saved androidtype keeps a single power source and blood type instead of selecting both the battery and the reactor.
+
 ## 0.1.0
 
 First public release of the patch.
