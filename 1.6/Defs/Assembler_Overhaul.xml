@@ -29,7 +29,7 @@
 <RecipeDef>
 	  <defName>VREA_ResurrectAndroid</defName>
 	  <label>resurrect android</label>
-	  <description>Resurrect a dead android. As long as the body still holds an intact subcore, the assembler reprints its damaged components and reboots the android back to life over one assembly cycle (4 days). A colonist first loads the dead body and 50 steel.</description>
+	  <description>Resurrect a dead android. As long as the body still holds an intact subcore, the assembler reprints its damaged components and reboots the android back to life over one assembly cycle (4 days). A colonist first loads the dead body, 60 steel and 12 neutroamine.</description>
 	  <jobString>Resurrecting android.</jobString>
 	  <workAmount>240000</workAmount>
 	  <ingredients>
@@ -39,12 +39,21 @@
 	          <li>Steel</li>
 	        </thingDefs>
 	      </filter>
-	      <count>50</count>
+	      <count>60</count>
+	    </li>
+	    <li>
+	      <filter>
+	        <thingDefs>
+	          <li>Neutroamine</li>
+	        </thingDefs>
+	      </filter>
+	      <count>12</count>
 	    </li>
 	  </ingredients>
 	  <fixedIngredientFilter>
 	    <thingDefs>
 	      <li>Steel</li>
+	      <li>Neutroamine</li>
 	    </thingDefs>
 	  </fixedIngredientFilter>
 	</RecipeDef>

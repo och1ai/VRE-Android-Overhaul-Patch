@@ -402,12 +402,16 @@ namespace VREAndroidsOverhaul
         }
 
         // Queues a resurrection: a colonist must haul in the dead body (subcore still inside) plus the
-        // steel, then the printer regrows it.
+        // steel and neutroamine, then the printer regrows it.
         public void QueueResurrect(Corpse corpse)
         {
             pendingInput = corpse;
             printMode = PrintMode.Resurrect;
-            requiredItems = new List<ThingDefCount> { new ThingDefCount(ThingDefOf.Steel, 50) };
+            requiredItems = new List<ThingDefCount>
+            {
+                new ThingDefCount(ThingDefOf.Steel, 60),
+                new ThingDefCount(VREA_DefOf.Neutroamine, 12)
+            };
         }
 
         // Is this corpse a dead android that a resurrect bill can still restore? Only bodies that still
