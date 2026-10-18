@@ -405,10 +405,25 @@ namespace VREAndroidsOverhaul
                 // Self-repair only requires self-repair (self-tend) to be enabled.
                 return patient.playerSettings != null && patient.playerSettings.selfTend;
             }
-            // Auto-repair targets androids that are downed or resting in a bed/stand. Repairing an android
-            // that is up and about is done on demand via the right-click order or by prioritizing the work
-            // (both pass forced = true), which avoids idle androids being swarmed by every free crafter.
-            return forced || patient.Downed || patient.InBed();
+            // Auto-repair targets androids that are downed, in a bed, or simply not doing anything: an
+            // injured android standing around or wandering is repaired by whichever crafter is free, the way
+            // a mech is. One that is busy (working, fighting, hauling) is left alone so repairers do not
+            // chase it around the map - it is repaired on demand via the right-click order or by
+            // prioritizing the work (both pass forced = true), or as soon as it stops. Only one crafter takes
+            // a given patient (checked in HasJobOnThing), so idle androids are not swarmed.
+            return forced || patient.Downed || patient.InBed() || IsIdle(patient);
+        }
+
+        private static bool IsIdle(Pawn patient)
+        {
+            if (patient.Drafted || patient.InMentalState || patient.mindState == null)
+            {
+                return false;
+            }
+            Job current = patient.CurJob;
+            return current == null || patient.mindState.lastJobTag == JobTag.Idle
+                || patient.jobs.curDriver?.asleep == true
+                || patient.Position.GetFirstThing<Building_AndroidStand>(patient.Map) != null;
         }
 
         public override Job JobOnThing(Pawn pawn, Thing t, bool forced = false)
