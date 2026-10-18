@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.6
+
+* Mechanized androids are left off the colonist bar at the top of the screen.
+
 ## 0.1.5
 
 * Mechanized androids appear in the work tab again, so their work priorities can be set.

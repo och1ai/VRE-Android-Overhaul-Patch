@@ -73,3 +73,37 @@ namespace VREAndroidsOverhaul
         }
     }
 }
+
+namespace VREAndroidsOverhaul
+{
+    // The colonist bar along the top lists colonists. An android under a mechanitor's oversight is managed
+    // as one of its mechs instead, so it is left off the bar. The bar sorts its pawn list just before adding
+    // the entries, so the android is dropped from the list there, and only while the bar is rebuilding it.
+    [HarmonyPatch(typeof(ColonistBar), "CheckRecacheEntries")]
+    public static class ColonistBar_CheckRecacheEntries_HideMechanized_Patch
+    {
+        [System.ThreadStatic] public static bool Rebuilding;
+
+        public static void Prefix()
+        {
+            Rebuilding = true;
+        }
+
+        public static void Finalizer()
+        {
+            Rebuilding = false;
+        }
+    }
+
+    [HarmonyPatch(typeof(PlayerPawnsDisplayOrderUtility), nameof(PlayerPawnsDisplayOrderUtility.Sort))]
+    public static class PlayerPawnsDisplayOrderUtility_Sort_HideMechanized_Patch
+    {
+        public static void Prefix(List<Pawn> pawns)
+        {
+            if (ColonistBar_CheckRecacheEntries_HideMechanized_Patch.Rebuilding)
+            {
+                pawns.RemoveAll(MechOversightUtil.IsOversightAndroid);
+            }
+        }
+    }
+}
