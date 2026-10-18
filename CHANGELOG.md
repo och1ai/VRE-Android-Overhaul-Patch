@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.5
+
+* Mechanized androids appear in the work tab again, so their work priorities can be set.
+
 ## 0.1.4
 
 * Mechanized androids appear again in the assign and schedule tabs and stay hidden only from the work tab.

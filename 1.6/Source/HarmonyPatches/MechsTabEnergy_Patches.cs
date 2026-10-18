@@ -72,32 +72,4 @@ namespace VREAndroidsOverhaul
             }
         }
     }
-
-    // An android under a mechanitor's oversight does no colony work of its own, so it is left out of the work
-    // tab. It stays in assign, schedule and the other tabs, where its outfit, timetable and policies live.
-    [HarmonyPatch]
-    public static class ColonistTabs_HideMechanized_Patch
-    {
-        public static IEnumerable<MethodBase> TargetMethods()
-        {
-            foreach (var type in typeof(MainTabWindow_PawnTable).AllSubclasses().Concat(typeof(MainTabWindow_PawnTable)))
-            {
-                if (type != typeof(MainTabWindow_Work))
-                {
-                    continue;
-                }
-                MethodInfo getter = AccessTools.DeclaredPropertyGetter(type, "Pawns");
-                if (getter != null)
-                {
-                    yield return getter;
-                }
-            }
-        }
-
-        public static void Postfix(ref IEnumerable<Pawn> __result)
-        {
-            IEnumerable<Pawn> original = __result;
-            __result = original.Where(p => !MechOversightUtil.IsOversightAndroid(p));
-        }
-    }
 }
