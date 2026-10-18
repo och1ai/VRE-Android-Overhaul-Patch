@@ -1,0 +1,47 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run tests
+        run: python -m unittest discover tests -v
+
+      - name: Check the tag matches the mod version
+        run: |
+          version=$(sed -n 's:.*<modVersion>\(.*\)</modVersion>.*:\1:p' About/About.xml)
+          if [ "v$version" != "$GITHUB_REF_NAME" ]; then
+            echo "About.xml says $version but the tag is $GITHUB_REF_NAME" >&2
+            exit 1
+          fi
+
+      - name: Package the mod
+        run: |
+          name="VRE-Android-Machine-Overhaul-$GITHUB_REF_NAME"
+          mkdir -p "dist/$name"
+          cp -r About 1.6 loadFolders.xml "dist/$name/"
+          rm -rf "dist/$name/1.6/Source"
+          (cd dist && zip -qr "$name.zip" "$name")
+          echo "ZIP=dist/$name.zip" >> "$GITHUB_ENV"
+
+      - name: Extract the changelog entry
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          awk -v v="$version" '$0 ~ "^## " v "$" {on=1; next} /^## / {on=0} on' CHANGELOG.md > notes.md
+
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" "$ZIP" --title "$GITHUB_REF_NAME" --notes-file notes.md
