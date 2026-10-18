@@ -1,8 +1,13 @@
 # Changelog
 
+## 0.1.4
+
+* Mechanized androids appear again in the assign and schedule tabs and stay hidden only from the work tab.
+* Orders to a mechanized android are refused when the target is outside its mechanitor command range.
+
 ## 0.1.3
 
-* Mechanized androids are left out of the colonist tabs and are managed from the Mechs tab.
+* Mechanized androids are left out of the work tab.
 * The Mechs tab shows android energy as a value out of 100, the android name without the kind, and a working auto repair checkbox.
 * Mechanized androids get an auto repair gizmo tied to the same setting.
 

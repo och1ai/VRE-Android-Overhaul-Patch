@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using UnityEngine;
 using Verse;
 using Verse.AI;
 using VREAndroids;
@@ -328,6 +329,40 @@ namespace VREAndroidsOverhaul
             {
                 __result = new AcceptanceReport("OutOfCommandRange".Translate());
             }
+        }
+    }
+
+    // Vanilla keeps a mech's orders inside its mechanitor's command range by checking the target cell, but
+    // only for pawns that are colony mechs, which an android is not. So the target is checked here: an
+    // oversight android is dropped from the selection for a right-click outside the range, and when it was
+    // the only one selected the click offers a single disabled entry saying why.
+    [HarmonyPatch(typeof(FloatMenuMakerMap), nameof(FloatMenuMakerMap.GetOptions))]
+    public static class FloatMenuMakerMap_GetOptions_CommandRange_Patch
+    {
+        public static bool Prefix(ref List<Pawn> selectedPawns, Vector3 clickPos, ref List<FloatMenuOption> __result)
+        {
+            IntVec3 cell = clickPos.ToIntVec3();
+            if (!selectedPawns.Any(p => MechOversightUtil.IsOversightAndroid(p)))
+            {
+                return true;
+            }
+            List<Pawn> allowed = selectedPawns
+                .Where(p => !MechOversightUtil.IsOversightAndroid(p) || MechanitorUtility.InMechanitorCommandRange(p, cell))
+                .ToList();
+            if (allowed.Count == selectedPawns.Count)
+            {
+                return true;
+            }
+            if (allowed.Count == 0)
+            {
+                __result = new List<FloatMenuOption>
+                {
+                    new FloatMenuOption("OutOfCommandRange".Translate(), null)
+                };
+                return false;
+            }
+            selectedPawns = allowed;
+            return true;
         }
     }
 
