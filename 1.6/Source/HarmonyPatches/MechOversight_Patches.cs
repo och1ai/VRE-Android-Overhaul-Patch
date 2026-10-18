@@ -80,6 +80,20 @@ namespace VREAndroidsOverhaul
             return comp;
         }
 
+        // True while an overseen android is in a mode that sends it to fight - escort, and the combat modes
+        // other mods add (engage, find and destroy...) - as opposed to plain work or powering down. In those
+        // it fights as a mech would, on the mechanitor's orders, not by its own colonist attack/flee setting.
+        public static bool FightsOnOrders(Pawn pawn)
+        {
+            if (pawn.GetOverseer() == null)
+            {
+                return false;
+            }
+            MechWorkModeDef mode = pawn.GetMechWorkMode();
+            return mode != null && mode != MechWorkModeDefOf.Work && mode != MechWorkModeDefOf.SelfShutdown
+                && mode.defName != "Recharge";
+        }
+
         public static bool IsOversightAndroid(Pawn pawn)
         {
             if (!ModsConfig.BiotechActive || pawn == null || !pawn.IsAndroid())
@@ -109,6 +123,43 @@ namespace VREAndroidsOverhaul
                 return true;
             }
             return mode == MechWorkModeDefOf.Recharge && !pawn.GetPowerCore().CanRecharge();
+        }
+
+        // After a resurrection, put the android back under the mechanitor that had it - same control group, so
+        // the same work mode - if that mechanitor is still around and has the bandwidth. Death severs the link
+        // (the gene remembers who it was, see Gene_MechOversight.RememberOverseer).
+        public static void Reconnect(Pawn pawn)
+        {
+            Gene_MechOversight oversight = pawn.genes?.GetFirstGeneOfType<Gene_MechOversight>();
+            Pawn overseer = oversight?.lastOverseer;
+            if (overseer == null || overseer.Dead || overseer.Destroyed || overseer.mechanitor == null
+                || overseer.Faction != Faction.OfPlayer || pawn.Faction != Faction.OfPlayer)
+            {
+                return;
+            }
+            EnsureOverseerSubject(pawn);
+            Pawn_MechanitorTracker tracker = overseer.mechanitor;
+            if (pawn.GetOverseer() == null)
+            {
+                float free = tracker.TotalBandwidth - tracker.UsedBandwidthFromSubjects;
+                if (free < pawn.GetStatValue(StatDefOf.BandwidthCost))
+                {
+                    Messages.Message("VREAOverhaul.CannotReconnect".Translate(pawn.LabelShortCap, overseer.LabelShortCap),
+                        pawn, MessageTypeDefOf.NegativeEvent, historical: false);
+                    return;
+                }
+                overseer.relations.AddDirectRelation(PawnRelationDefOf.Overseer, pawn);
+            }
+            if (!tracker.ControlledPawns.Contains(pawn))
+            {
+                tracker.AssignPawnControlGroup(pawn);
+            }
+            int group = oversight.lastControlGroup;
+            if (group >= 1 && group <= tracker.controlGroups.Count)
+            {
+                tracker.controlGroups[group - 1].Assign(pawn);
+            }
+            tracker.Notify_BandwidthChanged();
         }
 
         // Cut every link a mechanitor holds on this pawn: control-group membership, the Overseer relation
@@ -293,7 +344,7 @@ namespace VREAndroidsOverhaul
         {
             __state = pawn?.playerSettings?.hostilityResponse ?? HostilityResponseMode.Flee;
             if (pawn?.playerSettings != null && MechOversightUtil.IsOversightAndroid(pawn)
-                && pawn.GetOverseer() != null && pawn.GetMechWorkMode() == MechWorkModeDefOf.Escort)
+                && MechOversightUtil.FightsOnOrders(pawn))
             {
                 pawn.playerSettings.hostilityResponse = HostilityResponseMode.Attack;
             }
@@ -319,8 +370,7 @@ namespace VREAndroidsOverhaul
     {
         public static bool Prefix(Pawn pawn, ref Job __result)
         {
-            if (pawn != null && MechOversightUtil.IsOversightAndroid(pawn) && pawn.GetOverseer() != null
-                && pawn.GetMechWorkMode() == MechWorkModeDefOf.Escort)
+            if (pawn != null && MechOversightUtil.IsOversightAndroid(pawn) && MechOversightUtil.FightsOnOrders(pawn))
             {
                 __result = null;
                 return false;
@@ -388,6 +438,35 @@ namespace VREAndroidsOverhaul
             IEnumerable<Pawn> androids = map.mapPawns.PawnsInFaction(Faction.OfPlayer)
                 .Where(p => MechOversightUtil.IsOversightAndroid(p) && p.OverseerSubject != null);
             __result = __result.Concat(androids);
+        }
+    }
+}
+
+namespace VREAndroidsOverhaul
+{
+    // Snapshot the link at the moment of death (the periodic record can be up to a second stale), and
+    // restore it on resurrection.
+    [HarmonyPatch(typeof(Pawn), nameof(Pawn.Kill))]
+    public static class Pawn_Kill_RememberOverseer_Patch
+    {
+        public static void Prefix(Pawn __instance)
+        {
+            if (MechOversightUtil.IsOversightAndroid(__instance))
+            {
+                __instance.genes.GetFirstGeneOfType<Gene_MechOversight>()?.RememberOverseer();
+            }
+        }
+    }
+
+    [HarmonyPatch(typeof(ResurrectionUtility), nameof(ResurrectionUtility.TryResurrect))]
+    public static class ResurrectionUtility_TryResurrect_Reconnect_Patch
+    {
+        public static void Postfix(Pawn pawn, bool __result)
+        {
+            if (__result && MechOversightUtil.IsOversightAndroid(pawn))
+            {
+                MechOversightUtil.Reconnect(pawn);
+            }
         }
     }
 }

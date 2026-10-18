@@ -14,6 +14,34 @@ namespace VREAndroidsOverhaul
     {
         public OverlayHandle? overlayPowerOff;
 
+        // Who was overseeing this android, and from which control group, as of the last time it was
+        // connected. Death severs the link, so this is what lets a resurrection reconnect it.
+        public Pawn lastOverseer;
+        public int lastControlGroup;
+
+        private const int RememberInterval = 60;
+
+        public void RememberOverseer()
+        {
+            Pawn overseer = pawn.GetOverseer();
+            // Deliberately disconnected beforehand: forget it, so a resurrection does not undo that choice.
+            if (overseer == null)
+            {
+                lastOverseer = null;
+                lastControlGroup = 0;
+                return;
+            }
+            lastOverseer = overseer;
+            lastControlGroup = overseer.mechanitor?.GetControlGroup(pawn)?.Index ?? 0;
+        }
+
+        public override void ExposeData()
+        {
+            base.ExposeData();
+            Scribe_References.Look(ref lastOverseer, "lastOverseer");
+            Scribe_Values.Look(ref lastControlGroup, "lastControlGroup");
+        }
+
         public override void PostAdd()
         {
             base.PostAdd();
@@ -59,6 +87,10 @@ namespace VREAndroidsOverhaul
                 return;
             }
             MechOversightUtil.EnsureOverseerSubject(pawn);
+            if (pawn.IsHashIntervalTick(RememberInterval))
+            {
+                RememberOverseer();
+            }
 
             // No mechanitor has taken oversight -> stand dormant until one does.
             if (pawn.GetOverseer() == null)
