@@ -1,4 +1,6 @@
 using RimWorld;
+using System.Collections.Generic;
+using UnityEngine;
 using Verse;
 using Verse.AI;
 using VREAndroids;
@@ -40,6 +42,29 @@ namespace VREAndroidsOverhaul
             base.ExposeData();
             Scribe_References.Look(ref lastOverseer, "lastOverseer");
             Scribe_Values.Look(ref lastControlGroup, "lastControlGroup");
+        }
+
+        // The auto repair switch as a gizmo, so a mechanized android can be told to seek repairs from its own
+        // card the way a mech can. It is the same flag the health tab and the mechs tab checkbox use.
+        public override IEnumerable<Gizmo> GetGizmos()
+        {
+            foreach (Gizmo g in base.GetGizmos())
+            {
+                yield return g;
+            }
+            Gene_SyntheticBody body = pawn.genes?.GetFirstGeneOfType<Gene_SyntheticBody>();
+            if (body == null || pawn.Faction != Faction.OfPlayer)
+            {
+                yield break;
+            }
+            yield return new Command_Toggle
+            {
+                defaultLabel = "CommandAutoRepair".Translate(),
+                defaultDesc = "CommandAutoRepairDesc".Translate(),
+                icon = ContentFinder<Texture2D>.Get("UI/Gizmos/AutoRepair"),
+                isActive = () => body.autoRepair,
+                toggleAction = () => body.autoRepair = !body.autoRepair
+            };
         }
 
         public override void PostAdd()

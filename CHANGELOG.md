@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.3
+
+* Mechanized androids are left out of the colonist tabs and are managed from the Mechs tab.
+* The Mechs tab shows android energy as a value out of 100, the android name without the kind, and a working auto repair checkbox.
+* Mechanized androids get an auto repair gizmo tied to the same setting.
+
 ## 0.1.2
 
 * The Mechs tab no longer renders empty when an android is listed, and shows the android power level in the Energy column.
