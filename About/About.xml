@@ -1,14 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ModMetaData>
-	<name>Vanilla Races Expanded - Android: Overhaul Patch</name>
+	<name>Vanilla Races Expanded - Android: Machine Overhaul</name>
 	<author>och1ai</author>
-	<packageId>och1ai.vreandroid.overhaul</packageId>
+	<packageId>och1ai.vreandroids.machineoverhaul</packageId>
+	<modVersion>0.1.0</modVersion>
+	<url>https://github.com/och1ai/VRE-Android-Overhaul-Patch</url>
 	<supportedVersions>
 		<li>1.6</li>
 	</supportedVersions>
-	<description>An overlay patch for Vanilla Races Expanded - Android that reworks androids into repairable, mechanoid-like machines: repair instead of permanent damage, a blood/core/subroutine rework, a body designer, a gestator-style assembler, and deeper anomaly / psychic / ideoligion integration.
+	<description>Vanilla Races Expanded - Android: Machine Overhaul is a patch for Vanilla Races Expanded - Androids that makes androids behave more like mechanoids and adds more options and ease of use around them. Repairs are easier, androids can die and be resurrected, and each one can run on a battery or a reactor of your choice.
 
-This is an add-on. It requires the original Vanilla Races Expanded - Android and does not replace or redistribute it - it loads afterward and overrides its behaviour.</description>
+Wounds, scars and missing parts are repaired by your colonists, and parts are no longer crafted at a workbench. Androids can finally be destroyed, leaving a body to resurrect for 60 steel and 12 neutroamine or a subcore to recover and reprint. The time until shutdown subroutine gives your crew a couple of hours to get a failing android to safety, and the reactor can no longer be hit, injured or broken.
+
+Hardware is a real choice. Neutroamine, hemogenic and bloodless androids come with their own organs, and power comes from a reactor or from a battery charged at an Android Stand. Memory space is optional hardware that can overheat, and sleep, psychic sensitivity and the psylink of awakened androids are all reworked.
+
+The Android Creation Station becomes an assembler with a full body designer. Before an android is created you can customize its appearance, hardware and subroutines, then watch it take form stage by stage. New hardware and subroutines include hemogenic and bloodless circulation, coagulation, battery power, spacer, heavy duty, delicate frame, hunter seeker, dull combat, time until shutdown, long jump, sleep cycle, gravpilot, ideological, occultist and mechanized. A mechanized android can be tied to a mechanitor, given work modes and sent to guard the colony like any of their mechs, with support for Mechanoid Engage Mode and WVC Work Modes.
+
+This is an add-on and not a replacement. It requires the original Vanilla Races Expanded - Androids, does not redistribute any of its content and loads after it, so keep subscribing to the original.</description>
 	<modDependencies>
 		<li>
 			<packageId>vanillaracesexpanded.android</packageId>

@@ -313,11 +313,12 @@ Three changes asked for in session, none of them ports:
   having `ConfirmModification` drop the stale appearance genes from `currentGenes` and re-add whatever the
   player actually picked (`chosenSkinGene`/`chosenHairGene`/`chosenFurGene`/the live body gene), the same way
   build-mode's `Confirm()` already does.
-- **Furskin in the designer's cosmetic section.** A checkbox under Body shape toggling Biotech's `Furskin`.
-  It needs the explicit capture in `AcceptInner` as well as the preview toggle: the component capture keeps
-  only android genes and body-type genes, so a plain cosmetic gene would be dropped on accept.
-  `EnforceChosenAppearanceGenes` leaves it alone (it strips only skin-colour, hair-colour, body-type and
-  melanin genes). The gene carries `skinIsHairColor`, so the hair swatches colour the fur.
+- **Furskin as a component.** Biotech files `Furskin` under "Miscellaneous", which the original's
+  convertible-genes list (cosmetic categories) does not cover, so it was never offered - unlike lizardskin
+  and insectskin. `Patches/Furskin_Cosmetic.xml` moves every `Miscellaneous` gene that has a `fur` (furskin, the
+  saurid scaleskin...) to Cosmetic, which makes them normal components in the androidtype editor, and
+  `CosmeticGenes_Patches.cs` gathers all the coverings into one block at the top of that section. (It briefly lived as a checkbox in the
+  designer, then a covering selector there; both were dropped - coverings are components, like the ears.)
 - **"Adds need: memory space (overheating)"** on the component-overheating gene. Vanilla builds that line in
   the private `GeneDef.GetDescriptionFull`; the postfix qualifies the need label there rather than on the
   `DescriptionFull` property, which caches and would re-append the qualifier on every call.
@@ -333,20 +334,89 @@ carries `MayRequire="Ludeon.RimWorld.Odyssey"` and is simply absent without that
 would fail (silently, bar one red startup line) on a load without Odyssey. The replacement keeps the same
 `MayRequire`, so it stays conditional exactly as before.
 
+### 4f. Reactor protection (user-directed, beyond the fork)
+A reactor can no longer be wounded or destroyed. It is a solid added part on the stomach, so destroying
+that organ used to take the android's whole power supply with it. `ReactorProtection_Patches.cs` prefixes
+`HediffSet.AddDirect`: an injury aimed at a part carrying a reactor is re-homed on the nearest enclosing
+part (the torso), and a missing-part hediff for it is dropped. Surgical removal is untouched (it adds no
+injury) and so is running dry. The battery has no part and needs nothing. **Untested in game.**
+
+### 4g. Bug-fix batch after first gameplay test (untested in game)
+- **Resurrection cost** is 60 steel + 12 neutroamine (was 50 steel): `QueueResurrect` and the
+  `VREA_ResurrectAndroid` recipe in `Assembler_Overhaul.xml` must be kept in step - the code sets what is
+  hauled, the recipe is what the bill UI shows.
+- **Destroyed androids are not bodies** (`DestroyedAndroidBody_Patches.cs`): `Corpse.GiveObservedHistoryEvent`
+  returns null for an android with an intact subcore unless the observer's ideoligion has `VRE_Androids_Equal`,
+  or `VRE_Androids_EqualOnlyAwakened` and that android is awakened.
+- **Awakening passion** (`AwakeningPassion_Patches.cs`): Vanilla Skills Expanded (Alpha Skills) replaces
+  `PassionExtension.IncrementPassion` with a step through all its passions, so the android awakening letter
+  and its dialog could grant any of them. Both now call a vanilla-only step (none -> minor -> major).
+
+### 4h. Mechanized: third-party work modes and the group tooltip (untested in game)
+- **Borrowed work modes** (`ThinkNode_AndroidBorrowedWorkModes`, last node of `VREA_AndroidWorkModes`): other mods
+  (Mechanoid Engage Mode, WVC - Work Modes) add their `ThinkNode_ConditionalWorkMode` branches only to the
+  `Mechanoid` tree. The node collects those branches lazily and, when an overseen android's group is on that
+  mode, runs the branch's own job givers (reported as itself so job save keys resolve). Overlay modes win by
+  order, `Work` is skipped. Energy/charger givers built on `Need_MechEnergy` just return no job. Exceptions in a
+  borrowed giver are caught and logged once. `MechOversightUtil.FightsOnOrders` extends the escort hostility
+  override (force Attack, mute configurable response) to every such mode except work/shutdown/recharge.
+- **"Assigned mechs" tooltip** (`AssignedMechsTooltip_Patches.cs`): patches the `<GizmoOnGUI>b__N` string lambda
+  on the gizmo (found by shape, the number changes per build) and rebuilds the list with androids as
+  `name (xx% charge)`; `VREAOverhaul.ChargeLower` is the unit word.
+
+- **Alert guard** (`ThinkNode_AndroidAlertGuard`, `Patches/AndroidAlertGuard.xml`): the main tree is only asked
+  for a job when the current one ends (a follow or wait runs 120-200 ticks), so an escorting android reacted late
+  and then only via the close-melee reflex. The guard sits in `HumanlikeConstant` (polled every 30 ticks, can
+  interrupt) ahead of the muted hostility response and runs `JobGiver_AIDefendOverseer` for escort plus the
+  fighting givers of borrowed modes (`combatOnly`). It leaves a fight it started alone, and skips drafted or
+  player-forced jobs. **Untested in game.**
+
+- **Android surgery list** (`AndroidSurgery_Patches.cs`): ports the fork's trimming of the health-tab surgeries.
+  Install-part recipes are unavailable except the reactor's, and that only on reactor-powered androids;
+  `Recipe_RemoveArtificialBodyPart` only offers the part carrying the reactor. The part items are legacy and the
+  android regenerates, so the per-limb/organ entries were just noise. **Untested in game.**
+
+- **Reconnect on resurrection** (`Gene_MechOversight.lastOverseer/lastControlGroup`, `MechOversightUtil.Reconnect`,
+  postfix on `ResurrectionUtility.TryResurrect`): the gene records overseer and control group every second and
+  at `Pawn.Kill`; if the android had none at that point the record is cleared, so a deliberate disconnect sticks.
+  Revival re-adds the Overseer relation (bandwidth permitting, else a message) and re-assigns the same group.
+  **Untested in game.**
+
+- **Escort leash** (`JobGiver_AndroidDefendOverseer`): vanilla's defend step only targets within 5 cells plus
+  weapon range of the overseer (about 6 for melee), so an android trailed its mechanitor instead of defending
+  it. Subclass with an 18-cell radius, used by the escort branch and the alert guard.
+- **Colonist-bar attack icon** (`ColonistBarAttackIcon_Patches.cs`): hidden for an overseen android in a fighting
+  mode - transpiler wraps every `Pawn.CurJob` read in `DrawIcons` to mask combat jobs. Same file: the red
+  floating `Mote_ColonistAttacking` over the pawn on the map (`MoteMaker.MakeColonistActionOverlay`) is skipped for
+  the same androids. **Untested in game.**
+
+- **Auto-repair of idle androids** (`WorkGiver_RepairAndroid.GoodLayingStatusForRepair`): colonists only picked
+  an android to repair on their own when it was downed or in a bed, so one walking around injured or missing a
+  part never got looked at. Idle androids (idle job tag, asleep, or parked on a stand) now qualify too; busy
+  ones still wait for a forced order. **Untested in game.**
+
+- **Subroutine frame as endogene** (`GeneBackgrounds.cs`): the original's generated skill/aptitude subroutines only
+  get a `backgroundPathXenogenes` frame, so shown as endogenes they fell back to the germline frame and looked
+  like plain genes. Copies the frame to `backgroundPathEndogenes` on startup. **Untested in game.**
+
+- **Synthetic skin face** (`Window_AndroidDesign.StandardHeads`): the designer only allowed plain official heads
+  with no required genes, and `Refresh` put one back every time, so the synthetic faces the skin gene forces
+  (`forcedHeadTypes`) were overwritten and the android kept a normal pawn's face. Active genes that force heads
+  now narrow the list to those faces (gender-matched, required genes present). **Untested in game.**
+
 ### 5. Smaller behavioural deltas
 Verified against the fork on 2026-07-29; everything below is confirmed absent, not assumed.
-- `MechanitorControlGroupGizmo` "Assigned mechs" tooltip (reflective, needs the power need).
 - `CompPowerTrader` inspect: the android stand's "(200 W when active)" power line.
   (`InspectTabBase_UpdateSize` and the `NeedsCardUtility` sizing are done, see §4b;
   `Pawn_HealthTracker_MakeDowned` came with the charge job, see §3c.)
-- `FloatMenuOptionProvider_RepairAndroid` and `Recipe_RemoveArtificialBodyPart`.
+- `FloatMenuOptionProvider_RepairAndroid`.
 - Stand waste production while charging (`ZeroWaste` / `ExtraWaste` genes).
 - `PawnGenerator` dev-spawn fix for awakened androids.
 - `Gene_RainVulnerability` / `Gene_SelfDestructProtocols` deltas.
 - `PawnUtility_GetPosture_Patch`: the `forceStandingPawn` half is ported
-  (`PrintedBodyPosture_Patch.cs`), but the fork also made the original's `isPawnRendering` `[ThreadStatic]`,
-  which is what stops an android on a charging stand flickering between standing and lying. Fixing that
-  means unpatching and restating the original's prefix.
+  (`PrintedBodyPosture_Patch.cs`). The stand half is `StandPosture_Patches.cs`: its own `[ThreadStatic]` render
+  flag, set around both `RenderPawnAt` and `ParallelPreRenderPawnAt` (the pose is resolved in the latter, so a
+  resting android on a stand came out inverted), answering ahead of the original's prefix. **Untested in game.**
 
 ### 6. Deferred by design
 - **Uncanny valley** — parked pending the user's redesign.
