@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+
+	<!-- Body coverings - furskin, scaleskin and the like - are filed under "Miscellaneous" by their mods,
+	     which the original's convertible-genes list does not cover (it takes the cosmetic categories), so
+	     they were never offered as components, unlike insectskin which is already cosmetic. They are filed
+	     with the other cosmetics instead. -->
+	<Operation Class="PatchOperationReplace">
+		<xpath>Defs/GeneDef[fur and displayCategory="Miscellaneous"]/displayCategory</xpath>
+		<value>
+			<displayCategory>Cosmetic</displayCategory>
+		</value>
+	</Operation>
+
+</Patch>

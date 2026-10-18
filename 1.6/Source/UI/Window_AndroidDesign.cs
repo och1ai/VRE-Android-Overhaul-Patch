@@ -116,13 +116,6 @@ namespace VREAndroidsOverhaul
         // seeded to the closest match on the first preview so one of each is always present.
         private GeneDef chosenSkinGene;
         private GeneDef chosenHairGene;
-        // Furskin is a plain Biotech cosmetic gene rather than an android component, so it is tracked
-        // here like the colour picks and re-added explicitly on accept - the component capture below
-        // only keeps android genes and body-type genes, and would otherwise drop it.
-        private GeneDef chosenFurGene;
-
-        // Resolved by name so nothing breaks if the gene is ever absent.
-        private static GeneDef FurGene => DefDatabase<GeneDef>.GetNamedSilentFail("Furskin");
         private GeneDef chosenBodyGene;
 
         // Preserved across type changes so re-picking the type doesn't wipe the chosen identity.
@@ -192,7 +185,7 @@ namespace VREAndroidsOverhaul
         private static bool IsAppearanceGene(GeneDef def)
         {
             return def != null && (def.bodyType != null || ForkCompat.IsSkinColorGene(def)
-                || ForkCompat.IsHairColorGene(def) || def == FurGene);
+                || ForkCompat.IsHairColorGene(def));
         }
 
         private List<GeneDef> CurrentAppearanceGenes()
@@ -265,7 +258,7 @@ namespace VREAndroidsOverhaul
             SeedAppearancePicks();
         }
 
-        // Establishes one concrete body / skin-colour / hair-colour gene and the fur flag on whatever
+        // Establishes one concrete body / skin-colour / hair-colour gene on whatever
         // body the window is showing, seeding each from the body's current look the first time and
         // preserving the player's picks afterwards.
         private void SeedAppearancePicks()
@@ -295,12 +288,6 @@ namespace VREAndroidsOverhaul
                 chosenHairGene = ClosestColorGene(Utils.HairColorAndroidGenes, g => g.hairColorOverride.Value, android.story.HairColor);
             }
             if (chosenHairGene != null) android.story.HairColor = chosenHairGene.hairColorOverride.Value;
-            // Seed the fur toggle from the body itself, so reopening the designer on an android that
-            // already has fur shows it ticked instead of silently clearing it on the next accept.
-            if (FurGene != null && android.genes.GetGene(FurGene) != null)
-            {
-                chosenFurGene = FurGene;
-            }
             // Seed only a first name from the generated body the first time (no nickname / last name),
             // then keep the player's edits.
             if (firstName.NullOrEmpty() && nickName.NullOrEmpty() && lastName.NullOrEmpty())
@@ -440,13 +427,7 @@ namespace VREAndroidsOverhaul
             VREA_UIHelper.Cycler(ref pos, "Gender".Translate(), new List<Gender> { Gender.Male, Gender.Female },
                 android.gender, g => g.GetLabel().CapitalizeFirst(), g =>
                 {
-                    android.gender = g;
-                    // Standard heads are gender-specific, so drop to a valid one for the new gender.
-                    var heads = StandardHeads();
-                    if (heads.Any() && !heads.Contains(android.story.headType))
-                    {
-                        android.story.headType = heads.First();
-                    }
+                    SetGender(g);
                     Refresh();
                 });
 
@@ -471,22 +452,6 @@ namespace VREAndroidsOverhaul
             {
                 VREA_UIHelper.Cycler(ref pos, "VREA.BodyShape".Translate(), bodyGenes, chosenBodyGene ?? CurrentBodyGene(),
                     g => g.bodyType.Value.ToString(), ApplyBodyGene);
-            }
-
-            // Fur: a synthetic pelt over the chassis. It renders in the HAIR colour (the gene carries
-            // skinIsHairColor), so the hair swatches below drive the fur's colour, and the gene's own
-            // exclusion tags hide the hair and beard styles while it is on.
-            GeneDef fur = FurGene;
-            if (fur != null)
-            {
-                VREA_UIHelper.LabelRow(ref pos, fur.LabelCap, out Rect furRect, 24f);
-                bool hasFur = chosenFurGene != null;
-                bool wantsFur = hasFur;
-                Widgets.Checkbox(furRect.x, furRect.y + 3f, ref wantsFur);
-                if (wantsFur != hasFur)
-                {
-                    ApplyFurGene(wantsFur ? fur : null);
-                }
             }
 
             // Skin colour: swatches come from every android skin-colour gene (melanin tones + tints). The
@@ -652,8 +617,20 @@ namespace VREAndroidsOverhaul
             Find.WindowStack.Add(window);
         }
 
+        // Standard heads are gender-specific, so drop to a valid one for the new gender.
+        private void SetGender(Gender g)
+        {
+            android.gender = g;
+            var heads = StandardHeads();
+            if (heads.Any() && !heads.Contains(android.story.headType))
+            {
+                android.story.headType = heads.First();
+            }
+        }
+
         private void RandomizeLook()
         {
+            SetGender(Rand.Bool ? Gender.Male : Gender.Female);
             // Random uses only the standard face set (below); the selector still offers every head.
             var heads = StandardHeads();
             var bodies = PermittedBodyTypes();
@@ -661,6 +638,14 @@ namespace VREAndroidsOverhaul
             if (heads.Any()) android.story.headType = heads.RandomElement();
             if (BodyTypeGenes().Any()) ApplyBodyGene(BodyTypeGenes().RandomElement());
             if (hairs.Any()) android.story.hairDef = hairs.RandomElement();
+            var beards = PermittedBeards();
+            if (android.style != null && beards.Any())
+            {
+                // Only men are given a beard; anyone else stays clean-shaven.
+                android.style.beardDef = android.gender == Gender.Male
+                    ? beards.RandomElement()
+                    : beards.FirstOrDefault(b => b == BeardDefOf.NoBeard) ?? android.style.beardDef;
+            }
             if (Utils.HairColorAndroidGenes.Any())
             {
                 chosenHairGene = Utils.HairColorAndroidGenes.RandomElement();
@@ -727,7 +712,6 @@ namespace VREAndroidsOverhaul
                 .Select(g => g.def).ToList();
             if (chosenSkinGene != null) geneDefs.Add(chosenSkinGene);
             if (chosenHairGene != null) geneDefs.Add(chosenHairGene);
-            if (chosenFurGene != null) geneDefs.Add(chosenFurGene);
             customXenotype.genes.AddRange(geneDefs.Distinct());
 
             var design = new AndroidPersonaData();
@@ -768,7 +752,7 @@ namespace VREAndroidsOverhaul
             // the component editor or SetType) - it never sees a swatch or cycler pick, because those are
             // applied live to the pawn instead. FinishAndroidProject strips every android gene and re-adds
             // only what ends up in curAndroidProject.genes, so without this the station would silently
-            // revert hair/skin colour, body shape and fur to whatever they were when the window opened
+            // revert hair/skin colour, and body shape to whatever they were when the window opened
             // (visible as "changing hair colour doesn't work" - it applies to the live preview, then the
             // finished job undoes it). Rebuild the gene list the same way build-mode's Confirm() does:
             // drop whatever stale appearance gene currentGenes is carrying and add back what the player
@@ -778,7 +762,6 @@ namespace VREAndroidsOverhaul
             if (liveBodyGene != null) geneDefs.Add(liveBodyGene);
             if (chosenSkinGene != null) geneDefs.Add(chosenSkinGene);
             if (chosenHairGene != null) geneDefs.Add(chosenHairGene);
-            if (chosenFurGene != null) geneDefs.Add(chosenFurGene);
             currentGenes = geneDefs.Distinct().ToList();
             customXenotype.genes.AddRange(currentGenes);
             behaviorStation.curAndroidProject = customXenotype;
@@ -870,12 +853,38 @@ namespace VREAndroidsOverhaul
         // only those. Ghoul/skull/stump heads are genderless (gender == None), so requiring an exact gender
         // match already drops them; the extra Ghoul guard also removes "Ghoul Narrow", whose name would
         // otherwise slip through the Narrow check.
-        private List<HeadTypeDef> StandardHeads() => DefDatabase<HeadTypeDef>.AllDefs
-            .Where(h => (h.modContentPack?.IsOfficialMod ?? false)
-                && h.gender == android.gender
-                && h.requiredGenes.NullOrEmpty()
-                && (h.defName.Contains("Average") || h.defName.Contains("Narrow"))
-                && !h.defName.Contains("Ghoul") && !h.defName.Contains("Skull") && !h.defName.Contains("Stump")).ToList();
+        private List<HeadTypeDef> StandardHeads()
+        {
+            // A gene that forces head types (synthetic skin's own faces, for one) narrows the choice to those
+            // faces; without this the standard-face rule below would put a plain human head back on every
+            // refresh, and the android would keep a normal pawn's face under its synthetic skin.
+            List<GeneDef> active = android.genes?.GenesListForReading.Where(g => g.Active).Select(g => g.def).ToList()
+                ?? new List<GeneDef>();
+            List<HeadTypeDef> forced = null;
+            foreach (GeneDef gene in active)
+            {
+                if (gene.forcedHeadTypes.NullOrEmpty())
+                {
+                    continue;
+                }
+                forced = forced == null ? gene.forcedHeadTypes.ToList() : forced.Intersect(gene.forcedHeadTypes).ToList();
+            }
+            if (forced != null)
+            {
+                List<HeadTypeDef> fitting = forced.Where(h => h.gender == android.gender
+                    && (h.requiredGenes.NullOrEmpty() || h.requiredGenes.All(active.Contains))).ToList();
+                if (fitting.Any())
+                {
+                    return fitting;
+                }
+            }
+            return DefDatabase<HeadTypeDef>.AllDefs
+                .Where(h => (h.modContentPack?.IsOfficialMod ?? false)
+                    && h.gender == android.gender
+                    && h.requiredGenes.NullOrEmpty()
+                    && (h.defName.Contains("Average") || h.defName.Contains("Narrow"))
+                    && !h.defName.Contains("Ghoul") && !h.defName.Contains("Skull") && !h.defName.Contains("Stump")).ToList();
+        }
 
         private List<BodyTypeDef> PermittedBodyTypes()
         {
@@ -921,38 +930,6 @@ namespace VREAndroidsOverhaul
                 if (android.genes.GetGene(bodyGene) == null)
                 {
                     android.genes.AddGene(bodyGene, false);
-                }
-            }
-            finally
-            {
-                ForkCompat.suppressAndroidNotifications = false;
-            }
-            Refresh();
-        }
-
-        // Adds or removes the fur gene on the live preview, mirroring ApplyBodyGene's notification muting.
-        private void ApplyFurGene(GeneDef furGene)
-        {
-            chosenFurGene = furGene;
-            GeneDef fur = FurGene;
-            if (fur == null)
-            {
-                return;
-            }
-            try
-            {
-                ForkCompat.suppressAndroidNotifications = true;
-                Gene existing = android.genes.GetGene(fur);
-                if (furGene == null)
-                {
-                    if (existing != null)
-                    {
-                        android.genes.RemoveGene(existing);
-                    }
-                }
-                else if (existing == null)
-                {
-                    android.genes.AddGene(fur, false);
                 }
             }
             finally
