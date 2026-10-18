@@ -24,7 +24,7 @@
 	<!-- "Psychically dull" is NOT a new gene: the original's VREA_PsychicallyDeaf is retuned in place by
 	     Patches/PsychicSensitivity.xml, so there is only ever one psychic-sensitivity gene in the editor. -->
 
-	<!-- Delicate frame: fragile counterpart of War Frame. Fully functional from the stat factor. -->
+	<!-- Delicate frame: fragile counterpart of Heavy duty. Fully functional from the stat factor. -->
 	<VREAndroids.AndroidGeneDef ParentName="VREA_HardwareBase">
 		<defName>VREA_Delicate</defName>
 		<label>delicate frame</label>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+	<!-- Long jump: Biotech's longjump legs ability, but on a plain cooldown instead of hemogen (androids have none).
+	     Parents off the original's abstract subroutine base so it registers as an android component automatically. -->
+
+	<AbilityDef ParentName="LongJump">
+		<defName>VREA_LongJump</defName>
+		<label>long jump</label>
+		<description>Jump to a distant location in a single ballistic bound. Needs a short recharge between jumps.</description>
+		<iconPath>UI/Abilities/VREA_LongJump</iconPath>
+		<cooldownTicksRange>2500</cooldownTicksRange>
+		<comps Inherit="False" />
+	</AbilityDef>
+
+	<VREAndroids.AndroidGeneDef ParentName="VREA_SubroutineBase">
+		<defName>VREA_LongJumpLegs</defName>
+		<label>long jump</label>
+		<description>Gait and impact-absorption routines borrowed from acrobatics rigs, tuned for sudden ballistic leaps. This android can clear great distances in one bound, then needs a short recharge before the next.</description>
+		<iconPath>UI/Icons/Genes/Subroutines/Gene_LongJump</iconPath>
+		<displayOrderInCategory>28</displayOrderInCategory>
+		<biostatCpx>2</biostatCpx>
+		<biostatMet>-2</biostatMet>
+		<abilities>
+			<li>VREA_LongJump</li>
+		</abilities>
+		<descriptionHyperlinks>
+			<AbilityDef>VREA_LongJump</AbilityDef>
+		</descriptionHyperlinks>
+	</VREAndroids.AndroidGeneDef>
+
+</Defs>

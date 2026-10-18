@@ -7,12 +7,12 @@
 	     functional android components with no C# on our side. Effects are entirely stat-based, and every
 	     icon is vanilla or Biotech, so nothing from the original mod is copied or redistributed. -->
 
-	<!-- War Frame: heavy military chassis - less incoming damage AND never staggered (folds in unstoppable). -->
+	<!-- Heavy duty: heavy military chassis - less incoming damage AND never staggered (folds in unstoppable). -->
 	<VREAndroids.AndroidGeneDef ParentName="VREA_HardwareBase">
 		<defName>VREA_ToughSubroutine</defName>
-		<label>War Frame</label>
-		<description>A full military chassis: thick structural plating and hardened servos both soak up punishment and shrug off the shock of incoming hits. The android takes significantly less damage from all attacks and is never staggered or slowed when hit. All that armour draws a lot more power to move.</description>
-		<iconPath>UI/Icons/Genes/Gene_Deathless</iconPath>
+		<label>heavy duty</label>
+		<description>A reinforced chassis made for frontline combat. This android takes much less damage and is never staggered by hits, but draws more power.</description>
+		<iconPath>UI/Icons/Genes/Hardware/Gene_HeavyDuty</iconPath>
 		<displayOrderInCategory>40</displayOrderInCategory>
 		<biostatCpx>3</biostatCpx>
 		<biostatMet>-6</biostatMet>
@@ -26,12 +26,12 @@
 		</exclusionTags>
 	</VREAndroids.AndroidGeneDef>
 
-	<!-- Enhanced targeting: stronger melee, better shooting, faster cooldowns. -->
+	<!-- Hunter seeker: stronger melee, better shooting, faster cooldowns. -->
 	<VREAndroids.AndroidGeneDef ParentName="VREA_SubroutineBase">
 		<defName>VREA_StrongMelee</defName>
-		<label>enhanced targeting</label>
-		<description>A full combat package: reinforced high-torque actuators drive the limbs while a dedicated targeting suite runs the optics. The android deals significantly more damage in melee, shoots far more accurately, and cycles ranged weapons noticeably faster.</description>
-		<iconPath>UI/Commands/Attack</iconPath>
+		<label>hunter seeker</label>
+		<description>Neuro-memetic combat algorithms lifted from assault androids, outlawed by some coreworld governments. This android deals more damage in melee and ranged combat.</description>
+		<iconPath>UI/Designators/Slaughter</iconPath>
 		<displayOrderInCategory>27</displayOrderInCategory>
 		<biostatCpx>2</biostatCpx>
 		<biostatMet>-6</biostatMet>
@@ -70,7 +70,7 @@
 	     Gene_DelayedDeactivation + the ShouldBeDowned / ShouldBeDead patches. -->
 	<VREAndroids.AndroidGeneDef ParentName="VREA_SubroutineBase">
 		<defName>VREA_DelayedDeactivation</defName>
-		<label>death delay</label>
+		<label>time until shutdown</label>
 		<description>A hardened backup capacitor keeps this android fighting through catastrophic damage. When a critical failure that would normally drop it happens anywhere but the head, it stays operational for 2 hours on reserve power before finally shutting down. Destroying the head still shuts it down instantly.</description>
 		<geneClass>VREAndroidsOverhaul.Gene_DelayedDeactivation</geneClass>
 		<iconPath>UI/Icons/Genes/Gene_Ageless</iconPath>
