@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+
+	<!-- The android stand ran on the original's rain short-circuit, vanilla's rule for powered buildings in
+	     the open: in rain it can arc and set itself alight. A stand has to sit where androids walk, which is
+	     often outdoors, so it no longer does. (The android's own rain-vulnerability gene is separate and
+	     unchanged.) -->
+	<Operation Class="PatchOperationReplace">
+		<xpath>Defs/ThingDef[defName="VREA_AndroidStand"]/comps/li[@Class="CompProperties_Power"]/shortCircuitInRain</xpath>
+		<value>
+			<shortCircuitInRain>false</shortCircuitInRain>
+		</value>
+	</Operation>
+
+</Patch>
