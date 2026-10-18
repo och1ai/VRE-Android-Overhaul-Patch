@@ -66,9 +66,10 @@ namespace VREAndroidsOverhaul
                     xenotypeNameLocked = true;
                     selectedGenes.Clear();
                     selectedGenes = Utils.AndroidGenesGenesInOrder
-                        .Where(x => x.CanBeRemovedFromAndroid() is false && x.IsBloodGene() is false).ToList();
+                        .Where(x => x.CanBeRemovedFromAndroid() is false && x.IsBloodGene() is false && x.IsPowerGene() is false).ToList();
                     selectedGenes.AddRange(xenotype.genes);
                     selectedGenes = selectedGenes.Distinct().ToList();
+                    KeepOnePerChoice(ref selectedGenes);
                     iconDef = xenotype.IconDef;
                     OnGenesChanged();
                 }));

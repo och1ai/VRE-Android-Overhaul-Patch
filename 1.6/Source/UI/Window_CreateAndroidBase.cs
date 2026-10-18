@@ -116,6 +116,17 @@ namespace VREAndroidsOverhaul
             OnGenesChanged();
         }
 
+        // Power source and blood type are choices, not additions: after a saved androidtype is loaded keep
+        // only the first of each kind (the loaded type's own pick) and fall back to the stock default.
+        protected static void KeepOnePerChoice(ref List<GeneDef> genes)
+        {
+            GeneDef power = genes.FirstOrDefault(g => g.IsPowerGene()) ?? OverhaulDefOf.ReactorPowered;
+            GeneDef blood = genes.FirstOrDefault(g => g.IsBloodGene()) ?? OverhaulDefOf.NeutroCirculation;
+            genes = genes.Where(g => !g.IsPowerGene() && !g.IsBloodGene()).ToList();
+            genes.Add(power);
+            genes.Add(blood);
+        }
+
         // Skin colour, hair colour and body shape are chosen ONLY in the android designer, never as picked
         // components, so those genes never show up in the androidtype (component) editor.
         public virtual bool GeneValidator(GeneDef x) =>

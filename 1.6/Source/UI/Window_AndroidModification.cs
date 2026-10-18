@@ -128,12 +128,17 @@ namespace VREAndroidsOverhaul
                     selectedGenes.Clear();
                     var currentBlood = android.genes.GenesListForReading.Select(g => g.def).FirstOrDefault(d => d.IsBloodGene());
                     selectedGenes = Utils.AndroidGenesGenesInOrder
-                        .Where(x => x.CanBeRemovedFromAndroid() is false && x.IsBloodGene() is false).ToList();
+                        .Where(x => x.CanBeRemovedFromAndroid() is false && x.IsBloodGene() is false && x.IsPowerGene() is false).ToList();
                     if (currentBlood != null)
                     {
                         selectedGenes.Add(currentBlood);
                     }
-                    selectedGenes.AddRange(xenotype.genes.Where(g => g.IsBloodGene() is false));
+                    var currentPower = android.genes.GenesListForReading.Select(g => g.def).FirstOrDefault(d => d.IsPowerGene());
+                    if (currentPower != null)
+                    {
+                        selectedGenes.Add(currentPower);
+                    }
+                    selectedGenes.AddRange(xenotype.genes.Where(g => g.IsBloodGene() is false && g.IsPowerGene() is false));
                     selectedGenes = selectedGenes.Distinct().ToList();
                     iconDef = xenotype.IconDef;
                     OnGenesChanged();

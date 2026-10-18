@@ -74,6 +74,7 @@ namespace VREAndroidsOverhaul
                     selectedGenes.Clear();
                     selectedGenes.AddRange(xenotype.genes);
                     selectedGenes = selectedGenes.Distinct().ToList();
+                    KeepOnePerChoice(ref selectedGenes);
                     iconDef = xenotype.IconDef;
                     OnGenesChanged();
                 }));
@@ -94,6 +95,7 @@ namespace VREAndroidsOverhaul
                         selectedGenes.Clear();
                         selectedGenes.AddRange(xenotype2.genes);
                         selectedGenes = selectedGenes.Distinct().ToList();
+                        KeepOnePerChoice(ref selectedGenes);
                         OnGenesChanged();
                     }, xenotype2.Icon, XenotypeDef.IconColor, MenuOptionPriority.Default, delegate (Rect r)
                     {
