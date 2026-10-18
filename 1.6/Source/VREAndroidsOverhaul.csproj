@@ -22,10 +22,10 @@
   <PropertyGroup>
     <RimWorldManaged>/home/ochiai/.local/share/Steam/steamapps/common/RimWorld/RimWorldLinux_Data/Managed</RimWorldManaged>
     <VEFAssembly>/home/ochiai/.local/share/Steam/steamapps/workshop/content/294100/2023507013/1.6/Assemblies/VEF.dll</VEFAssembly>
-    <HarmonyAssembly>/home/ochiai/.local/share/Steam/steamapps/workshop/content/294100/2009463077/Current/Assemblies/0Harmony.dll</HarmonyAssembly>
+    <HarmonyAssembly>/home/ochiai/.local/share/Steam/steamapps/workshop/content/294100/2009463077/1.6/Assemblies/0Harmony.dll</HarmonyAssembly>
     <!-- The ORIGINAL mod's assembly (the local base copy). Referencing it lets us use its PUBLIC types
          (AndroidGeneDef, Building_*, comps, Utils) without copying any of its source. -->
-    <OriginalAssembly>/home/ochiai/.local/share/Steam/steamapps/common/RimWorld/Mods/VanillaRacesExpanded-Android/1.6/Assemblies/VREAndroids.dll</OriginalAssembly>
+    <OriginalAssembly>/home/ochiai/.local/share/Steam/steamapps/workshop/content/294100/2975771801/1.6/Assemblies/VREAndroids.dll</OriginalAssembly>
   </PropertyGroup>
 
   <ItemGroup>
