@@ -253,7 +253,8 @@ namespace VREAndroidsOverhaul
     {
         public static void Postfix(Pawn __instance, ref bool __result)
         {
-            if (__result || MechOversightUtil.SuppressColonyMech || !MechOversightUtil.IsOversightAndroid(__instance))
+            if (__result || MechOversightUtil.SuppressColonyMech || !MechOversightUtil.IsOversightAndroid(__instance)
+                || GravshipCrewUtil.IsCrew(__instance))
             {
                 return;
             }

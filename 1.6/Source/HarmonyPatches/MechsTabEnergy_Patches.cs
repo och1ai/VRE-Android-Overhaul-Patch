@@ -60,7 +60,7 @@ namespace VREAndroidsOverhaul
     }
 
     // A name column entry for something that is not humanlike or an animal is "Name, kind", which for an
-    // android reads "Zakhar, Colonist". It is a person, so it gets the plain name.
+    // android reads "Zakhar, Colonist". The android's own title, the one its bio shows, is "colony android".
     [HarmonyPatch(typeof(PawnColumnWorker_Label), "GetLabel")]
     public static class PawnColumnWorker_Label_GetLabel_Patch
     {
@@ -68,7 +68,10 @@ namespace VREAndroidsOverhaul
         {
             if (MechOversightUtil.IsOversightAndroid(pawn) && pawn.Name != null && !pawn.Name.Numerical)
             {
-                __result = pawn.Name.ToStringShort.CapitalizeFirst();
+                string title = pawn.story?.TitleCap;
+                __result = title.NullOrEmpty()
+                    ? pawn.Name.ToStringShort.CapitalizeFirst()
+                    : pawn.Name.ToStringShort.CapitalizeFirst() + ", " + title.Colorize(ColoredText.SubtleGrayColor);
             }
         }
     }

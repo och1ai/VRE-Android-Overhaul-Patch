@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.7
+
+* A mechanized android can be the copilot of a gravship launch, and a failing launch no longer leaves the dialog throwing errors.
+* The Mechs tab shows the android title, colony android, next to its name.
+
 ## 0.1.6
 
 * Mechanized androids are left off the colonist bar at the top of the screen.
