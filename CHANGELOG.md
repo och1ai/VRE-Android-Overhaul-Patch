@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.8
+
+* Fixed an error when selecting a mechanized android that came from the new auto repair gizmo.
+
 ## 0.1.7
 
 * A mechanized android can be the copilot of a gravship launch, and a failing launch no longer leaves the dialog throwing errors.

@@ -48,9 +48,13 @@ namespace VREAndroidsOverhaul
         // card the way a mech can. It is the same flag the health tab and the mechs tab checkbox use.
         public override IEnumerable<Gizmo> GetGizmos()
         {
-            foreach (Gizmo g in base.GetGizmos())
+            IEnumerable<Gizmo> inherited = base.GetGizmos();
+            if (inherited != null)
             {
-                yield return g;
+                foreach (Gizmo g in inherited)
+                {
+                    yield return g;
+                }
             }
             Gene_SyntheticBody body = pawn.genes?.GetFirstGeneOfType<Gene_SyntheticBody>();
             if (body == null || pawn.Faction != Faction.OfPlayer)
